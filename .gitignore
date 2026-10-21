@@ -11,7 +11,8 @@ dist-ssr
 # Secrets: never commit these
 .env
 .env.*
-!.env.example
+.env.example
+.env.local
 supabase/.temp
 supabase/.branches
 
@@ -21,3 +22,5 @@ supabase/.branches
 .idea
 .DS_Store
 *.sw?
+
+docs/flatastic/screenshots
