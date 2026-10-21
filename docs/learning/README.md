@@ -56,7 +56,7 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 |---|---|---|---|
 | 09 | [Dates, time zones, and automated tests](09-dates-timezones-and-tests.md) | ✅ | |
 | 10 | [React screens, state, and a prototype on fake data](10-react-screens-and-state.md) | ✅ | |
-| 11 | [Progressive Web App: an app icon on the iPhone](11-pwa-install-on-iphone.md) | ⏳ iPhone check for you | |
+| 11 | [Progressive Web App: an app icon on the iPhone](11-pwa-install-on-iphone.md) | ✅ | |
 
 ## Final exam for Phase 0: the reproducibility test
 

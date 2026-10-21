@@ -85,7 +85,7 @@ The last line: with the network switched off, the app still starts, served by th
 ## 6. How we know it's right
 
 - **WebKit says so:** service worker active with scope `/wehrgasse/`, manifest 200, icon 200, offline start works.
-- **The real test is your iPhone** (⏳ for you, after deploy):
+- **The real test is your iPhone.** Peer ran this checklist on 21.10.2026 after the deploy (GitHub Actions run: success, 1m56s): everything worked.
   1. Open the GitHub Pages URL in **Safari** (not Chrome).
   2. Teilen (□↑, maybe under "⋯") → "Zum Home-Bildschirm" → name should say **WG** → "Hinzufügen".
   3. Check: green house icon on the Home Screen.

@@ -11,13 +11,13 @@ Launch target: **Monday 2026-10-26** (first chore week). Rule: ship the core, ev
 
 ## Phase 1 — Clickable prototype on mock data (Thu 22.10.)
 Goal: real screens, fake data, so the hallway test happens on the actual UI.
-Screens checked in WebKit (iPhone 15 size, light + dark); final check on a real iPhone together with the PWA item.
+Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as Home Screen app (21.10.).
 - [x] `MyWeek`: my chore this week (big), overdue items on top (red, "überfällig seit X Tagen"), "erledigt" button → confirmation sheet → celebration
 - [x] `Overview`: all 4 chores this week, who, status (offen / erledigt + day)
 - [x] `Login`: 4 name tiles + password field
 - [x] `Settings`: notifications toggle, install hint, logout
 - [x] Bottom tab bar: "Meine Woche" / "WG" / "Einstellungen"
-- [ ] PWA manifest + icons, installable on iPhone — built and checked in WebKit; ⏳ Peer checks on the real iPhone after deploy (checklist in [11. PWA](docs/learning/11-pwa-install-on-iphone.md#6-how-we-know-its-right))
+- [x] PWA manifest + icons, installable on iPhone — checked on Peer's iPhone after deploy (21.10.)
 - [x] `week.ts` with Vitest tests: week start in Europe/Vienna, cycle_week, DST weeks (29.03.2027, 25.10.2026 edge), matches the table in CLAUDE.md for 8 weeks
 
 ## Phase 2 — Hallway test (Fri 23.10.)
