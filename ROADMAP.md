@@ -3,10 +3,11 @@
 Launch target: **Monday 2026-10-26** (first chore week). Rule: ship the core, everything else later.
 
 ## Phase 0 — Setup (Wed 21.10.)
-- [ ] Repo created, Vite + React + TS scaffold, deployed to GitHub Pages via Actions (blank page reachable)
-- [ ] Supabase project created (region EU), CLI linked
-- [ ] Flatastic reference screenshots in `docs/flatastic/` (chore list, done tap, overdue display, notification)
-- [ ] VAPID key pair generated, stored as secrets
+- [x] Repo created, Vite + React + TS scaffold, deployed to GitHub Pages via Actions (blank page reachable)
+- [x] Supabase project created (region EU), CLI linked
+- [ ] Flatastic reference screenshots in `docs/flatastic/` (chore list, done tap, overdue display, notification) — chore list + done tap ✅; overdue (after Sun 25.10.) and lock-screen notification still missing
+- [x] VAPID key pair generated, stored as secrets
+- [x] Learning log `docs/learning/` + ADRs `docs/decisions/` for Phase 0
 
 ## Phase 1 — Clickable prototype on mock data (Thu 22.10.)
 Goal: real screens, fake data, so the hallway test happens on the actual UI.
@@ -65,3 +66,8 @@ Measured from data, not opinion:
 
 ## Ideas (not scheduled)
 (Claude Code: put suggestions here instead of building them)
+- **Baseline for success metrics:** count chore-related messages in the flat chat for the 4 weeks *before* launch now, otherwise the week-4 comparison has no "before".
+- **Hallway question:** should others be able to mark a chore done *for* the owner (Flatastic allows "für Carla abhaken")? Case: chore done, owner forgot to tap.
+- **MyWeek:** show days left this week ("noch 4 Tage"), borrowed from Flatastic's countdown.
+- **CI hardening:** run `npm run lint` + `npm run test` before deploy; `curl` smoke test of the live URL after deploy. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
+- **Maintenance:** update GitHub Actions to versions running on Node 24 (deprecation warning in the first run); pin Node version (`.nvmrc`); enable Dependabot + GitHub secret scanning / push protection. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
