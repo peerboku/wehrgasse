@@ -1,0 +1,42 @@
+.tabBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  height: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
+  /* keep the buttons above the iPhone home indicator */
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.icon {
+  font-size: 22px;
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.active .icon {
+  filter: none;
+  opacity: 1;
+}

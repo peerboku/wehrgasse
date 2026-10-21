@@ -5,19 +5,20 @@ Launch target: **Monday 2026-10-26** (first chore week). Rule: ship the core, ev
 ## Phase 0 — Setup (Wed 21.10.)
 - [x] Repo created, Vite + React + TS scaffold, deployed to GitHub Pages via Actions (blank page reachable)
 - [x] Supabase project created (region EU), CLI linked
-- [ ] Flatastic reference screenshots in `docs/flatastic/` (chore list, done tap, overdue display, notification) — chore list + done tap ✅; overdue (after Sun 25.10.) and lock-screen notification still missing
+- [x] Flatastic reference screenshots in `docs/flatastic/` (chore list, done tap, overdue display, push setup) — lock-screen notification moved to Phase 4 (needs a second person)
 - [x] VAPID key pair generated, stored as secrets
 - [x] Learning log `docs/learning/` + ADRs `docs/decisions/` for Phase 0
 
 ## Phase 1 — Clickable prototype on mock data (Thu 22.10.)
 Goal: real screens, fake data, so the hallway test happens on the actual UI.
-- [ ] `MyWeek`: my chore this week (big), overdue items on top (red, "überfällig seit X Tagen"), "erledigt" button → confirmation sheet → celebration
-- [ ] `Overview`: all 4 chores this week, who, status (offen / erledigt + day)
-- [ ] `Login`: 4 name tiles + password field
-- [ ] `Settings`: notifications toggle, install hint, logout
-- [ ] Bottom tab bar: "Meine Woche" / "WG" / "Einstellungen"
-- [ ] PWA manifest + icons, installable on iPhone
-- [ ] `week.ts` with Vitest tests: week start in Europe/Vienna, cycle_week, DST weeks (29.03.2027, 25.10.2026 edge), matches the table in CLAUDE.md for 8 weeks
+Screens checked in WebKit (iPhone 15 size, light + dark); final check on a real iPhone together with the PWA item.
+- [x] `MyWeek`: my chore this week (big), overdue items on top (red, "überfällig seit X Tagen"), "erledigt" button → confirmation sheet → celebration
+- [x] `Overview`: all 4 chores this week, who, status (offen / erledigt + day)
+- [x] `Login`: 4 name tiles + password field
+- [x] `Settings`: notifications toggle, install hint, logout
+- [x] Bottom tab bar: "Meine Woche" / "WG" / "Einstellungen"
+- [ ] PWA manifest + icons, installable on iPhone — built and checked in WebKit; ⏳ Peer checks on the real iPhone after deploy (checklist in [11. PWA](docs/learning/11-pwa-install-on-iphone.md#6-how-we-know-its-right))
+- [x] `week.ts` with Vitest tests: week start in Europe/Vienna, cycle_week, DST weeks (29.03.2027, 25.10.2026 edge), matches the table in CLAUDE.md for 8 weeks
 
 ## Phase 2 — Hallway test (Fri 23.10.)
 - [ ] Run `docs/hallway-test.md` with Carla, Noa, Manu (5 min each, on their own iPhone)
@@ -36,6 +37,7 @@ Goal: real screens, fake data, so the hallway test happens on the actual UI.
 - [ ] Database Webhook → `notify-done` Edge Function; logs `push_sent`/`push_failed`
 - [ ] All 4 iPhones: app on Home Screen, logged in, notifications on
 - [ ] **Push test matrix:** each member marks a test chore done → the other 3 receive it (12/12 deliveries). Then reset test data.
+- [ ] Lock-screen screenshot of our own notification → add to [08. UX reference](docs/learning/08-ux-reference.md) (left over from Phase 0)
 
 ## Launch — Mon 26.10.
 - [ ] Short message in the flat chat: link + "add to Home Screen" steps
@@ -68,6 +70,8 @@ Measured from data, not opinion:
 (Claude Code: put suggestions here instead of building them)
 - **Baseline for success metrics:** count chore-related messages in the flat chat for the 4 weeks *before* launch now, otherwise the week-4 comparison has no "before".
 - **Hallway question:** should others be able to mark a chore done *for* the owner (Flatastic allows "für Carla abhaken")? Case: chore done, owner forgot to tap.
+- **Erinnern-Button** (from Flatastic IMG_2053): others can nudge the owner of an overdue chore. Would be a second push type; decide after the week-4 review.
+- **Push status checklist in Settings** (from Flatastic IMG_2050/2051): permission ✓ / subscribed ✓ / saved on server ✓, plus "Test senden". Helps debug the Phase 4 matrix.
 - **MyWeek:** show days left this week ("noch 4 Tage"), borrowed from Flatastic's countdown.
 - **CI hardening:** run `npm run lint` + `npm run test` before deploy; `curl` smoke test of the live URL after deploy. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
 - **Maintenance:** update GitHub Actions to versions running on Node 24 (deprecation warning in the first run); pin Node version (`.nvmrc`); enable Dependabot + GitHub secret scanning / push protection. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))

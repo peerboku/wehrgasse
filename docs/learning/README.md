@@ -48,7 +48,15 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 | 05 | [Secrets and configuration](05-secrets-and-config.md) | ✅ (one fix for you inside) ||
 | 06 | [The backend: a Supabase project and its CLI](06-supabase-project.md) | ✅ ||
 | 07 | [Web Push and VAPID keys](07-web-push-keys.md) | ✅ ||
-| 08 | [UX research: learning from Flatastic](08-ux-reference.md) | ⏳ 2 screenshots missing ||
+| 08 | [UX research: learning from Flatastic](08-ux-reference.md) | ✅ (lock-screen push → Phase 4) ||
+
+### Phase 1 — Clickable prototype (Wed 21.10.2026)
+
+| # | Chapter | Status | Read |
+|---|---|---|---|
+| 09 | [Dates, time zones, and automated tests](09-dates-timezones-and-tests.md) | ✅ | |
+| 10 | [React screens, state, and a prototype on fake data](10-react-screens-and-state.md) | ✅ | |
+| 11 | [Progressive Web App: an app icon on the iPhone](11-pwa-install-on-iphone.md) | ⏳ iPhone check for you | |
 
 ## Final exam for Phase 0: the reproducibility test
 

@@ -1,5 +1,88 @@
 // All German UI text lives here, so wording can be changed in one place.
+import { addDays } from './week'
+
+const weekdaysShort = ['Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.', 'So.']
+const monthsShort = ['Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni', 'Juli', 'Aug.', 'Sep.', 'Okt.', 'Nov.', 'Dez.']
+
+function dayAndMonth(date: string) {
+  const [, month, day] = date.split('-').map(Number)
+  return { day, month: monthsShort[month - 1] }
+}
+
 export const strings = {
   appName: 'WG-App',
-  comingSoon: 'Hier entsteht gerade was. Bald weißt du, wer diese Woche dran ist. 🧽',
+
+  // weekdayIndex: 0 = Monday … 6 = Sunday
+  weekday: (weekdayIndex: number) => weekdaysShort[weekdayIndex],
+
+  // '2026-10-19' -> '19.–25. Okt.', across months: '26. Okt. – 1. Nov.'
+  weekRange: (weekStart: string) => {
+    const start = dayAndMonth(weekStart)
+    const end = dayAndMonth(addDays(weekStart, 6))
+    return start.month === end.month
+      ? `${start.day}.–${end.day}. ${end.month}`
+      : `${start.day}. ${start.month} – ${end.day}. ${end.month}`
+  },
+
+  overdueSince: (days: number) => (days === 1 ? 'überfällig seit gestern' : `überfällig seit ${days} Tagen`),
+
+  login: {
+    title: 'Wer bist du?',
+    subtitle: 'Tipp auf deinen Namen.',
+    passwordLabel: (name: string) => `Hi ${name}! Dein Passwort:`,
+    passwordPlaceholder: 'Passwort',
+    submit: "Los geht's",
+    switchPerson: 'Doch jemand anderes',
+    errorEmpty: 'Da fehlt noch dein Passwort.',
+  },
+
+  tabs: {
+    myWeek: 'Meine Woche',
+    overview: 'WG',
+    settings: 'Einstellungen',
+  },
+
+  myWeek: {
+    greeting: (name: string) => `Hi ${name}! 👋`,
+    yourChore: 'Diese Woche bist du dran mit',
+    overdueTitle: 'Noch offen von letzter Woche',
+    doneButton: 'Erledigt',
+    doneOn: (weekday: string) => `Erledigt am ${weekday} ✅`,
+    freeUntilMonday: 'Du hast frei bis Montag. 😎',
+  },
+
+  confirm: {
+    question: (chore: string) => `„${chore}“ erledigt?`,
+    hint: 'Alle anderen werden benachrichtigt.',
+    yes: 'Ja klar!',
+    cancel: 'Abbrechen',
+  },
+
+  cheers: ['Stark! 💪', 'Die WG dankt dir! ✨', 'Blitzblank! 🧽', 'Legende! 🏆', 'Sauber gemacht! 🫧'],
+
+  overview: {
+    title: 'Die WG diese Woche',
+    overdueTitle: 'Überfällig',
+    you: 'du',
+    open: 'offen',
+    doneOn: (weekday: string) => `erledigt ${weekday}`,
+  },
+
+  settings: {
+    title: 'Einstellungen',
+    loggedInAs: (name: string) => `Angemeldet als ${name}`,
+    notificationsTitle: 'Benachrichtigungen',
+    notificationsToggle: 'Benachrichtigungen aktivieren',
+    notificationsHint: 'Du bekommst eine Nachricht, wenn jemand seine Aufgabe erledigt hat.',
+    notificationsNeedInstall: 'Klappt nur, wenn die App auf deinem Home-Bildschirm liegt.',
+    prototypeNote: 'Test-Version: Noch werden keine echten Nachrichten verschickt.',
+    installTitle: 'App auf den Home-Bildschirm',
+    installSteps: [
+      'Öffne diese Seite in Safari.',
+      'Tippe auf Teilen (□↑), eventuell versteckt unter „⋯“.',
+      'Wähle „Zum Home-Bildschirm“ und tippe auf „Hinzufügen“.',
+      'Öffne die App ab jetzt über das neue Icon.',
+    ],
+    logout: 'Abmelden',
+  },
 }

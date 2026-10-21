@@ -1,24 +1,64 @@
+/* Design tokens: change colours and sizes here, everything else uses them. */
 :root {
   color-scheme: light dark;
-  --bg: #ffffff;
+  --bg: #f2f2f7;
+  --surface: #ffffff;
   --text: #1c1c1e;
-  font-family: system-ui, -apple-system, sans-serif;
+  --text-muted: #6e6e73;
+  --border: #e5e5ea;
+  --accent: #1f9d6b;
+  --accent-text: #ffffff;
+  --accent-soft: #e3f5ec;
+  --danger: #d93a3a;
+  --danger-soft: #fdecec;
+  --highlight: #fff8e1;
+
+  --radius: 16px;
+  --space: 16px;
+  --tabbar-height: 56px;
+
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #000000;
+    --surface: #1c1c1e;
     --text: #f2f2f7;
+    --text-muted: #98989f;
+    --border: #38383a;
+    --accent: #30c48d;
+    --accent-text: #00281a;
+    --accent-soft: #10301f;
+    --danger: #ff6b6b;
+    --danger-soft: #3a1414;
+    --highlight: #2c2614;
   }
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  /* no grey flash when tapping on iPhone */
+  -webkit-tap-highlight-color: transparent;
 }
 
-.placeholder {
-  padding: 2rem 1rem;
-  text-align: center;
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
 }

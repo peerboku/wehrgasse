@@ -12,3 +12,5 @@ Rules:
 | [0002](0002-github-pages-and-hashrouter.md) | GitHub Pages hosting, no router / HashRouter only | Accepted |
 | [0003](0003-supabase-as-backend.md) | Supabase as backend | Accepted |
 | [0004](0004-secrets-split-frontend-vs-functions.md) | Split secrets: public in build, private only in Supabase | Accepted |
+| [0005](0005-dates-with-intl-no-library.md) | Week math with built-in `Intl`, no date library | Accepted |
+| [0006](0006-css-modules.md) | Styling with CSS Modules + design tokens | Accepted |

@@ -1,0 +1,11 @@
+.app {
+  min-height: 100dvh;
+}
+
+.content {
+  max-width: 560px;
+  margin: 0 auto;
+  /* room for the notch on top and the tab bar at the bottom */
+  padding: calc(env(safe-area-inset-top) + 20px) calc(env(safe-area-inset-right) + var(--space))
+    calc(env(safe-area-inset-bottom) + var(--tabbar-height) + 24px) calc(env(safe-area-inset-left) + var(--space));
+}

@@ -1,0 +1,31 @@
+.button {
+  display: block;
+  width: 100%;
+  min-height: 52px; /* big enough for a thumb */
+  padding: 12px 20px;
+  border: none;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.secondary {
+  background: var(--border);
+  color: var(--text);
+}
+
+.danger {
+  background: var(--danger);
+  color: #ffffff;
+}

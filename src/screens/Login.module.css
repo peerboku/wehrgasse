@@ -1,0 +1,78 @@
+.screen {
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top) + 48px) var(--space) calc(env(safe-area-inset-bottom) + var(--space));
+}
+
+.title {
+  font-size: 32px;
+  text-align: center;
+}
+
+.subtitle {
+  margin-top: 6px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 8px;
+  background: var(--surface);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.tile:active {
+  transform: scale(0.96);
+}
+
+.tileName {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.label {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  /* 16px or more stops iOS from zooming into the field */
+  font-size: 17px;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.switch {
+  padding: 8px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}

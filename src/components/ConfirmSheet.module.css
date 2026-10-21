@@ -1,0 +1,53 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.sheet {
+  width: 100%;
+  padding: 24px var(--space) calc(var(--space) + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  animation: slideUp 0.25s ease-out;
+}
+
+.question {
+  font-size: 20px;
+  text-align: center;
+}
+
+.hint {
+  margin-top: 6px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.buttons {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .sheet {
+    animation: none;
+  }
+}

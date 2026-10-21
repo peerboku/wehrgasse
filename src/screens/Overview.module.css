@@ -1,0 +1,85 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.title {
+  font-size: 28px;
+}
+
+.week {
+  margin-top: -12px;
+  color: var(--text-muted);
+}
+
+.overdueTitle {
+  margin-bottom: 8px;
+  color: var(--danger);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+
+.rowMe {
+  background: var(--highlight);
+}
+
+.rowOverdue {
+  background: var(--danger-soft);
+}
+
+.text {
+  flex: 1;
+  min-width: 0; /* lets long chore names wrap instead of pushing the status out */
+}
+
+.chore {
+  font-weight: 600;
+}
+
+.member {
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.status {
+  flex-shrink: 0;
+  max-width: 40%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.statusOpen {
+  background: var(--border);
+  color: var(--text-muted);
+}
+
+.statusDone {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.statusOverdue {
+  color: var(--danger);
+}

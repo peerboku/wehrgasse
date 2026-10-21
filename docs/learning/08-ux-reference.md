@@ -15,7 +15,7 @@ The final judges are your users. That's what the hallway test is for. The analys
 
 ## 2. In our app
 
-Peer set up our real 4 chores in Flatastic and took 8 screenshots (21.10.2026, `docs/flatastic/screenshots/`, kept **out of git** because the repo is public and they show flatmates' names and photos).
+Peer set up our real 4 chores in Flatastic and took 15 screenshots (21.10.2026, `docs/flatastic/screenshots/`, kept **out of git** because the repo is public and they show flatmates' names and photos). The first 8 were taken in the morning. The overdue state was still missing, because the first deadline was Sunday. So in the afternoon Peer moved one deadline to yesterday (Tue 20.10.) to force a chore into "overdue", and took 7 more.
 
 | Screenshot | Shows |
 |---|---|
@@ -26,6 +26,11 @@ Peer set up our real 4 chores in Flatastic and took 8 screenshots (21.10.2026, `
 | IMG_2043 | Tapping someone else's chore: "Aufgabe für Carla abhaken / Ich übernehme die Aufgabe / Abbrechen" |
 | IMG_2044 | Confirmation: "Hat Carla … wirklich bereits erledigt? … Ja klar" |
 | IMG_2045 | Pinnwand → Aktivitäten feed |
+| IMG_2046 | Overdue: title + "Gestern fällig" in **red**, overdue chore sorted to the top; others green "In 4 Tagen" |
+| IMG_2053 | Overdue detail sheet: red banner "Seit gestern fällig", button "Erinnern & Motivieren" → toast "Manu wurde an die Aufgabe … erinnert" |
+| IMG_2054, 2055 | Due today: **orange** "Heute fällig", sheet with orange banner and "Abhaken" |
+| IMG_2049 | Settings → "Benachrichtigungen testen": own explainer dialog ("Nicht jetzt" / "Geht klar") *before* the iOS permission prompt |
+| IMG_2050, 2051 | Push status checklist: permission granted / device registered / device activated (✗ first, then ✓) + "Benachrichtigungen testen" button |
 
 **Findings, and what they mean for us:**
 
@@ -40,10 +45,12 @@ Peer set up our real 4 chores in Flatastic and took 8 screenshots (21.10.2026, `
 | 7 | 🔒 on "Verlauf" and "Notizen" (IMG_2036, 2037) | paywall | free | One reason we're building our own. |
 | 8 | "In 4 Tagen" counts **down to a deadline** (Sunday) (IMG_2039) | deadline-based | week-based + "überfällig seit X Tagen" | Our MyWeek screen can borrow the countdown idea: show how many days are left this week. |
 
-**Missing evidence** (⏳ for you): the README listed 4 screenshot types, and two aren't covered:
+| 9 | Three status colours: red = overdue, orange = due today, green = later (IMG_2046, 2054) | traffic light by deadline | overdue red, current week normal | Confirms our red "überfällig". Overdue items sit **on top**, same as our MyWeek plan. |
+| 10 | Overdue text is relative and short: "Gestern fällig", "Seit gestern fällig" (IMG_2046, 2053) | days since deadline | "überfällig seit X Tagen" | Same idea. We need a nice wording for 1 day ("seit gestern") instead of "seit 1 Tagen". |
+| 11 | "Erinnern & Motivieren" sends a nudge to the owner of an overdue chore (IMG_2053) | others can push the owner | push only on "done" | Out of MVP scope (CLAUDE.md: nothing else sends push). Noted in ROADMAP Ideas. |
+| 12 | Own explainer dialog before the iOS prompt, then a 3-step status checklist (IMG_2049–2051) | "pre-permission prompt" | permission only from a button tap | The prompt is triggered from a tap in Settings, the same rule as ours. The checklist (permission / registered / active) is a great debugging aid for the Phase 4 push matrix. Noted in Ideas. |
 
-- **Overdue display**: how Flatastic shows a chore after its deadline. Only visible after Sunday; take it on Mon 26.10.
-- **Push notification** on the lock screen: have a flatmate tick a chore while your phone is locked.
+**Missing evidence:** the **push notification on the lock screen** needs a second person to tick a chore. Moved to Phase 4: the push test matrix produces exactly this screenshot with our own app, which is the better evidence anyway.
 
 ## 3. Predict, then run
 
