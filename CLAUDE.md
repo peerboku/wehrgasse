@@ -32,7 +32,7 @@ Private web app for 4 flatmates (Peer, Carla, Noa, Manu) to see **who does which
 src/
   screens/        Login, MyWeek, Overview, Settings
   components/
-  lib/            supabaseClient.ts, week.ts, strings.ts, events.ts, push.ts
+  lib/            supabaseClient.ts, data.ts, me.ts, week.ts, strings.ts, events.ts, push.ts
   sw.ts           service worker (push + notificationclick)
 supabase/
   migrations/     all schema changes as SQL files, never edit the DB by hand without a migration
@@ -43,7 +43,7 @@ docs/
 ```
 
 ## Domain rules (source of truth)
-**Members:** Peer, Carla, Noa, Manu. 4 fixed accounts, created by Peer in the Supabase dashboard (email confirmation off). Login screen: tap your name tile → enter password. No sign-up, no password reset flow (Peer resets in the dashboard).
+**Members:** Peer, Carla, Noa, Manu, seeded by migration. **One shared auth user** for the whole flat (`wg@wehrgasse.com`, created by Peer in the dashboard; sign-ups off, email confirmation off), see `docs/decisions/0007`. Login: enter the WG password (once per phone) → tap your name tile; the picked member is remembered on the phone (`src/lib/me.ts`). No sign-up, no password reset flow (Peer resets in the dashboard).
 
 **Chores (4, all weekly, equal weight):**
 - `Müll rausbringen`
@@ -62,23 +62,23 @@ docs/
 | 2 | Küche & Staubsaugen | Bad Carla & Peer | Bad Noa & Manu | Müll rausbringen |
 | 3 | Bad Carla & Peer | Küche & Staubsaugen | Müll rausbringen | Bad Noa & Manu |
 
-**Assignments are materialized:** one row per (week_start, chore). Created by an idempotent SQL function `ensure_current_week()` run hourly by pg_cron (unique constraint prevents duplicates; hourly avoids DST bugs). Later swaps = editing `member_id` on a row; the template is never changed for one-off swaps.
+**Assignments are materialized:** one row per (week_start, chore). Created by an idempotent SQL function `ensure_current_week()` (calls `ensure_week(monday)`) run hourly by pg_cron (unique constraint prevents duplicates; hourly avoids DST bugs). It does nothing before the anchor week; until then the app shows the anchor week. Later swaps = editing `member_id` on a row; the template is never changed for one-off swaps.
 
 **Overdue (rule "B"):** an assignment with `done_at IS NULL` and a past week stays open and visible ("überfällig seit X Tagen", red) until its owner marks it done. It does not block or change the new week's assignment of the same chore.
 
-**Marking done:** only the assigned member can mark their own assignment done. Tap → confirmation sheet ("Alle anderen werden benachrichtigt") → done. Small celebration animation afterwards (playful, short).
+**Marking done:** only the assigned member can mark their own assignment done (enforced in the UI; the DB only checks `done_by = member_id`, see ADR 0007). Tap → confirmation sheet ("Alle anderen werden benachrichtigt") → done. Small celebration animation afterwards (playful, short).
 
 **Notifications:** only on "done". Sent to the other 3 members. Nothing else sends push in the MVP.
 
 ## Data model (initial)
-- `members` (id uuid = auth.users.id, name, emoji/color)
-- `chores` (id, name, sort_order)
+- `members` (id uuid, name, emoji, color) — not linked to auth.users
+- `chores` (id, name, icon, sort_order)
 - `rotation_template` (cycle_week 0–3, chore_id, member_id; unique(cycle_week, chore_id))
 - `assignments` (id, week_start date, chore_id, member_id, done_at timestamptz null, done_by uuid null; unique(week_start, chore_id))
 - `push_subscriptions` (id, member_id, endpoint unique, p256dh, auth, created_at)
 - `events` (id, created_at, member_id, type text, payload jsonb) — **append-only**
 
-RLS: all tables readable only by authenticated members. `assignments.done_at` updatable only by the row's `member_id`. `events` insert-only for own member_id, no update/delete.
+RLS: all tables readable only by the authenticated WG user, nothing for `anon`. On `assignments` only `done_at`/`done_by` are updatable (column grant), with `done_by = member_id`. `events` insert-only, no update/delete. Members, chores, template change only via migrations.
 
 ## Event logging (required from day 1)
 Every meaningful action inserts into `events` via `src/lib/events.ts`. Types: `app_open`, `login`, `chore_done`, `push_subscribed`, `push_sent`, `push_failed`. Statistics later are built only from `events` + `assignments`. Never skip logging to "save time".

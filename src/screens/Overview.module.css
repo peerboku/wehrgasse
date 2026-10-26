@@ -8,9 +8,22 @@
   font-size: 28px;
 }
 
+.weekBox {
+  margin-top: -8px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+
 .week {
-  margin-top: -12px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.deadline {
+  margin-top: 2px;
   color: var(--text-muted);
+  font-size: 17px;
 }
 
 .overdueTitle {

@@ -36,6 +36,12 @@
   font-weight: 600;
 }
 
+.overdueWeek {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
 .overdueSince {
   margin-top: 2px;
   color: var(--danger);
@@ -73,8 +79,14 @@
   color: var(--text-muted);
 }
 
+.choreIcon {
+  margin-top: 12px;
+  font-size: 48px;
+  line-height: 1;
+}
+
 .choreName {
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 32px;
   font-weight: 800;
   line-height: 1.15;

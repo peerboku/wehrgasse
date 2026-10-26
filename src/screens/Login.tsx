@@ -1,57 +1,39 @@
 import { useState, type FormEvent } from 'react'
 import { Avatar } from '../components/Avatar'
 import { Button } from '../components/Button'
-import { logEvent } from '../lib/events'
-import { members } from '../lib/mockData'
 import { strings } from '../lib/strings'
+import { WG_EMAIL, supabase } from '../lib/supabaseClient'
 import type { Member } from '../lib/types'
 import styles from './Login.module.css'
 
-type Props = {
-  onLogin: (memberId: string) => void
-}
-
-// Step 1: tap your name. Step 2: enter your password.
-// Prototype: any non-empty password works. Phase 3 checks it with Supabase Auth.
-export function Login({ onLogin }: Props) {
-  const [selected, setSelected] = useState<Member | null>(null)
+// Step 1: the shared WG password (once per phone, docs/decisions/0007).
+// On success Supabase stores the session and App.tsx moves on to step 2.
+export function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault() // stop the browser from reloading the page
-    if (!selected) return
     if (password.trim() === '') {
       setError(strings.login.errorEmpty)
       return
     }
-    logEvent('login', { member_id: selected.id })
-    onLogin(selected.id)
-  }
-
-  if (!selected) {
-    return (
-      <div className={styles.screen}>
-        <h1 className={styles.title}>{strings.login.title}</h1>
-        <p className={styles.subtitle}>{strings.login.subtitle}</p>
-        <div className={styles.tiles}>
-          {members.map((member) => (
-            <button key={member.id} className={styles.tile} onClick={() => setSelected(member)}>
-              <Avatar member={member} size={64} />
-              <span className={styles.tileName}>{member.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    )
+    setBusy(true)
+    const { error } = await supabase.auth.signInWithPassword({ email: WG_EMAIL, password })
+    setBusy(false)
+    if (error) {
+      // 400 = wrong password; no status at all = no connection
+      setError(error.status === 400 ? strings.login.errorWrong : strings.login.errorOffline)
+    }
   }
 
   return (
     <div className={styles.screen}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <Avatar member={selected} size={88} />
+        <h1 className={styles.title}>{strings.login.welcome}</h1>
         <label className={styles.label} htmlFor="password">
-          {strings.login.passwordLabel(selected.name)}
+          {strings.login.passwordLabel}
         </label>
         <input
           id="password"
@@ -67,19 +49,33 @@ export function Login({ onLogin }: Props) {
           autoFocus
         />
         {error && <p className={styles.error}>{error}</p>}
-        <Button type="submit">{strings.login.submit}</Button>
-        <button
-          type="button"
-          className={styles.switch}
-          onClick={() => {
-            setSelected(null)
-            setPassword('')
-            setError('')
-          }}
-        >
-          {strings.login.switchPerson}
-        </button>
+        <Button type="submit" disabled={busy}>
+          {strings.login.submit}
+        </Button>
       </form>
+    </div>
+  )
+}
+
+type PickMemberProps = {
+  members: Member[]
+  onPick: (memberId: string) => void
+}
+
+// Step 2: tap your name. The app remembers it on this phone (src/lib/me.ts).
+export function PickMember({ members, onPick }: PickMemberProps) {
+  return (
+    <div className={styles.screen}>
+      <h1 className={styles.title}>{strings.login.pickTitle}</h1>
+      <p className={styles.subtitle}>{strings.login.pickSubtitle}</p>
+      <div className={styles.tiles}>
+        {members.map((member) => (
+          <button key={member.id} className={styles.tile} onClick={() => onPick(member.id)}>
+            <Avatar member={member} size={64} />
+            <span className={styles.tileName}>{member.name}</span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

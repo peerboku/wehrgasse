@@ -1,7 +1,7 @@
 import { Avatar } from '../components/Avatar'
-import { choreById, memberById } from '../lib/mockData'
+import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
-import type { Assignment, Member } from '../lib/types'
+import type { Assignment, Chore, Member } from '../lib/types'
 import { daysOverdue, viennaWeekdayIndex } from '../lib/week'
 import styles from './Overview.module.css'
 
@@ -9,27 +9,31 @@ type Props = {
   me: Member
   currentWeek: string
   assignments: Assignment[]
+  members: Member[]
+  chores: Chore[]
 }
 
-const byChoreOrder = (a: Assignment, b: Assignment) =>
-  choreById(a.chore_id).sort_order - choreById(b.chore_id).sort_order
-
 // Read-only: everyone's chores this week. Only the owner can mark done (in "Meine Woche").
-export function Overview({ me, currentWeek, assignments }: Props) {
+export function Overview({ me, currentWeek, assignments, members, chores }: Props) {
+  const byChoreOrder = (a: Assignment, b: Assignment) =>
+    byId(chores, a.chore_id).sort_order - byId(chores, b.chore_id).sort_order
   const overdue = assignments.filter((a) => a.week_start < currentWeek && a.done_at === null).sort(byChoreOrder)
   const thisWeek = assignments.filter((a) => a.week_start === currentWeek).sort(byChoreOrder)
 
   return (
     <div className={styles.screen}>
       <h1 className={styles.title}>{strings.overview.title}</h1>
-      <p className={styles.week}>{strings.weekRange(currentWeek)}</p>
+      <div className={styles.weekBox}>
+        <p className={styles.week}>{strings.weekRange(currentWeek)}</p>
+        <p className={styles.deadline}>{strings.deadline(currentWeek)}</p>
+      </div>
 
       {overdue.length > 0 && (
         <section>
           <h2 className={styles.overdueTitle}>{strings.overview.overdueTitle}</h2>
           <ul className={styles.list}>
             {overdue.map((assignment) => (
-              <Row key={assignment.id} assignment={assignment} me={me} overdue />
+              <Row key={assignment.id} assignment={assignment} me={me} members={members} chores={chores} overdue />
             ))}
           </ul>
         </section>
@@ -37,7 +41,7 @@ export function Overview({ me, currentWeek, assignments }: Props) {
 
       <ul className={styles.list}>
         {thisWeek.map((assignment) => (
-          <Row key={assignment.id} assignment={assignment} me={me} />
+          <Row key={assignment.id} assignment={assignment} me={me} members={members} chores={chores} />
         ))}
       </ul>
     </div>
@@ -47,11 +51,14 @@ export function Overview({ me, currentWeek, assignments }: Props) {
 type RowProps = {
   assignment: Assignment
   me: Member
+  members: Member[]
+  chores: Chore[]
   overdue?: boolean
 }
 
-function Row({ assignment, me, overdue = false }: RowProps) {
-  const member = memberById(assignment.member_id)
+function Row({ assignment, me, members, chores, overdue = false }: RowProps) {
+  const member = byId(members, assignment.member_id)
+  const chore = byId(chores, assignment.chore_id)
   const isMe = member.id === me.id
 
   let status = strings.overview.open
@@ -68,7 +75,9 @@ function Row({ assignment, me, overdue = false }: RowProps) {
     <li className={`${styles.row} ${isMe ? styles.rowMe : ''} ${overdue ? styles.rowOverdue : ''}`}>
       <Avatar member={member} />
       <div className={styles.text}>
-        <p className={styles.chore}>{choreById(assignment.chore_id).name}</p>
+        <p className={styles.chore}>
+          <span aria-hidden="true">{chore.icon}</span> {chore.name}
+        </p>
         <p className={styles.member}>
           {member.name}
           {isMe && ` (${strings.overview.you})`}

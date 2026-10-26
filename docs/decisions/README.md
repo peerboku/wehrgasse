@@ -14,3 +14,5 @@ Rules:
 | [0004](0004-secrets-split-frontend-vs-functions.md) | Split secrets: public in build, private only in Supabase | Accepted |
 | [0005](0005-dates-with-intl-no-library.md) | Week math with built-in `Intl`, no date library | Accepted |
 | [0006](0006-css-modules.md) | Styling with CSS Modules + design tokens | Accepted |
+| [0007](0007-shared-wg-login.md) | One shared WG login, then pick your name | Accepted |
+| [0008](0008-migrations-straight-to-cloud.md) | Push migrations straight to the cloud DB (no local stack) | Accepted |

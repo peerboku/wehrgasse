@@ -1,8 +1,9 @@
-// Fake data for the Phase 1 prototype. Replaced by Supabase in Phase 3.
-// rotationTemplate mirrors the future `rotation_template` table row by row.
+// Test fixture: the same members, chores and rotation as in
+// supabase/migrations/20261024100100_seed.sql, used only by week.test.ts.
+// The app itself loads everything from Supabase (src/lib/data.ts).
 
 import type { Assignment, Chore, Member, RotationRow } from './types'
-import { addDays, cycleWeek, weekStart } from './week'
+import { cycleWeek } from './week'
 
 export const members: Member[] = [
   { id: 'peer', name: 'Peer', emoji: '🦊', color: '#e8833a' },
@@ -12,10 +13,10 @@ export const members: Member[] = [
 ]
 
 export const chores: Chore[] = [
-  { id: 'trash', name: 'Müll rausbringen', sort_order: 1 },
-  { id: 'bath-nm', name: 'Bad Noa & Manu', sort_order: 2 },
-  { id: 'bath-cp', name: 'Bad Carla & Peer', sort_order: 3 },
-  { id: 'kitchen', name: 'Küche & Staubsaugen', sort_order: 4 },
+  { id: 'trash', name: 'Müll rausbringen', icon: '🗑️', sort_order: 1 },
+  { id: 'bath-nm', name: 'Bad Noa & Manu', icon: '🛁', sort_order: 2 },
+  { id: 'bath-cp', name: 'Bad Carla & Peer', icon: '🚿', sort_order: 3 },
+  { id: 'kitchen', name: 'Küche & Staubsaugen', icon: '🍳', sort_order: 4 },
 ]
 
 export const rotationTemplate: RotationRow[] = [
@@ -40,7 +41,7 @@ export const rotationTemplate: RotationRow[] = [
   { cycle_week: 3, member_id: 'manu', chore_id: 'bath-nm' },
 ]
 
-/** One open assignment per chore for this week, like ensure_current_week() will do. */
+/** One open assignment per chore for this week, like ensure_week() in the database does. */
 export function assignmentsForWeek(weekStartDate: string): Assignment[] {
   return rotationTemplate
     .filter((row) => row.cycle_week === cycleWeek(weekStartDate))
@@ -52,20 +53,6 @@ export function assignmentsForWeek(weekStartDate: string): Assignment[] {
       done_at: null,
       done_by: null,
     }))
-}
-
-/** This week all open; last week Carla + Manu done, Peer + Noa overdue (to show both states). */
-export function buildMockAssignments(now: Date = new Date()): Assignment[] {
-  const thisWeek = weekStart(now)
-  const lastWeek = addDays(thisWeek, -7)
-  const lastThursdayEvening = `${addDays(lastWeek, 3)}T17:00:00Z`
-
-  const previous = assignmentsForWeek(lastWeek).map((assignment) =>
-    assignment.member_id === 'carla' || assignment.member_id === 'manu'
-      ? { ...assignment, done_at: lastThursdayEvening, done_by: assignment.member_id }
-      : assignment,
-  )
-  return [...previous, ...assignmentsForWeek(thisWeek)]
 }
 
 export function memberById(id: string): Member {

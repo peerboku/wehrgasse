@@ -1,5 +1,5 @@
-// Data shapes. Field names match the future database columns (see CLAUDE.md),
-// so in Phase 3 rows from Supabase fit in without renaming.
+// Data shapes. Field names match the database columns
+// (supabase/migrations/20261024100000_schema.sql), so rows fit in without renaming.
 
 export type Member = {
   id: string
@@ -11,6 +11,7 @@ export type Member = {
 export type Chore = {
   id: string
   name: string
+  icon: string // emoji
   sort_order: number
 }
 

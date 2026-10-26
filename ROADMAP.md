@@ -21,15 +21,15 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 - [x] `week.ts` with Vitest tests: week start in Europe/Vienna, cycle_week, DST weeks (29.03.2027, 25.10.2026 edge), matches the table in CLAUDE.md for 8 weeks
 
 ## Phase 2 — Hallway test (Fri 23.10.)
-- [ ] Run `docs/hallway-test.md` with Carla, Noa, Manu (5 min each, on their own iPhone)
-- [ ] Note findings in this file under "Test findings", fix the top 3
+- [ ] Run `docs/hallway-test.md` with Carla, Noa, Manu (5 min each, on their own iPhone) — Carla, Noa done (23.10.); Manu open
+- [x] Note findings in this file under "Test findings", fix the top 3
 
 ## Phase 3 — Real data (Sat 24.10.)
-- [ ] Migrations: all tables, RLS policies, `rotation_template` seeded, chores seeded
-- [ ] 4 auth users created by Peer (checklist), linked to `members`
-- [ ] `ensure_current_week()` + pg_cron hourly; week 2026-10-26 rows exist
-- [ ] Frontend switched from mock to Supabase; Realtime on `assignments` so Overview updates live
-- [ ] Event logging: `login`, `app_open`, `chore_done`
+- [x] Migrations: all tables, RLS policies, `rotation_template` seeded, chores seeded (pushed 27.10.)
+- [x] 1 shared WG auth user created by Peer (checklist), sign-ups off; `members` seeded (ADR 0007)
+- [x] `ensure_current_week()` + pg_cron hourly; week 2026-10-26 rows exist
+- [x] Frontend switched from mock to Supabase; Realtime on `assignments` so Overview updates live (tested 27.10.)
+- [x] Event logging: `login`, `app_open`, `chore_done`
 
 ## Phase 4 — Push + rollout (Sun 25.10.)
 - [ ] Service worker push + notificationclick
@@ -64,11 +64,28 @@ Measured from data, not opinion:
 - Bathroom pairs make absences cascade; swaps feature must handle "who takes the freed chore".
 
 ## Test findings
-(fill in after hallway test)
+Hallway test 23.10.2026 with Noa and Carla (Manu not yet). Full notes: [docs/hallway-test.md](docs/hallway-test.md).
+
+| Task | Noa | Carla |
+|---|---|---|
+| 1. Log in | hesitated: "Why put in password?" | hesitated: "What password should I use, why do I need one?" |
+| 2. My chore this week | ok, quick, but confused at first because last week's task was still open | ok, quick |
+| 3. Mark done | ok, really liked the animation | ok, liked the animation, laughed at the comments |
+| 4. Who hasn't cleaned yet? | ok, but week/deadline not clear enough, should be bigger | ok, but wants a colour/icon per chore to see who does what |
+| 5. Notifications | ok | ok |
+| 6. Confusing/annoying? | "Maybe add pictures of everyone" | all fine |
+
+**Top 3, fixed 24.10.:**
+1. **Password confusion (2/2)** → one shared WG password, typed once per phone, then tap your name ([ADR 0007](docs/decisions/0007-shared-wg-login.md)). Peer explains it in person, no text in the UI.
+2. **Overview hard to scan (2/2)** → chore icon in every row (`chores.icon`: 🗑️ 🛁 🚿 🍳), bigger week box with "fällig bis Sonntag, 1. Nov.".
+3. **Old open chore shown first (Noa)** → MyWeek shows this week's card first, overdue cards below with "aus der Woche 19.–25. Okt.".
+
+Kept as is: the celebration animation and cheer texts (both liked them).
 
 ## Ideas (not scheduled)
 (Claude Code: put suggestions here instead of building them)
 - **Baseline for success metrics:** count chore-related messages in the flat chat for the 4 weeks *before* launch now, otherwise the week-4 comparison has no "before".
+- **Photos of everyone** (Noa, hallway test): real photos instead of the animal emojis in `Avatar`.
 - **Hallway question:** should others be able to mark a chore done *for* the owner (Flatastic allows "für Carla abhaken")? Case: chore done, owner forgot to tap.
 - **Erinnern-Button** (from Flatastic IMG_2053): others can nudge the owner of an overdue chore. Would be a second push type; decide after the week-4 review.
 - **Push status checklist in Settings** (from Flatastic IMG_2050/2051): permission ✓ / subscribed ✓ / saved on server ✓, plus "Test senden". Helps debug the Phase 4 matrix.

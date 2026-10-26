@@ -9,31 +9,47 @@ function dayAndMonth(date: string) {
   return { day, month: monthsShort[month - 1] }
 }
 
+// '2026-10-19' -> '19.–25. Okt.', across months: '26. Okt. – 1. Nov.'
+function weekRange(weekStart: string) {
+  const start = dayAndMonth(weekStart)
+  const end = dayAndMonth(addDays(weekStart, 6))
+  return start.month === end.month
+    ? `${start.day}.–${end.day}. ${end.month}`
+    : `${start.day}. ${start.month} – ${end.day}. ${end.month}`
+}
+
 export const strings = {
   appName: 'WG-App',
 
   // weekdayIndex: 0 = Monday … 6 = Sunday
   weekday: (weekdayIndex: number) => weekdaysShort[weekdayIndex],
 
-  // '2026-10-19' -> '19.–25. Okt.', across months: '26. Okt. – 1. Nov.'
-  weekRange: (weekStart: string) => {
-    const start = dayAndMonth(weekStart)
+  weekRange,
+
+  // '2026-10-26' -> 'fällig bis Sonntag, 1. Nov.'
+  deadline: (weekStart: string) => {
     const end = dayAndMonth(addDays(weekStart, 6))
-    return start.month === end.month
-      ? `${start.day}.–${end.day}. ${end.month}`
-      : `${start.day}. ${start.month} – ${end.day}. ${end.month}`
+    return `fällig bis Sonntag, ${end.day}. ${end.month}`
   },
 
   overdueSince: (days: number) => (days === 1 ? 'überfällig seit gestern' : `überfällig seit ${days} Tagen`),
 
+  app: {
+    loading: 'Lädt …',
+    loadError: 'Die Daten konnten nicht geladen werden. Bist du online?',
+    retry: 'Nochmal versuchen',
+  },
+
   login: {
-    title: 'Wer bist du?',
-    subtitle: 'Tipp auf deinen Namen.',
-    passwordLabel: (name: string) => `Hi ${name}! Dein Passwort:`,
+    welcome: 'Hallo WG! 🏠',
+    passwordLabel: 'WG-Passwort',
     passwordPlaceholder: 'Passwort',
     submit: "Los geht's",
-    switchPerson: 'Doch jemand anderes',
-    errorEmpty: 'Da fehlt noch dein Passwort.',
+    errorEmpty: 'Da fehlt noch das Passwort.',
+    errorWrong: 'Hmm, das Passwort stimmt nicht.',
+    errorOffline: 'Keine Verbindung. Probier es gleich nochmal.',
+    pickTitle: 'Wer bist du?',
+    pickSubtitle: 'Tipp auf deinen Namen.',
   },
 
   tabs: {
@@ -45,10 +61,13 @@ export const strings = {
   myWeek: {
     greeting: (name: string) => `Hi ${name}! 👋`,
     yourChore: 'Diese Woche bist du dran mit',
-    overdueTitle: 'Noch offen von letzter Woche',
+    yourChoreFromMonday: 'Ab Montag bist du dran mit',
+    overdueTitle: 'Noch offen',
+    fromWeek: (weekStart: string) => `aus der Woche ${weekRange(weekStart)}`,
     doneButton: 'Erledigt',
     doneOn: (weekday: string) => `Erledigt am ${weekday} ✅`,
     freeUntilMonday: 'Du hast frei bis Montag. 😎',
+    doneError: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
   },
 
   confirm: {
