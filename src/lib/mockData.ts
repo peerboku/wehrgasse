@@ -15,7 +15,7 @@ export const members: Member[] = [
 export const chores: Chore[] = [
   { id: 'trash', name: 'Müll rausbringen', icon: '🗑️', sort_order: 1 },
   { id: 'bath-nm', name: 'Bad Noa & Manu', icon: '🛁', sort_order: 2 },
-  { id: 'bath-cp', name: 'Bad Carla & Peer', icon: '🚿', sort_order: 3 },
+  { id: 'bath-cp', name: 'Bad Carla & Peer', icon: '🛁', sort_order: 3 },
   { id: 'kitchen', name: 'Küche & Staubsaugen', icon: '🍳', sort_order: 4 },
 ]
 

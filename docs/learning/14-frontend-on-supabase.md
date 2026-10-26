@@ -92,6 +92,13 @@ Nothing happens in the app. Now **predict** what the app shows when Peer edits `
   supabase db query --linked "select status, start_time from cron.job_run_details order by start_time desc limit 3"
   ```
   Expect `succeeded`.
+- **Mistake found later (2026-10-27): the deployed site was dead.** Locally everything worked (keys in `.env.local`), but the GitHub secret `VITE_SUPABASE_ANON_KEY` was never added. The build still went green, because a missing secret just becomes an empty string. Found by downloading the live bundle:
+  ```
+  gh secret list                      # only VITE_SUPABASE_URL and VITE_VAPID_PUBLIC_KEY
+  curl -s https://peerboku.github.io/wehrgasse/assets/index-BEMlrRV9.js | tail -c 200
+  # ... Error(`VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing, see .env.example`);
+  ```
+  Our own check in `supabaseClient.ts` threw on start, so the page stayed blank. Lesson: "CI green" only means "it built", so open the live URL after every deploy.
 
 ## 7. Check yourself
 
