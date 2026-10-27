@@ -73,6 +73,11 @@
   font-size: 15px;
 }
 
+.lastDone {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 .status {
   flex-shrink: 0;
   max-width: 40%;

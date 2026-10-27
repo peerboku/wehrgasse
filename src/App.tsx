@@ -2,7 +2,7 @@ import type { Session } from '@supabase/supabase-js'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from './components/Button'
 import { TabBar, type Tab } from './components/TabBar'
-import { loadAssignments, loadChores, loadMembers, markDone, onAssignmentsChange } from './lib/data'
+import { loadAssignments, loadChores, loadLastDone, loadMembers, markDone, onAssignmentsChange } from './lib/data'
 import { logEvent } from './lib/events'
 import { clearMyMemberId, getMyMemberId, setMyMemberId } from './lib/me'
 import { disablePush } from './lib/push'
@@ -20,6 +20,7 @@ type Data = {
   members: Member[]
   chores: Chore[]
   assignments: Assignment[]
+  lastDone: Assignment[] // newest done row per chore
 }
 
 // No router: the active tab is just a piece of state (see docs/decisions/0002).
@@ -46,12 +47,13 @@ function App() {
 
   const reloadAll = useCallback(async () => {
     try {
-      const [members, chores, assignments] = await Promise.all([
+      const [members, chores, assignments, lastDone] = await Promise.all([
         loadMembers(),
         loadChores(),
         loadAssignments(currentWeek),
+        loadLastDone(),
       ])
-      setData({ members, chores, assignments })
+      setData({ members, chores, assignments, lastDone })
       setLoadFailed(false)
     } catch (error) {
       console.warn(error)
@@ -61,8 +63,8 @@ function App() {
 
   const reloadAssignments = useCallback(async () => {
     try {
-      const assignments = await loadAssignments(currentWeek)
-      setData((previous) => previous && { ...previous, assignments })
+      const [assignments, lastDone] = await Promise.all([loadAssignments(currentWeek), loadLastDone()])
+      setData((previous) => previous && { ...previous, assignments, lastDone })
     } catch (error) {
       console.warn(error)
     }
@@ -171,6 +173,8 @@ function App() {
             member={me}
             currentWeek={currentWeek}
             assignments={data.assignments}
+            lastDone={data.lastDone}
+            members={data.members}
             chores={data.chores}
             onMarkDone={handleMarkDone}
           />
@@ -180,6 +184,7 @@ function App() {
             me={me}
             currentWeek={currentWeek}
             assignments={data.assignments}
+            lastDone={data.lastDone}
             members={data.members}
             chores={data.chores}
           />

@@ -2,19 +2,20 @@ import { Avatar } from '../components/Avatar'
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
 import type { Assignment, Chore, Member } from '../lib/types'
-import { daysOverdue, viennaWeekdayIndex } from '../lib/week'
+import { daysAgo, daysOverdue, viennaWeekdayIndex } from '../lib/week'
 import styles from './Overview.module.css'
 
 type Props = {
   me: Member
   currentWeek: string
   assignments: Assignment[]
+  lastDone: Assignment[]
   members: Member[]
   chores: Chore[]
 }
 
 // Read-only: everyone's chores this week. Only the owner can mark done (in "Meine Woche").
-export function Overview({ me, currentWeek, assignments, members, chores }: Props) {
+export function Overview({ me, currentWeek, assignments, lastDone, members, chores }: Props) {
   const byChoreOrder = (a: Assignment, b: Assignment) =>
     byId(chores, a.chore_id).sort_order - byId(chores, b.chore_id).sort_order
   const overdue = assignments.filter((a) => a.week_start < currentWeek && a.done_at === null).sort(byChoreOrder)
@@ -41,7 +42,14 @@ export function Overview({ me, currentWeek, assignments, members, chores }: Prop
 
       <ul className={styles.list}>
         {thisWeek.map((assignment) => (
-          <Row key={assignment.id} assignment={assignment} me={me} members={members} chores={chores} />
+          <Row
+            key={assignment.id}
+            assignment={assignment}
+            me={me}
+            members={members}
+            chores={chores}
+            lastDoneAt={lastDone.find((a) => a.chore_id === assignment.chore_id)?.done_at ?? null}
+          />
         ))}
       </ul>
     </div>
@@ -54,9 +62,10 @@ type RowProps = {
   members: Member[]
   chores: Chore[]
   overdue?: boolean
+  lastDoneAt?: string | null // shown under the name while this week's chore is still open
 }
 
-function Row({ assignment, me, members, chores, overdue = false }: RowProps) {
+function Row({ assignment, me, members, chores, overdue = false, lastDoneAt = null }: RowProps) {
   const member = byId(members, assignment.member_id)
   const chore = byId(chores, assignment.chore_id)
   const isMe = member.id === me.id
@@ -82,6 +91,9 @@ function Row({ assignment, me, members, chores, overdue = false }: RowProps) {
           {member.name}
           {isMe && ` (${strings.overview.you})`}
         </p>
+        {!assignment.done_at && lastDoneAt && (
+          <p className={styles.lastDone}>{strings.overview.lastDone(strings.daysAgo(daysAgo(lastDoneAt)))}</p>
+        )}
       </div>
       <span className={`${styles.status} ${statusClass}`}>{status}</span>
     </li>

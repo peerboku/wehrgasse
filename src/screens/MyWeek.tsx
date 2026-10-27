@@ -5,18 +5,20 @@ import { ConfirmSheet } from '../components/ConfirmSheet'
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
 import type { Assignment, Chore, Member } from '../lib/types'
-import { daysLeft, daysOverdue, viennaWeekdayIndex, weekStart } from '../lib/week'
+import { daysAgo, daysLeft, daysOverdue, viennaWeekdayIndex, weekStart } from '../lib/week'
 import styles from './MyWeek.module.css'
 
 type Props = {
   member: Member
   currentWeek: string
   assignments: Assignment[]
+  lastDone: Assignment[]
+  members: Member[]
   chores: Chore[]
   onMarkDone: (assignmentId: string) => void
 }
 
-export function MyWeek({ member, currentWeek, assignments, chores, onMarkDone }: Props) {
+export function MyWeek({ member, currentWeek, assignments, lastDone, members, chores, onMarkDone }: Props) {
   const [confirming, setConfirming] = useState<Assignment | null>(null)
   const [celebrating, setCelebrating] = useState(false)
   // useCallback keeps the same function between renders, so the celebration timer isn't restarted
@@ -28,6 +30,14 @@ export function MyWeek({ member, currentWeek, assignments, chores, onMarkDone }:
   // Before launch the app already shows the first week (see App.tsx)
   const startsNextWeek = currentWeek > weekStart()
   const left = daysLeft(currentWeek)
+  const last = thisWeek && lastDone.find((a) => a.chore_id === thisWeek.chore_id)
+
+  // 'Zuletzt erledigt vor 8 Tagen von Carla', or a cheer if nobody has done it yet
+  function lastDoneText() {
+    if (!last?.done_at || !last.done_by) return strings.myWeek.neverDone
+    const who = last.done_by === member.id ? strings.myWeek.lastDoneByYou : byId(members, last.done_by).name
+    return strings.myWeek.lastDone(strings.daysAgo(daysAgo(last.done_at)), who)
+  }
 
   function confirmDone() {
     if (!confirming) return
@@ -59,6 +69,7 @@ export function MyWeek({ member, currentWeek, assignments, chores, onMarkDone }:
             </>
           ) : (
             <>
+              <p className={styles.lastDone}>{lastDoneText()}</p>
               {/* No countdown before launch week, it would show more than 7 days */}
               {!startsNextWeek && (
                 <p className={`${styles.daysLeft} ${left === 1 ? styles.daysLeftLastDay : ''}`}>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { assignmentsForWeek, choreById, members, chores, memberById, rotationTemplate } from './mockData'
-import { ANCHOR_WEEK, addDays, cycleWeek, daysLeft, daysOverdue, viennaDate, weekStart } from './week'
+import { ANCHOR_WEEK, addDays, cycleWeek, daysAgo, daysLeft, daysOverdue, viennaDate, weekStart } from './week'
 
 describe('weekStart (Europe/Vienna)', () => {
   it('a normal Wednesday belongs to the Monday before', () => {
@@ -72,6 +72,26 @@ describe('daysLeft', () => {
   it('Sunday 23:30 UTC is already Monday in Vienna: a new week with 7 days', () => {
     const instant = new Date('2026-11-01T23:30:00Z')
     expect(daysLeft(weekStart(instant), instant)).toBe(7)
+  })
+})
+
+describe('daysAgo', () => {
+  it('done this morning is 0 days ago (today)', () => {
+    expect(daysAgo('2026-10-27T07:00:00Z', new Date('2026-10-27T20:00:00Z'))).toBe(0)
+  })
+
+  it('Monday 23:00 in Vienna is yesterday on Tuesday morning', () => {
+    // 26.10.2026 is winter time (UTC+1), so 23:00 Vienna = 22:00 UTC
+    expect(daysAgo('2026-10-26T22:00:00Z', new Date('2026-10-27T09:00:00Z'))).toBe(1)
+  })
+
+  it('Tuesday 00:30 in Vienna is today, although it is still Monday in UTC', () => {
+    expect(daysAgo('2026-10-26T23:30:00Z', new Date('2026-10-27T09:00:00Z'))).toBe(0)
+  })
+
+  it('across the DST night (25.10.2026): Saturday to Monday is 2 days', () => {
+    // Saturday 12:00 Vienna is summer time (UTC+2) = 10:00 UTC
+    expect(daysAgo('2026-10-24T10:00:00Z', new Date('2026-10-26T09:00:00Z'))).toBe(2)
   })
 })
 

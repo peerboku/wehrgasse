@@ -34,6 +34,9 @@ export const strings = {
 
   overdueSince: (days: number) => (days === 1 ? 'überfällig seit gestern' : `überfällig seit ${days} Tagen`),
 
+  // 0 -> 'heute', 1 -> 'gestern', 8 -> 'vor 8 Tagen'
+  daysAgo: (days: number) => (days === 0 ? 'heute' : days === 1 ? 'gestern' : `vor ${days} Tagen`),
+
   app: {
     loading: 'Lädt …',
     loadError: 'Die Daten konnten nicht geladen werden. Bist du online?',
@@ -63,6 +66,9 @@ export const strings = {
     yourChore: 'Diese Woche bist du dran mit',
     yourChoreFromMonday: 'Ab Montag bist du dran mit',
     daysLeft: (days: number) => (days === 1 ? 'Nur noch heute! ⏳' : `noch ${days} Tage`),
+    lastDone: (when: string, who: string) => `Zuletzt erledigt ${when} von ${who}`,
+    lastDoneByYou: 'dir',
+    neverDone: 'Zum ersten Mal dran – du machst den Anfang! 🚀',
     overdueTitle: 'Noch offen',
     fromWeek: (weekStart: string) => `aus der Woche ${weekRange(weekStart)}`,
     doneButton: 'Erledigt',
@@ -86,6 +92,7 @@ export const strings = {
     you: 'du',
     open: 'offen',
     doneOn: (weekday: string) => `erledigt ${weekday}`,
+    lastDone: (when: string) => `zuletzt ${when}`,
   },
 
   settings: {

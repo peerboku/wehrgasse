@@ -73,6 +73,11 @@ export function daysLeft(weekStartDate: string, now: Date = new Date()): number 
   return daysBetween(viennaDate(now), sunday) + 1
 }
 
+/** Calendar days in Vienna since a timestamp like done_at: today = 0, yesterday = 1. */
+export function daysAgo(timestamp: string, now: Date = new Date()): number {
+  return daysBetween(viennaDate(new Date(timestamp)), viennaDate(now))
+}
+
 /** Days since the week's Sunday. The Monday after counts as 1 ("seit gestern"). */
 export function daysOverdue(weekStartDate: string, now: Date = new Date()): number {
   const sunday = addDays(weekStartDate, 6)

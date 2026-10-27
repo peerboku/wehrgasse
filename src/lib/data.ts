@@ -25,6 +25,22 @@ export async function loadAssignments(currentWeek: string): Promise<Assignment[]
   return data
 }
 
+/** For each chore its newest done assignment (when and by whom it was done last). Never-done chores are missing. */
+export async function loadLastDone(): Promise<Assignment[]> {
+  const { data, error } = await supabase
+    .from('assignments')
+    .select('id, week_start, chore_id, member_id, done_at, done_by')
+    .not('done_at', 'is', null)
+    .order('done_at', { ascending: false })
+  if (error) throw error
+  // Newest first, so the first row we meet per chore is the last time it was done
+  const newest = new Map<string, Assignment>()
+  for (const row of data) {
+    if (!newest.has(row.chore_id)) newest.set(row.chore_id, row)
+  }
+  return [...newest.values()]
+}
+
 /** `.is('done_at', null)`: a second tap (or a second phone) can't overwrite the first time. */
 export async function markDone(assignmentId: string, memberId: string, doneAt: string): Promise<void> {
   const { error } = await supabase

@@ -44,6 +44,7 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 
 ## Extras pulled from Ideas
 - [x] **MyWeek:** days left this week ("noch 4 Tage", today included; Sunday "Nur noch heute! ⏳"), borrowed from Flatastic's countdown (27.10.)
+- [x] **Last done:** MyWeek card "Zuletzt erledigt vor 8 Tagen von Carla" (or "Zum ersten Mal dran …" if never done), Overview open rows "zuletzt gestern". Read from `assignments`, no schema change (27.10.) — not yet checked on the iPhone with real done rows
 
 ## After launch (in order)
 1. **Weeks 2–3:** comments on chores (Realtime), note board ("Pinnwand", free text posts). Log `comment_created`, `note_created`.
@@ -95,5 +96,10 @@ Kept as is: the celebration animation and cheer texts (both liked them).
 - **Mark the push test matrix in the stats:** note the matrix's start/end time here, so later statistics can skip those `chore_done` / `push_*` events (`events` stays append-only, nothing gets deleted).
 - **CI hardening:** run `npm run lint` + `npm run test` before deploy; `curl` smoke test of the live URL after deploy. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
 - **Maintenance:** update GitHub Actions to versions running on Node 24 (deprecation warning in the first run); pin Node version (`.nvmrc`); enable Dependabot + GitHub secret scanning / push protection. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
-- Add text that shows when the chore was done the last time (maybe we also need to add a feature for if you mark the chore as done later than you have done it)
+- **"Heute oder gestern erledigt?"** (Peer, 27.10.): the confirmation sheet asks when it was done, so `done_at` is right when someone taps late. Makes "zuletzt erledigt" and the week-6 stats (weekday when chores get done) honest. Notes for later:
+  - `markDone()` already takes `doneAt`, so it's mostly UI: two buttons "Heute" / "Gestern" instead of "Ja klar!".
+  - "Gestern" = yesterday 12:00 Vienna time (a day, not a fake exact minute).
+  - On Monday, "gestern" is Sunday of the *previous* week: fine for an overdue card, but for this week's chore it would be before the week started. Only offer "gestern" if it's inside the assignment's week or later.
+  - Push stays immediate ("hat … erledigt"); log it in the `chore_done` payload (`backdated: true`) so stats can tell.
+  - Maybe later: "vorgestern" or a date picker. Start with 2 buttons.
 - Add funny texts for the notifications

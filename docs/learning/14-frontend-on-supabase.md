@@ -60,6 +60,38 @@ Details worth knowing:
   Next time, test *before* the week starts, or on a throw-away week.
 - **`login` and `app_open` come in pairs** when a name is picked (ids 2+3, 8+9). That's by design: `app_open` = "someone started using the app". For statistics, count `app_open` per day, not per row.
 
+### Added 27.10.2026: "Zuletzt erledigt vor 8 Tagen von Carla"
+
+From ROADMAP Ideas. The chore rotates, so the useful question is "when was *this chore* done last, by anyone?", not "when did *I* do it last".
+
+**No new table needed.** `assignments` already remembers every week forever (`done_at`, `done_by`). That's the payoff of materialized assignments: history is just old rows. The new function `loadLastDone()` in [data.ts](../../src/lib/data.ts) asks for all done rows, newest first, and keeps the first one per chore:
+
+```ts
+.not('done_at', 'is', null)
+.order('done_at', { ascending: false })
+// then: first row per chore_id wins (a Map)
+```
+
+That's 4 rows per week, about 200 per year: small enough to load whole. `App.tsx` loads it next to the assignments and reloads it on the same triggers (Realtime, app back in front).
+
+Where it shows:
+- **MyWeek**, under the chore name, only while it's open: "Zuletzt erledigt vor 8 Tagen von Carla" ("von dir" if it was you). Never done yet → "Zum ersten Mal dran – du machst den Anfang! 🚀". Right now (launch week) that's what everyone sees: the real database has no done rows yet, checked with a read-only query → `"rows": []`.
+- **Overview**, small under the name in open rows: "zuletzt gestern". Done rows already say "erledigt Di.".
+
+"Days ago" is the same trick as in [chapter 09](09-dates-timezones-and-tests.md): turn both moments into Vienna dates first, then `daysBetween()`. New `daysAgo()` in [week.ts](../../src/lib/week.ts), with 4 tests. The important one: Tuesday 00:30 in Vienna is still Monday in UTC, so it must be "heute", not "gestern". The UTC experiment again (switch `TIME_ZONE` to `'UTC'`):
+
+```
+× Monday 00:30 in Vienna is a new week, although it is still Sunday in UTC
+× Monday 29.03.2027 00:00 in Vienna starts the new week
+× Sunday 23:30 UTC is already Monday in Vienna: a new week with 7 days
+× Tuesday 00:30 in Vienna is today, although it is still Monday in UTC
+Tests  4 failed | 16 passed (20)
+```
+
+Back to `'Europe/Vienna'`: `Tests  20 passed (20)`, also with `TZ=Pacific/Auckland`.
+
+**Known gap:** `done_at` is the moment of the *tap*. If Carla cleans on Saturday and taps on Monday, it says "gestern" instead of "vor 2 Tagen". Peer's follow-up idea ("Heute oder gestern erledigt?") is in ROADMAP Ideas.
+
 ## 3. Predict, then run
 
 Open the app in one window and run this in the terminal:
@@ -73,6 +105,7 @@ Nothing happens in the app. Now **predict** what the app shows when Peer edits `
 - **Generated types**: `supabase gen types typescript` creates TypeScript types from the real schema, so a renamed column is a compile error instead of a runtime surprise. Our hand-written `types.ts` can drift.
 - **Offline queue**: if "Erledigt" is tapped without network, store it and send later. We show an alert and reload instead.
 - **End-to-end tests** (Playwright) that log in and tick a chore in a real browser, run in CI.
+- **Let Postgres pick the newest row per chore** (`select distinct on (chore_id) … order by chore_id, done_at desc`, as a view). Then only 4 rows travel instead of all of them. Needs a migration; not worth it at 200 rows a year.
 
 ## 5. Sources
 
