@@ -70,6 +70,25 @@ Tests  2 failed | 10 passed (12)
 
 Exactly the two "midnight in Vienna is still yesterday in UTC" cases went red, then green again after undoing the change. Good: the tests guard the thing we care about.
 
+### Added 27.10.2026: the countdown "noch 4 Tage"
+
+Borrowed from Flatastic's countdown (ROADMAP Ideas). MyWeek now shows how many days are left above the "Erledigt" button: `daysLeft()` in [week.ts](../../src/lib/week.ts), text in `strings.myWeek.daysLeft`.
+
+**The off-by-one question:** does Thursday have 3 days left or 4? We count *today included*: Thursday → Thu, Fri, Sat, Sun = **4**. Otherwise Sunday would say "noch 0 Tage", which sounds like "too late" while you still have the whole day. So Monday = 7, Sunday = 1, and 1 gets its own text: "Nur noch heute! ⏳" (in red). It's the same pattern as `daysOverdue()`: two plain dates, `daysBetween()`, no hours.
+
+When it is hidden: once the chore is done ("Du hast frei bis Montag" says enough), and before launch week (it would say "noch 13 Tage" for a week that hasn't started).
+
+Four new tests, including one at the Sunday/Monday border: Sunday 23:30 UTC is already Monday in Vienna, so the answer must be 7, not 1. The UTC experiment from above, repeated:
+
+```
+× Monday 00:30 in Vienna is a new week, although it is still Sunday in UTC
+× Monday 29.03.2027 00:00 in Vienna starts the new week
+× Sunday 23:30 UTC is already Monday in Vienna: a new week with 7 days
+Tests  3 failed | 13 passed (16)
+```
+
+With `'Europe/Vienna'` back: `Tests  16 passed (16)`, also with `TZ=Pacific/Auckland` and `TZ=America/Los_Angeles`.
+
 ## 3. Predict, then run
 
 `TZ` changes the computer's time zone for one command. **Predict**: what does this print, `0` (Sunday) or `1` (Monday)?

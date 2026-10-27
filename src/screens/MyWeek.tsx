@@ -5,7 +5,7 @@ import { ConfirmSheet } from '../components/ConfirmSheet'
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
 import type { Assignment, Chore, Member } from '../lib/types'
-import { daysOverdue, viennaWeekdayIndex, weekStart } from '../lib/week'
+import { daysLeft, daysOverdue, viennaWeekdayIndex, weekStart } from '../lib/week'
 import styles from './MyWeek.module.css'
 
 type Props = {
@@ -27,6 +27,7 @@ export function MyWeek({ member, currentWeek, assignments, chores, onMarkDone }:
   const thisWeek = mine.find((a) => a.week_start === currentWeek)
   // Before launch the app already shows the first week (see App.tsx)
   const startsNextWeek = currentWeek > weekStart()
+  const left = daysLeft(currentWeek)
 
   function confirmDone() {
     if (!confirming) return
@@ -57,9 +58,17 @@ export function MyWeek({ member, currentWeek, assignments, chores, onMarkDone }:
               <p className={styles.free}>{strings.myWeek.freeUntilMonday}</p>
             </>
           ) : (
-            <Button className={styles.doneButton} onClick={() => setConfirming(thisWeek)}>
-              {strings.myWeek.doneButton}
-            </Button>
+            <>
+              {/* No countdown before launch week, it would show more than 7 days */}
+              {!startsNextWeek && (
+                <p className={`${styles.daysLeft} ${left === 1 ? styles.daysLeftLastDay : ''}`}>
+                  {strings.myWeek.daysLeft(left)}
+                </p>
+              )}
+              <Button className={styles.doneButton} onClick={() => setConfirming(thisWeek)}>
+                {strings.myWeek.doneButton}
+              </Button>
+            </>
           )}
         </section>
       )}

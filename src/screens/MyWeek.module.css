@@ -92,8 +92,19 @@
   line-height: 1.15;
 }
 
+.daysLeft {
+  margin-top: 20px;
+  color: var(--accent);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.daysLeftLastDay {
+  color: var(--danger);
+}
+
 .doneButton {
-  margin-top: 28px;
+  margin-top: 16px;
   min-height: 60px;
   font-size: 20px;
 }

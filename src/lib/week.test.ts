@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { assignmentsForWeek, choreById, members, chores, memberById, rotationTemplate } from './mockData'
-import { ANCHOR_WEEK, addDays, cycleWeek, daysOverdue, viennaDate, weekStart } from './week'
+import { ANCHOR_WEEK, addDays, cycleWeek, daysLeft, daysOverdue, viennaDate, weekStart } from './week'
 
 describe('weekStart (Europe/Vienna)', () => {
   it('a normal Wednesday belongs to the Monday before', () => {
@@ -52,6 +52,26 @@ describe('daysOverdue', () => {
 
   it('Wednesday after the week is 3 days overdue', () => {
     expect(daysOverdue('2026-10-19', new Date('2026-10-28T09:00:00Z'))).toBe(3)
+  })
+})
+
+describe('daysLeft', () => {
+  it('Monday has the whole week left: 7 days', () => {
+    expect(daysLeft('2026-10-26', new Date('2026-10-26T09:00:00Z'))).toBe(7)
+  })
+
+  it('Thursday has 4 days left (Thu, Fri, Sat, Sun)', () => {
+    expect(daysLeft('2026-10-26', new Date('2026-10-29T09:00:00Z'))).toBe(4)
+  })
+
+  it('Sunday 23:59 in Vienna is the last day: 1', () => {
+    // 1.11.2026 is winter time (UTC+1), so 23:59 Vienna = 22:59 UTC
+    expect(daysLeft('2026-10-26', new Date('2026-11-01T22:59:00Z'))).toBe(1)
+  })
+
+  it('Sunday 23:30 UTC is already Monday in Vienna: a new week with 7 days', () => {
+    const instant = new Date('2026-11-01T23:30:00Z')
+    expect(daysLeft(weekStart(instant), instant)).toBe(7)
   })
 })
 

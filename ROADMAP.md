@@ -42,6 +42,9 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 ## Launch — Mon 26.10.
 - [ ] Short message in the flat chat: link + "add to Home Screen" steps
 
+## Extras pulled from Ideas
+- [x] **MyWeek:** days left this week ("noch 4 Tage", today included; Sunday "Nur noch heute! ⏳"), borrowed from Flatastic's countdown (27.10.)
+
 ## After launch (in order)
 1. **Weeks 2–3:** comments on chores (Realtime), note board ("Pinnwand", free text posts). Log `comment_created`, `note_created`.
 2. **Week 4:** swaps/absences in the app (reassign a week's assignment, both parties see it). Until then Peer edits `assignments.member_id` in the Supabase dashboard. Log `assignment_swapped`.
@@ -90,7 +93,6 @@ Kept as is: the celebration animation and cheer texts (both liked them).
 - **Erinnern-Button** (from Flatastic IMG_2053): others can nudge the owner of an overdue chore. Would be a second push type; decide after the week-4 review.
 - **Push status checklist in Settings** (from Flatastic IMG_2050/2051): permission ✓ / subscribed ✓ / saved on server ✓, plus "Test senden". Helps debug the Phase 4 matrix.
 - **Mark the push test matrix in the stats:** note the matrix's start/end time here, so later statistics can skip those `chore_done` / `push_*` events (`events` stays append-only, nothing gets deleted).
-- **MyWeek:** show days left this week ("noch 4 Tage"), borrowed from Flatastic's countdown.
 - **CI hardening:** run `npm run lint` + `npm run test` before deploy; `curl` smoke test of the live URL after deploy. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
 - **Maintenance:** update GitHub Actions to versions running on Node 24 (deprecation warning in the first run); pin Node version (`.nvmrc`); enable Dependabot + GitHub secret scanning / push protection. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
 - Add text that shows when the chore was done the last time (maybe we also need to add a feature for if you mark the chore as done later than you have done it)

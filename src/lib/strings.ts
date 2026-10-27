@@ -62,6 +62,7 @@ export const strings = {
     greeting: (name: string) => `Hi ${name}! 👋`,
     yourChore: 'Diese Woche bist du dran mit',
     yourChoreFromMonday: 'Ab Montag bist du dran mit',
+    daysLeft: (days: number) => (days === 1 ? 'Nur noch heute! ⏳' : `noch ${days} Tage`),
     overdueTitle: 'Noch offen',
     fromWeek: (weekStart: string) => `aus der Woche ${weekRange(weekStart)}`,
     doneButton: 'Erledigt',

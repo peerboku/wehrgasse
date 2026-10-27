@@ -67,6 +67,12 @@ export function cycleWeek(weekStartDate: string): number {
   return ((weeks % CYCLE_LENGTH) + CYCLE_LENGTH) % CYCLE_LENGTH
 }
 
+/** Days left in the week, today included: Monday = 7, Sunday = 1 ("nur noch heute"). */
+export function daysLeft(weekStartDate: string, now: Date = new Date()): number {
+  const sunday = addDays(weekStartDate, 6)
+  return daysBetween(viennaDate(now), sunday) + 1
+}
+
 /** Days since the week's Sunday. The Monday after counts as 1 ("seit gestern"). */
 export function daysOverdue(weekStartDate: string, now: Date = new Date()): number {
   const sunday = addDays(weekStartDate, 6)
