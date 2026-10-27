@@ -103,6 +103,6 @@ Kept as is: the celebration animation and cheer texts (both liked them).
   - On Monday, "gestern" is Sunday of the *previous* week: fine for an overdue card, but for this week's chore it would be before the week started. Only offer "gestern" if it's inside the assignment's week or later.
   - Push stays immediate ("hat … erledigt"); log it in the `chore_done` payload (`backdated: true`) so stats can tell.
   - Maybe later: "vorgestern" or a date picker. Start with 2 buttons.
-- Add funny texts for the notifications
+- Add funny texts for the notifications (collect them in [docs/texts.md](docs/texts.md), then pick one at random)
 - **Take over overdue chores too** (Peer, 27.10.): today only this week's open chores can be taken over. Overdue ones from last week stay with their owner. Would mean dropping `week_start = this_monday` in `take_over()` for rows with `done_at is null`.
 - **"Ich bin weg" marker**: mark yourself away for a week → push "Peer ist diese Woche weg – wer übernimmt Müll rausbringen?". Builds on take-over, so the others still tap "übernehmen". Only if the chat isn't enough after the week-4 review.
