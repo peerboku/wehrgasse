@@ -20,3 +20,4 @@ Rules:
 | [0010](0010-private-avatar-bucket.md) | Profile photos in a private bucket, loaded with `download()` | Accepted |
 | [0011](0011-take-over-via-function.md) | "Take over a chore" through a database function `take_over()` | Accepted |
 | [0012](0012-design-3-knautsch-drehscheibe.md) | New look: Design 3 "Knautsch × Drehscheibe" | Accepted |
+| [0013](0013-fix-mistakes-by-deleting-events.md) | Fix mistakes in runtime data with direct SQL, deleting the matching events | Accepted |

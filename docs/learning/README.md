@@ -85,6 +85,12 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 | 17 | [Take over a chore: database functions (RPC) and a second push type](17-take-over-rpc-and-second-push.md) | ⏳ (db push, deploy, iPhone check open) | |
 | 18 | [A new look: design tokens, CSS variables per element, and a wheel](18-design-tokens-and-the-wheel.md) | ⏳ (iPhone review open) | |
 
+### Operations (Tue 27.10.2026)
+
+| # | Chapter | Status | Read |
+|---|---|---|---|
+| 19 | [Fixing data by hand: a reset, undoing "erledigt", and an append-only log](19-fixing-data-by-hand.md) | ✅ (first real undo open) | |
+
 ## Final exam for Phase 0: the reproducibility test
 
 The strongest proof that these chapters are correct comes from a run that doesn't involve Claude. In a new empty folder, with a new GitHub repo called e.g. `wg-test`, follow chapters 01–04 **without asking Claude**, and end with a page live at `https://<you>.github.io/wg-test/`. Every place you get stuck is a bug in this documentation. Write it down and we'll fix the chapter. Delete the test repo afterwards.
