@@ -3,13 +3,16 @@ import { Button } from './Button'
 import styles from './ConfirmSheet.module.css'
 
 type Props = {
-  choreName: string
+  question: string
+  hint: string
+  yesLabel: string
   onConfirm: () => void
   onCancel: () => void
 }
 
-// Bottom sheet that asks "really done?" before anything is sent to the others.
-export function ConfirmSheet({ choreName, onConfirm, onCancel }: Props) {
+// Bottom sheet that asks "really?" before anything is sent to the others
+// ("erledigt?" in Meine Woche, "übernehmen?" in the WG overview).
+export function ConfirmSheet({ question, hint, yesLabel, onConfirm, onCancel }: Props) {
   return (
     <div className={styles.backdrop} onClick={onCancel}>
       <div
@@ -21,11 +24,11 @@ export function ConfirmSheet({ choreName, onConfirm, onCancel }: Props) {
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id="confirm-title" className={styles.question}>
-          {strings.confirm.question(choreName)}
+          {question}
         </h2>
-        <p className={styles.hint}>{strings.confirm.hint}</p>
+        <p className={styles.hint}>{hint}</p>
         <div className={styles.buttons}>
-          <Button onClick={onConfirm}>{strings.confirm.yes}</Button>
+          <Button onClick={onConfirm}>{yesLabel}</Button>
           <Button variant="secondary" onClick={onCancel}>
             {strings.confirm.cancel}
           </Button>

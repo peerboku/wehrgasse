@@ -84,6 +84,13 @@ export const strings = {
     cancel: 'Abbrechen',
   },
 
+  takeOver: {
+    question: (chore: string) => `„${chore}“ diese Woche übernehmen?`,
+    hint: (name: string) => `Statt ${name}. Alle anderen werden benachrichtigt.`,
+    yes: 'Ja, mach ich! 💪',
+    error: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
+  },
+
   cheers: ['Stark! 💪', 'Die WG dankt dir! ✨', 'Blitzblank! 🧽', 'Legende! 🏆', 'Sauber gemacht! 🫧'],
 
   overview: {

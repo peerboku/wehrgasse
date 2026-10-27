@@ -52,6 +52,15 @@ export async function markDone(assignmentId: string, memberId: string, doneAt: s
   if (error) throw error
 }
 
+/**
+ * "Ich übernehm das": this week's open assignment becomes memberId's. The database
+ * function take_over() checks "this week + still open" (migration 20261027180000).
+ */
+export async function takeOver(assignmentId: string, memberId: string): Promise<void> {
+  const { error } = await supabase.rpc('take_over', { p_assignment_id: assignmentId, p_member_id: memberId })
+  if (error) throw error
+}
+
 /** Calls onChange whenever any assignment changes. Returns a function that stops listening. */
 export function onAssignmentsChange(onChange: () => void): () => void {
   const channel = supabase

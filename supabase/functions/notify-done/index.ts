@@ -1,15 +1,25 @@
-// Edge Function notify-done: "✅ Carla hat Bad Carla & Peer erledigt" to the other members.
-// Runs on Supabase (Deno), not in the browser. Called by the database trigger
-// notify_done() (migration 20261027150000_push_webhook.sql) with { assignment_id }.
+// Edge Function notify-done: tells the other members what happened to a chore.
+//   kind 'done':       "✅ Carla hat Bad Carla & Peer erledigt"
+//   kind 'taken_over': "🔄 Noa übernimmt diese Woche Müll rausbringen (statt Peer)"
+// Runs on Supabase (Deno), not in the browser. Called by the database triggers
+// notify_done() (migration 20261027150000_push_webhook.sql) with { assignment_id }
+// and notify_taken_over() (20261027180000_take_over.sql) with
+// { kind: 'taken_over', assignment_id, from_member_id }.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
 
 // The notification text lives here and not in src/lib/strings.ts: this code runs
 // on Supabase and can't import files from the app.
 const TITLE = 'WG-App'
-function notificationText(memberName: string, choreName: string) {
+function doneText(memberName: string, choreName: string) {
   return `✅ ${memberName} hat ${choreName} erledigt`
 }
+function takenOverText(newName: string, choreName: string, oldName: string) {
+  return `🔄 ${newName} übernimmt diese Woche ${choreName} (statt ${oldName})`
+}
+
+// Calls from the first trigger have no kind, they are always 'done'
+type Kind = 'done' | 'taken_over'
 
 // Apple keeps an undelivered push this long (seconds) if the phone is offline
 const ONE_DAY = 24 * 60 * 60
@@ -41,8 +51,9 @@ Deno.serve(async (request) => {
   }
 
   try {
-    const { assignment_id: assignmentId } = await request.json()
-    const result = await notifyOthers(assignmentId)
+    const { assignment_id: assignmentId, kind = 'done', from_member_id: fromMemberId } = await request.json()
+    const result =
+      kind === 'taken_over' ? await notifyTakenOver(assignmentId, fromMemberId) : await notifyDone(assignmentId)
     return Response.json(result)
   } catch (error) {
     console.error(error)
@@ -50,23 +61,38 @@ Deno.serve(async (request) => {
   }
 })
 
-async function notifyOthers(assignmentId: string) {
+async function notifyDone(assignmentId: string) {
   const assignment = await selectOne('assignments', 'chore_id, done_by', assignmentId)
   const [chore, doer] = await Promise.all([
     selectOne('chores', 'name', assignment.chore_id),
     selectOne('members', 'name', assignment.done_by),
   ])
-
   // Everyone except the person who did it
+  return notifyAllExcept(assignment.done_by, doneText(doer.name, chore.name), assignmentId, 'done')
+}
+
+async function notifyTakenOver(assignmentId: string, fromMemberId: string) {
+  const assignment = await selectOne('assignments', 'chore_id, member_id', assignmentId)
+  const [chore, newOwner, oldOwner] = await Promise.all([
+    selectOne('chores', 'name', assignment.chore_id),
+    selectOne('members', 'name', assignment.member_id),
+    selectOne('members', 'name', fromMemberId),
+  ])
+  // Everyone except the person who took it over, so the old owner hears it too
+  const text = takenOverText(newOwner.name, chore.name, oldOwner.name)
+  return notifyAllExcept(assignment.member_id, text, assignmentId, 'taken_over')
+}
+
+async function notifyAllExcept(memberId: string, text: string, assignmentId: string, kind: Kind) {
   const { data: subscriptions, error } = await supabase
     .from('push_subscriptions')
     .select('id, member_id, endpoint, p256dh, auth')
-    .neq('member_id', assignment.done_by)
+    .neq('member_id', memberId)
   if (error) throw error
 
-  const payload = JSON.stringify({ title: TITLE, body: notificationText(doer.name, chore.name) })
+  const payload = JSON.stringify({ title: TITLE, body: text })
   const delivered = await Promise.all(
-    subscriptions.map((subscription) => send(subscription, payload, assignmentId)),
+    subscriptions.map((subscription) => send(subscription, payload, assignmentId, kind)),
   )
   return { sent: delivered.filter(Boolean).length, total: subscriptions.length }
 }
@@ -79,12 +105,12 @@ async function selectOne(table: string, columns: string, id: string) {
 }
 
 /** Sends one push and logs the outcome. Returns true if Apple (or Google, Mozilla) accepted it. */
-async function send(subscription: Subscription, payload: string, assignmentId: string): Promise<boolean> {
+async function send(subscription: Subscription, payload: string, assignmentId: string, kind: Kind): Promise<boolean> {
   const target = {
     endpoint: subscription.endpoint,
     keys: { p256dh: subscription.p256dh, auth: subscription.auth },
   }
-  const details = { assignment_id: assignmentId, subscription_id: subscription.id }
+  const details = { kind, assignment_id: assignmentId, subscription_id: subscription.id }
 
   try {
     const response = await webpush.sendNotification(target, payload, { TTL: ONE_DAY })

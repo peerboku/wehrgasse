@@ -82,6 +82,7 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 | # | Chapter | Status | Read |
 |---|---|---|---|
 | 16 | [Private photos: Storage buckets, RLS on files, stripping GPS](16-private-photos-storage.md) | ✅ | |
+| 17 | [Take over a chore: database functions (RPC) and a second push type](17-take-over-rpc-and-second-push.md) | ⏳ (db push, deploy, iPhone check open) | |
 
 ## Final exam for Phase 0: the reproducibility test
 

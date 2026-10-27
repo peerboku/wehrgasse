@@ -12,6 +12,7 @@ import {
   markDone,
   onAssignmentsChange,
   savePhoto,
+  takeOver,
 } from './lib/data'
 import { logEvent } from './lib/events'
 import { clearMyMemberId, getMyMemberId, setMyMemberId } from './lib/me'
@@ -184,6 +185,32 @@ function App() {
     }
   }
 
+  // "Ich übernehm das": someone else's open chore of this week becomes mine
+  async function handleTakeOver(assignment: Assignment) {
+    const takenBy = myId
+    // Show it as mine right away, the database catches up in the background
+    setData(
+      (previous) =>
+        previous && {
+          ...previous,
+          assignments: previous.assignments.map((a) => (a.id === assignment.id ? { ...a, member_id: takenBy } : a)),
+        },
+    )
+    try {
+      await takeOver(assignment.id, takenBy)
+      logEvent('assignment_swapped', {
+        assignment_id: assignment.id,
+        chore_id: assignment.chore_id,
+        week_start: assignment.week_start,
+        from_member_id: assignment.member_id,
+      })
+    } catch (error) {
+      console.warn(error)
+      alert(strings.takeOver.error)
+      reloadAssignments()
+    }
+  }
+
   // file = the newly picked photo, null = remove mine and show the emoji again.
   // Errors are shown here; Settings only waits for this to finish.
   async function handlePhotoChange(file: File | null) {
@@ -238,6 +265,7 @@ function App() {
               lastDone={data.lastDone}
               members={data.members}
               chores={data.chores}
+              onTakeOver={handleTakeOver}
             />
           )}
           {tab === 'settings' && (

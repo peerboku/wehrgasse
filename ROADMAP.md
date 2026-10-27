@@ -46,10 +46,11 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 - [x] **MyWeek:** days left this week ("noch 4 Tage", today included; Sunday "Nur noch heute! ⏳"), borrowed from Flatastic's countdown (27.10.)
 - [x] **Last done:** MyWeek card "Zuletzt erledigt vor 8 Tagen von Carla" (or "Zum ersten Mal dran …" if never done), Overview open rows "zuletzt gestern". Read from `assignments`, no schema change (27.10.) — not yet checked on the iPhone with real done rows
 - [x] **Photos of everyone** (Noa, hallway test): set your own photo in Settings, it replaces the animal emoji in `Avatar`. Private bucket `avatars`, only for the WG login, loaded with `download()`, resized + GPS removed on the phone ([ADR 0010](docs/decisions/0010-private-avatar-bucket.md)) (pulled and done 27.10., checked on the iPhone; test photos removed again, bucket empty)
+- [ ] **Take over a chore** ("Ich übernehm das", pulled from "After launch #2"): in the WG tab tap someone else's open chore of this week → confirm → it's yours this week, shows in your "Meine Woche", the other 3 get "🔄 Noa übernimmt diese Woche Müll rausbringen (statt Peer)". Rotation unchanged. DB function `take_over()` + trigger `notify_taken_over` ([ADR 0011](docs/decisions/0011-take-over-via-function.md)), logs `assignment_swapped` (code done 27.10.; waiting for `db push`, function deploy and the iPhone check)
 
 ## After launch (in order)
 1. **Weeks 2–3:** comments on chores (Realtime), note board ("Pinnwand", free text posts). Log `comment_created`, `note_created`.
-2. **Week 4:** swaps/absences in the app (reassign a week's assignment, both parties see it). Until then Peer edits `assignments.member_id` in the Supabase dashboard. Log `assignment_swapped`.
+2. **Week 4:** ~~swaps in the app~~ pulled forward as "Take over a chore" (see Extras). Left here: an optional absence marker (see Ideas), only if take-over alone isn't enough.
 3. **Week 4 review:** check success metrics below, decide keep / simplify / switch.
 4. **Week 6+:** statistics from `events` + `assignments` (weekday when chores get done, done-rate per person, avg days late).
 
@@ -103,3 +104,5 @@ Kept as is: the celebration animation and cheer texts (both liked them).
   - Push stays immediate ("hat … erledigt"); log it in the `chore_done` payload (`backdated: true`) so stats can tell.
   - Maybe later: "vorgestern" or a date picker. Start with 2 buttons.
 - Add funny texts for the notifications
+- **Take over overdue chores too** (Peer, 27.10.): today only this week's open chores can be taken over. Overdue ones from last week stay with their owner. Would mean dropping `week_start = this_monday` in `take_over()` for rows with `done_at is null`.
+- **"Ich bin weg" marker**: mark yourself away for a week → push "Peer ist diese Woche weg – wer übernimmt Müll rausbringen?". Builds on take-over, so the others still tap "übernehmen". Only if the chat isn't enough after the week-4 review.

@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { Avatar } from '../components/Avatar'
+import { ConfirmSheet } from '../components/ConfirmSheet'
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
 import type { Assignment, Chore, Member } from '../lib/types'
@@ -12,10 +14,14 @@ type Props = {
   lastDone: Assignment[]
   members: Member[]
   chores: Chore[]
+  onTakeOver: (assignment: Assignment) => void
 }
 
-// Read-only: everyone's chores this week. Only the owner can mark done (in "Meine Woche").
-export function Overview({ me, currentWeek, assignments, lastDone, members, chores }: Props) {
+// Everyone's chores this week. Only the owner can mark done (in "Meine Woche"),
+// but anyone can take over someone else's open chore of this week ("Ich übernehm das").
+export function Overview({ me, currentWeek, assignments, lastDone, members, chores, onTakeOver }: Props) {
+  const [confirming, setConfirming] = useState<Assignment | null>(null)
+
   const byChoreOrder = (a: Assignment, b: Assignment) =>
     byId(chores, a.chore_id).sort_order - byId(chores, b.chore_id).sort_order
   const overdue = assignments.filter((a) => a.week_start < currentWeek && a.done_at === null).sort(byChoreOrder)
@@ -49,9 +55,25 @@ export function Overview({ me, currentWeek, assignments, lastDone, members, chor
             members={members}
             chores={chores}
             lastDoneAt={lastDone.find((a) => a.chore_id === assignment.chore_id)?.done_at ?? null}
+            onTap={
+              !assignment.done_at && assignment.member_id !== me.id ? () => setConfirming(assignment) : undefined
+            }
           />
         ))}
       </ul>
+
+      {confirming && (
+        <ConfirmSheet
+          question={strings.takeOver.question(byId(chores, confirming.chore_id).name)}
+          hint={strings.takeOver.hint(byId(members, confirming.member_id).name)}
+          yesLabel={strings.takeOver.yes}
+          onConfirm={() => {
+            onTakeOver(confirming)
+            setConfirming(null)
+          }}
+          onCancel={() => setConfirming(null)}
+        />
+      )}
     </div>
   )
 }
@@ -63,9 +85,10 @@ type RowProps = {
   chores: Chore[]
   overdue?: boolean
   lastDoneAt?: string | null // shown under the name while this week's chore is still open
+  onTap?: () => void // only set for rows you can take over
 }
 
-function Row({ assignment, me, members, chores, overdue = false, lastDoneAt = null }: RowProps) {
+function Row({ assignment, me, members, chores, overdue = false, lastDoneAt = null, onTap }: RowProps) {
   const member = byId(members, assignment.member_id)
   const chore = byId(chores, assignment.chore_id)
   const isMe = member.id === me.id
@@ -80,22 +103,39 @@ function Row({ assignment, me, members, chores, overdue = false, lastDoneAt = nu
     statusClass = styles.statusDone
   }
 
-  return (
-    <li className={`${styles.row} ${isMe ? styles.rowMe : ''} ${overdue ? styles.rowOverdue : ''}`}>
+  const rowClass = `${styles.row} ${isMe ? styles.rowMe : ''} ${overdue ? styles.rowOverdue : ''}`
+  // spans, not p: a <button> may only contain inline elements
+  const content = (
+    <>
       <Avatar member={member} />
-      <div className={styles.text}>
-        <p className={styles.chore}>
+      <span className={styles.text}>
+        <span className={styles.chore}>
           <span aria-hidden="true">{chore.icon}</span> {chore.name}
-        </p>
-        <p className={styles.member}>
+        </span>
+        <span className={styles.member}>
           {member.name}
           {isMe && ` (${strings.overview.you})`}
-        </p>
+        </span>
         {!assignment.done_at && lastDoneAt && (
-          <p className={styles.lastDone}>{strings.overview.lastDone(strings.daysAgo(daysAgo(lastDoneAt)))}</p>
+          <span className={styles.lastDone}>{strings.overview.lastDone(strings.daysAgo(daysAgo(lastDoneAt)))}</span>
         )}
-      </div>
-      <span className={`${styles.status} ${statusClass}`}>{status}</span>
+      </span>
+      <span className={`${styles.status} ${statusClass}`}>
+        {status}
+        {onTap && ' ›'}
+      </span>
+    </>
+  )
+
+  return (
+    <li>
+      {onTap ? (
+        <button type="button" className={`${rowClass} ${styles.rowButton}`} onClick={onTap}>
+          {content}
+        </button>
+      ) : (
+        <div className={rowClass}>{content}</div>
+      )}
     </li>
   )
 }
