@@ -27,7 +27,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(message.title, {
       body: message.body,
-      icon: 'pwa-192x192.png',
+      icon: 'icon-192.png',
     }),
   )
 })

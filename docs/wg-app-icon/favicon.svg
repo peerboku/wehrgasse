@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180" role="img" aria-label="WG-App">
+  <!-- Vereinfachte Version für 16/32 px: größerer Schwamm, keine Poren, nur die Erledigt-Blase -->
+  <rect x="0" y="0" width="180" height="180" fill="#1D1838"/>
+  <g transform="translate(-9 -6) scale(1.1)" stroke-linejoin="round" stroke-width="8">
+    <polygon points="30,114 130,114 130,148 30,148" fill="#FF9A3D" stroke="#FF9A3D"/>
+    <polygon points="130,114 148,102 148,136 130,148" fill="#E07B1F" stroke="#E07B1F"/>
+    <polygon points="30,102 130,102 130,114 30,114" fill="#34C065" stroke="#34C065"/>
+    <polygon points="130,102 148,90 148,102 130,114" fill="#239A4E" stroke="#239A4E"/>
+    <polygon points="30,102 48,90 148,90 130,102" fill="#6EDC93" stroke="#6EDC93"/>
+  </g>
+  <circle cx="104" cy="62" r="32" fill="#C3BBE6"/>
+  <circle cx="100.8" cy="58.8" r="27.5" fill="#F4F2FB"/>
+  <path d="M87.3,63.4 L98.4,74.5 L119.3,52.3" fill="none" stroke="#34C065" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

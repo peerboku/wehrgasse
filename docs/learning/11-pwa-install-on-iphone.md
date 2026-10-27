@@ -19,7 +19,9 @@ npm install -D vite-plugin-pwa@2 @vite-pwa/assets-generator@2
 npm install workbox-precaching@7 workbox-core@7
 ```
 
-**Icon:** one SVG ([public/favicon.svg](../../public/favicon.svg): green square, white house, check mark) is the only source. [pwa-assets.config.ts](../../pwa-assets.config.ts) turns it into PNGs:
+> **Update 27.10.:** the house icon and the generator below are gone. The sponge icon now comes ready-made from `docs/wg-app-icon/`, see [chapter 20](20-new-app-icon.md) and [ADR 0014](../decisions/0014-app-icon-from-design-handoff.md).
+
+**Icon:** one SVG (`public/favicon.svg`: green square, white house, check mark) is the only source. `pwa-assets.config.ts` (removed since) turned it into PNGs:
 
 ```
 $ npm run icons

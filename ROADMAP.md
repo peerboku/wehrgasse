@@ -65,6 +65,8 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
     - [ ] Bigger text (Settings → Display → Text Size, a few steps up): nothing cut off or overlapping, esp. the wheel labels
     - [ ] Then: commit, deploy, and tick "Chosen design implemented + checked on the iPhone" below
   - [ ] Chosen design implemented + checked on the iPhone
+- [x] **New app icon** (sponge on ink, handoff in `docs/wg-app-icon/`): files in `public/`, `index.html`, manifest, notification icon; old house icons + `npm run icons` generator removed; leftover old colours (manifest `theme_color`/`background_color`, `<meta name="theme-color">`) set to Design 3's `--bg` ([ADR 0014](docs/decisions/0014-app-icon-from-design-handoff.md)) (27.10.: build, lint, 23/23 tests, manifest + precache checked). Not committed yet
+  - [ ] After deploy, on all 4 iPhones: remove the app from the Home Screen, add it again → sponge icon; log in + „Benachrichtigungen aktivieren" again (re-adding wipes the app's storage). Do this **before** the Phase 4 push test matrix
 
 ## After launch (in order)
 1. **Weeks 2–3:** comments on chores (Realtime), note board ("Pinnwand", free text posts). Log `comment_created`, `note_created`.

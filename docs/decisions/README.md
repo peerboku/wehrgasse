@@ -21,3 +21,4 @@ Rules:
 | [0011](0011-take-over-via-function.md) | "Take over a chore" through a database function `take_over()` | Accepted |
 | [0012](0012-design-3-knautsch-drehscheibe.md) | New look: Design 3 "Knautsch × Drehscheibe" | Accepted |
 | [0013](0013-fix-mistakes-by-deleting-events.md) | Fix mistakes in runtime data with direct SQL, deleting the matching events | Accepted |
+| [0014](0014-app-icon-from-design-handoff.md) | App icon: ship the design handoff's PNGs, drop the Node icon generator | Accepted |
