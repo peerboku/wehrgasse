@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Avatar } from '../components/Avatar'
 import { Button } from '../components/Button'
+import { disablePush, enablePush, isPushOn, pushSupported, type EnableResult } from '../lib/push'
 import { strings } from '../lib/strings'
 import type { Member } from '../lib/types'
 import styles from './Settings.module.css'
@@ -18,9 +19,31 @@ function isInstalled(): boolean {
 }
 
 export function Settings({ member, onLogout }: Props) {
-  // Prototype: the switch only changes this state. Phase 4 asks for permission and subscribes.
   const [notificationsOn, setNotificationsOn] = useState(false)
+  const [busy, setBusy] = useState(false)
+  // Result of the last tap, only to show a hint when it went wrong
+  const [problem, setProblem] = useState<EnableResult | null>(null)
   const installed = isInstalled()
+  const supported = pushSupported()
+
+  // Is this phone already subscribed? (asking the browser, not the database)
+  useEffect(() => {
+    isPushOn().then(setNotificationsOn)
+  }, [])
+
+  async function toggleNotifications(on: boolean) {
+    setBusy(true)
+    setProblem(null)
+    if (on) {
+      const result = await enablePush(member.id)
+      setNotificationsOn(result === 'on')
+      if (result !== 'on') setProblem(result)
+    } else {
+      await disablePush()
+      setNotificationsOn(false)
+    }
+    setBusy(false)
+  }
 
   return (
     <div className={styles.screen}>
@@ -42,12 +65,14 @@ export function Settings({ member, onLogout }: Props) {
             role="switch"
             className={styles.switch}
             checked={notificationsOn}
-            onChange={(event) => setNotificationsOn(event.target.checked)}
+            disabled={!supported || busy}
+            onChange={(event) => toggleNotifications(event.target.checked)}
           />
         </label>
         <p className={styles.hint}>{strings.settings.notificationsHint}</p>
         {!installed && <p className={styles.hint}>{strings.settings.notificationsNeedInstall}</p>}
-        <p className={styles.prototype}>{strings.settings.prototypeNote}</p>
+        {problem === 'denied' && <p className={styles.problem}>{strings.settings.notificationsDenied}</p>}
+        {problem === 'error' && <p className={styles.problem}>{strings.settings.notificationsError}</p>}
       </section>
 
       {!installed && (

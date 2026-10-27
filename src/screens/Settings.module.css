@@ -76,10 +76,14 @@
   font-size: 15px;
 }
 
-.prototype {
-  color: var(--text-muted);
-  font-size: 13px;
-  font-style: italic;
+.switch:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.problem {
+  color: var(--danger);
+  font-size: 15px;
 }
 
 .steps {

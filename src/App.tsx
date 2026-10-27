@@ -5,6 +5,7 @@ import { TabBar, type Tab } from './components/TabBar'
 import { loadAssignments, loadChores, loadMembers, markDone, onAssignmentsChange } from './lib/data'
 import { logEvent } from './lib/events'
 import { clearMyMemberId, getMyMemberId, setMyMemberId } from './lib/me'
+import { disablePush } from './lib/push'
 import { strings } from './lib/strings'
 import { supabase } from './lib/supabaseClient'
 import type { Assignment, Chore, Member } from './lib/types'
@@ -153,6 +154,8 @@ function App() {
   }
 
   async function logout() {
+    // Otherwise this phone keeps getting pushes for the name that was picked before
+    await disablePush()
     clearMyMemberId()
     setMemberId(null)
     setTab('myWeek')

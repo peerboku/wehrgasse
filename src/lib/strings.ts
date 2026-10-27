@@ -94,7 +94,9 @@ export const strings = {
     notificationsToggle: 'Benachrichtigungen aktivieren',
     notificationsHint: 'Du bekommst eine Nachricht, wenn jemand seine Aufgabe erledigt hat.',
     notificationsNeedInstall: 'Klappt nur, wenn die App auf deinem Home-Bildschirm liegt.',
-    prototypeNote: 'Test-Version: Noch werden keine echten Nachrichten verschickt.',
+    notificationsDenied:
+      'Du hast Benachrichtigungen blockiert. Erlaube sie in den iPhone-Einstellungen unter „Mitteilungen“ → „WG“.',
+    notificationsError: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
     installTitle: 'App auf den Home-Bildschirm',
     installSteps: [
       'Öffne diese Seite in Safari.',

@@ -71,6 +71,12 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 | 13 | [The database: schema, RLS, migrations, pg_cron](13-schema-rls-migrations-cron.md) | ✅ | |
 | 14 | [Frontend on Supabase: login, queries, Realtime](14-frontend-on-supabase.md) | ✅ (cron's first run: check inside) | |
 
+### Phase 4 — Push + rollout (Tue 27.10.2026)
+
+| # | Chapter | Status | Read |
+|---|---|---|---|
+| 15 | [Push notifications end to end](15-push-notifications.md) | ⏳ (deploy + real pushes) | |
+
 ## Final exam for Phase 0: the reproducibility test
 
 The strongest proof that these chapters are correct comes from a run that doesn't involve Claude. In a new empty folder, with a new GitHub repo called e.g. `wg-test`, follow chapters 01–04 **without asking Claude**, and end with a page live at `https://<you>.github.io/wg-test/`. Every place you get stuck is a bug in this documentation. Write it down and we'll fix the chapter. Delete the test repo afterwards.

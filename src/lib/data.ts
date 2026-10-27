@@ -46,6 +46,25 @@ export function onAssignmentsChange(onChange: () => void): () => void {
   }
 }
 
+/**
+ * Stores this phone's push subscription for a member. Delete first, then insert:
+ * the endpoint is unique, and it may already be saved (same phone, maybe another name).
+ */
+export async function savePushSubscription(memberId: string, subscription: PushSubscription): Promise<void> {
+  const { endpoint, keys } = subscription.toJSON()
+  if (!endpoint || !keys?.p256dh || !keys.auth) throw new Error('push subscription without keys')
+  await deletePushSubscription(endpoint)
+  const { error } = await supabase
+    .from('push_subscriptions')
+    .insert({ member_id: memberId, endpoint, p256dh: keys.p256dh, auth: keys.auth })
+  if (error) throw error
+}
+
+export async function deletePushSubscription(endpoint: string): Promise<void> {
+  const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint)
+  if (error) throw error
+}
+
 export function byId<T extends { id: string }>(list: T[], id: string): T {
   return list.find((item) => item.id === id)!
 }

@@ -386,6 +386,11 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# Called by the database trigger notify_done(), which has no user login (JWT) to send.
+# The function checks the shared secret header x-webhook-secret instead (docs/decisions/0009).
+[functions.notify-done]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

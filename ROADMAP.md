@@ -89,6 +89,7 @@ Kept as is: the celebration animation and cheer texts (both liked them).
 - **Hallway question:** should others be able to mark a chore done *for* the owner (Flatastic allows "für Carla abhaken")? Case: chore done, owner forgot to tap.
 - **Erinnern-Button** (from Flatastic IMG_2053): others can nudge the owner of an overdue chore. Would be a second push type; decide after the week-4 review.
 - **Push status checklist in Settings** (from Flatastic IMG_2050/2051): permission ✓ / subscribed ✓ / saved on server ✓, plus "Test senden". Helps debug the Phase 4 matrix.
+- **Mark the push test matrix in the stats:** note the matrix's start/end time here, so later statistics can skip those `chore_done` / `push_*` events (`events` stays append-only, nothing gets deleted).
 - **MyWeek:** show days left this week ("noch 4 Tage"), borrowed from Flatastic's countdown.
 - **CI hardening:** run `npm run lint` + `npm run test` before deploy; `curl` smoke test of the live URL after deploy. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
 - **Maintenance:** update GitHub Actions to versions running on Node 24 (deprecation warning in the first run); pin Node version (`.nvmrc`); enable Dependabot + GitHub secret scanning / push protection. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
