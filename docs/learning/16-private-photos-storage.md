@@ -138,8 +138,16 @@ Now imagine the migration had said `public = true`. What would this command retu
 - **The file on the server** has no EXIF segment (`file`, byte dump, `grep`).
 - **The database** shows the bucket as `public: false` and the `avatar_changed` event.
 - Peer saw the photo in Settings, WG and on the name tiles in `npm run dev`.
-- ⏳ **"Foto entfernen"** → emoji back, `avatar_changed` with `removed: true`.
-- ⏳ **On the iPhone** (Home-Screen app): pick from library + take with camera; a second phone shows the photo after reopening.
+- **"Foto entfernen"** → emoji back. Peer checked it in the app, and the database has the events, added and removed for two members:
+
+  ```
+  01:02:35  Peer   {"removed": false}
+  01:05:29  Peer   {"removed": true}
+  01:10:00  Carla  {"removed": false}
+  01:10:27  Carla  {"removed": true}
+  ```
+- **On the iPhone** (Home-Screen app): Peer picked a photo from the library and took one with the camera; a second phone showed it after reopening (27.10.).
+- Afterwards all test photos were removed: `supabase storage ls ss:///avatars/ --experimental --linked` → `{"paths":[]}`. The bucket is empty until everyone sets their real photo.
 
 ## 7. Check yourself
 
