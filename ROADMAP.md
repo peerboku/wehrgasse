@@ -46,7 +46,11 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 - [x] **MyWeek:** days left this week ("noch 4 Tage", today included; Sunday "Nur noch heute! ⏳"), borrowed from Flatastic's countdown (27.10.)
 - [x] **Last done:** MyWeek card "Zuletzt erledigt vor 8 Tagen von Carla" (or "Zum ersten Mal dran …" if never done), Overview open rows "zuletzt gestern". Read from `assignments`, no schema change (27.10.) — not yet checked on the iPhone with real done rows
 - [x] **Photos of everyone** (Noa, hallway test): set your own photo in Settings, it replaces the animal emoji in `Avatar`. Private bucket `avatars`, only for the WG login, loaded with `download()`, resized + GPS removed on the phone ([ADR 0010](docs/decisions/0010-private-avatar-bucket.md)) (pulled and done 27.10., checked on the iPhone; test photos removed again, bucket empty)
-- [ ] **Take over a chore** ("Ich übernehm das", pulled from "After launch #2"): in the WG tab tap someone else's open chore of this week → confirm → it's yours this week, shows in your "Meine Woche", the other 3 get "🔄 Noa übernimmt diese Woche Müll rausbringen (statt Peer)". Rotation unchanged. DB function `take_over()` + trigger `notify_taken_over` ([ADR 0011](docs/decisions/0011-take-over-via-function.md)), logs `assignment_swapped` (code done 27.10.; waiting for `db push`, function deploy and the iPhone check)
+- [x] **Take over a chore** ("Ich übernehm das", pulled from "After launch #2"): in the WG tab tap someone else's open chore of this week → confirm → it's yours this week, shows in your "Meine Woche", the other 3 get "🔄 Noa übernimmt diese Woche Müll rausbringen (statt Peer)". Rotation unchanged. DB function `take_over()` + trigger `notify_taken_over` ([ADR 0011](docs/decisions/0011-take-over-via-function.md)), logs `assignment_swapped` (done 27.10.: pushed, deployed, checked on the iPhone)
+- [ ] **New design** (Peer, 27.10.): Peer makes 3 design proposals in claude.ai design (input: iPhone screenshots of every screen in light + dark, `index.css`, `strings.ts`, screens + components with their CSS modules, `mockData.ts`), the WG picks one, then it gets implemented here in the existing CSS modules. Core flow stays one tap away, still plain CSS, safe areas + dark mode. Record the choice as an ADR.
+  - [ ] 3 proposals made
+  - [ ] WG voted
+  - [ ] Chosen design implemented + checked on the iPhone
 
 ## After launch (in order)
 1. **Weeks 2–3:** comments on chores (Realtime), note board ("Pinnwand", free text posts). Log `comment_created`, `note_created`.
