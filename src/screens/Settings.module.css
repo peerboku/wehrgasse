@@ -27,6 +27,18 @@
   gap: 12px;
 }
 
+/* Quiet link-style button, for the less common action under a big button */
+.textButton {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--danger);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
 .toggleRow {
   display: flex;
   align-items: center;

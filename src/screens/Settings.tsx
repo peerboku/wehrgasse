@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Avatar } from '../components/Avatar'
 import { Button } from '../components/Button'
 import { disablePush, enablePush, isPushOn, pushSupported, type EnableResult } from '../lib/push'
@@ -8,6 +8,8 @@ import styles from './Settings.module.css'
 
 type Props = {
   member: Member
+  hasPhoto: boolean
+  onPhotoChange: (file: File | null) => Promise<void>
   onLogout: () => void
 }
 
@@ -18,9 +20,12 @@ function isInstalled(): boolean {
   return window.matchMedia('(display-mode: standalone)').matches || iosStandalone
 }
 
-export function Settings({ member, onLogout }: Props) {
+export function Settings({ member, hasPhoto, onPhotoChange, onLogout }: Props) {
   const [notificationsOn, setNotificationsOn] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  // The real file picker is hidden (it can't be styled), our button "clicks" it
+  const photoInput = useRef<HTMLInputElement>(null)
   // Result of the last tap, only to show a hint when it went wrong
   const [problem, setProblem] = useState<EnableResult | null>(null)
   const installed = isInstalled()
@@ -45,15 +50,41 @@ export function Settings({ member, onLogout }: Props) {
     setBusy(false)
   }
 
+  async function changePhoto(file: File | null) {
+    setPhotoBusy(true)
+    await onPhotoChange(file)
+    setPhotoBusy(false)
+  }
+
   return (
     <div className={styles.screen}>
       <h1 className={styles.title}>{strings.settings.title}</h1>
 
       <section className={styles.card}>
         <div className={styles.me}>
-          <Avatar member={member} size={44} />
+          <Avatar member={member} size={72} />
           <p>{strings.settings.loggedInAs(member.name)}</p>
         </div>
+        <input
+          ref={photoInput}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            event.target.value = '' // so picking the same photo again still counts as a change
+            if (file) changePhoto(file)
+          }}
+        />
+        <Button variant="secondary" disabled={photoBusy} onClick={() => photoInput.current?.click()}>
+          {photoBusy ? strings.settings.photoBusy : hasPhoto ? strings.settings.photoChange : strings.settings.photoAdd}
+        </Button>
+        {hasPhoto && !photoBusy && (
+          <button className={styles.textButton} onClick={() => changePhoto(null)}>
+            {strings.settings.photoRemove}
+          </button>
+        )}
+        <p className={styles.hint}>{strings.settings.photoHint}</p>
       </section>
 
       <section className={styles.card}>

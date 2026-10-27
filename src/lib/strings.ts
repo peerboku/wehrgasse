@@ -98,6 +98,12 @@ export const strings = {
   settings: {
     title: 'Einstellungen',
     loggedInAs: (name: string) => `Angemeldet als ${name}`,
+    photoAdd: 'Foto hinzufügen 📸',
+    photoChange: 'Foto ändern',
+    photoRemove: 'Foto entfernen',
+    photoBusy: 'Einen Moment …',
+    photoHint: 'Nur ihr vier seht dein Foto. 🔒',
+    photoError: 'Das Foto hat nicht geklappt. Bist du online? Probier es nochmal.',
     notificationsTitle: 'Benachrichtigungen',
     notificationsToggle: 'Benachrichtigungen aktivieren',
     notificationsHint: 'Du bekommst eine Nachricht, wenn jemand seine Aufgabe erledigt hat.',

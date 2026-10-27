@@ -77,6 +77,12 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 |---|---|---|---|
 | 15 | [Push notifications end to end](15-push-notifications.md) | ⏳ (first push ✅, 4-iPhone matrix open) | |
 
+### Extras pulled from Ideas (Tue 27.10.2026)
+
+| # | Chapter | Status | Read |
+|---|---|---|---|
+| 16 | [Private photos: Storage buckets, RLS on files, stripping GPS](16-private-photos-storage.md) | ⏳ (remove + iPhone check open) | |
+
 ## Final exam for Phase 0: the reproducibility test
 
 The strongest proof that these chapters are correct comes from a run that doesn't involve Claude. In a new empty folder, with a new GitHub repo called e.g. `wg-test`, follow chapters 01–04 **without asking Claude**, and end with a page live at `https://<you>.github.io/wg-test/`. Every place you get stuck is a bug in this documentation. Write it down and we'll fix the chapter. Delete the test repo afterwards.

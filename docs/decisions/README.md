@@ -17,3 +17,4 @@ Rules:
 | [0007](0007-shared-wg-login.md) | One shared WG login, then pick your name | Accepted |
 | [0008](0008-migrations-straight-to-cloud.md) | Push migrations straight to the cloud DB (no local stack) | Accepted |
 | [0009](0009-push-trigger-pg-net-vault.md) | Push via DB trigger (pg_net + Vault) in a migration, shared secret | Accepted |
+| [0010](0010-private-avatar-bucket.md) | Profile photos in a private bucket, loaded with `download()` | Accepted |

@@ -77,11 +77,12 @@ docs/
 - `assignments` (id, week_start date, chore_id, member_id, done_at timestamptz null, done_by uuid null; unique(week_start, chore_id))
 - `push_subscriptions` (id, member_id, endpoint unique, p256dh, auth, created_at)
 - `events` (id, created_at, member_id, type text, payload jsonb) — **append-only**
+- Storage bucket `avatars` — **private**, one file `<member_id>.jpg` per member (256×256 JPEG, resized and EXIF/GPS-stripped on the phone). Read with `download()` only, never public or signed URLs (ADR 0010). No photo = emoji.
 
 RLS: all tables readable only by the authenticated WG user, nothing for `anon`. On `assignments` only `done_at`/`done_by` are updatable (column grant), with `done_by = member_id`. `events` insert-only, no update/delete. Members, chores, template change only via migrations.
 
 ## Event logging (required from day 1)
-Every meaningful action inserts into `events` via `src/lib/events.ts`. Types: `app_open`, `login`, `chore_done`, `push_subscribed`, `push_sent`, `push_failed`. Statistics later are built only from `events` + `assignments`. Never skip logging to "save time".
+Every meaningful action inserts into `events` via `src/lib/events.ts`. Types: `app_open`, `login`, `chore_done`, `push_subscribed`, `push_sent`, `push_failed`, `avatar_changed`. Statistics later are built only from `events` + `assignments`. Never skip logging to "save time".
 
 ## Push notifications (iOS specifics)
 - Works only for the PWA added to the Home Screen (iOS 16.4+). Show an install hint in Settings when not running standalone (`display-mode: standalone`).

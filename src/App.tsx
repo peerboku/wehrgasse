@@ -2,9 +2,20 @@ import type { Session } from '@supabase/supabase-js'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from './components/Button'
 import { TabBar, type Tab } from './components/TabBar'
-import { loadAssignments, loadChores, loadLastDone, loadMembers, markDone, onAssignmentsChange } from './lib/data'
+import {
+  deletePhoto,
+  loadAssignments,
+  loadChores,
+  loadLastDone,
+  loadMembers,
+  loadPhotos,
+  markDone,
+  onAssignmentsChange,
+  savePhoto,
+} from './lib/data'
 import { logEvent } from './lib/events'
 import { clearMyMemberId, getMyMemberId, setMyMemberId } from './lib/me'
+import { PhotosContext, resizePhoto, type Photos } from './lib/photos'
 import { disablePush } from './lib/push'
 import { strings } from './lib/strings'
 import { supabase } from './lib/supabaseClient'
@@ -31,6 +42,7 @@ function App() {
   const [memberId, setMemberId] = useState(getMyMemberId)
   const [data, setData] = useState<Data | null>(null)
   const [loadFailed, setLoadFailed] = useState(false)
+  const [photos, setPhotos] = useState<Photos>({})
   const [tab, setTab] = useState<Tab>('myWeek')
   const appOpenLogged = useRef(false)
 
@@ -70,6 +82,20 @@ function App() {
     }
   }, [currentWeek])
 
+  // Photos load on their own: the app shows emojis first, photos pop in when they arrive.
+  // The old object URLs are freed, they would otherwise stay in memory until the app closes.
+  const reloadPhotos = useCallback(async () => {
+    try {
+      const fresh = await loadPhotos()
+      setPhotos((old) => {
+        Object.values(old).forEach((url) => URL.revokeObjectURL(url))
+        return fresh
+      })
+    } catch (error) {
+      console.warn(error)
+    }
+  }, [])
+
   // After login: load everything, then listen for changes from the other phones.
   // The iPhone pauses the live connection in the background, so reload when the app comes back.
   useEffect(() => {
@@ -77,6 +103,7 @@ function App() {
     // Loading data from the server is what effects are for; state is set only after the fetch
     // oxlint-disable-next-line react/set-state-in-effect
     reloadAll()
+    reloadPhotos()
     const stopListening = onAssignmentsChange(reloadAssignments)
     const onVisible = () => {
       if (document.visibilityState === 'visible') reloadAssignments()
@@ -86,7 +113,7 @@ function App() {
       stopListening()
       document.removeEventListener('visibilitychange', onVisible)
     }
-  }, [loggedIn, reloadAll, reloadAssignments])
+  }, [loggedIn, reloadAll, reloadAssignments, reloadPhotos])
 
   // Once per start, as soon as we know who is using the app
   useEffect(() => {
@@ -119,14 +146,16 @@ function App() {
 
   if (!me) {
     return (
-      <PickMember
-        members={data.members}
-        onPick={(pickedId) => {
-          setMyMemberId(pickedId)
-          setMemberId(pickedId)
-          logEvent('login')
-        }}
-      />
+      <PhotosContext.Provider value={photos}>
+        <PickMember
+          members={data.members}
+          onPick={(pickedId) => {
+            setMyMemberId(pickedId)
+            setMemberId(pickedId)
+            logEvent('login')
+          }}
+        />
+      </PhotosContext.Provider>
     )
   }
 
@@ -155,6 +184,23 @@ function App() {
     }
   }
 
+  // file = the newly picked photo, null = remove mine and show the emoji again.
+  // Errors are shown here; Settings only waits for this to finish.
+  async function handlePhotoChange(file: File | null) {
+    try {
+      if (file) {
+        await savePhoto(myId, await resizePhoto(file))
+      } else {
+        await deletePhoto(myId)
+      }
+      logEvent('avatar_changed', { removed: file === null })
+      await reloadPhotos()
+    } catch (error) {
+      console.warn(error)
+      alert(strings.settings.photoError)
+    }
+  }
+
   async function logout() {
     // Otherwise this phone keeps getting pushes for the name that was picked before
     await disablePush()
@@ -162,37 +208,50 @@ function App() {
     setMemberId(null)
     setTab('myWeek')
     setData(null)
+    setPhotos((old) => {
+      Object.values(old).forEach((url) => URL.revokeObjectURL(url))
+      return {}
+    })
     await supabase.auth.signOut()
   }
 
   return (
-    <div className={styles.app}>
-      <main className={styles.content}>
-        {tab === 'myWeek' && (
-          <MyWeek
-            member={me}
-            currentWeek={currentWeek}
-            assignments={data.assignments}
-            lastDone={data.lastDone}
-            members={data.members}
-            chores={data.chores}
-            onMarkDone={handleMarkDone}
-          />
-        )}
-        {tab === 'overview' && (
-          <Overview
-            me={me}
-            currentWeek={currentWeek}
-            assignments={data.assignments}
-            lastDone={data.lastDone}
-            members={data.members}
-            chores={data.chores}
-          />
-        )}
-        {tab === 'settings' && <Settings member={me} onLogout={logout} />}
-      </main>
-      <TabBar active={tab} onChange={setTab} />
-    </div>
+    <PhotosContext.Provider value={photos}>
+      <div className={styles.app}>
+        <main className={styles.content}>
+          {tab === 'myWeek' && (
+            <MyWeek
+              member={me}
+              currentWeek={currentWeek}
+              assignments={data.assignments}
+              lastDone={data.lastDone}
+              members={data.members}
+              chores={data.chores}
+              onMarkDone={handleMarkDone}
+            />
+          )}
+          {tab === 'overview' && (
+            <Overview
+              me={me}
+              currentWeek={currentWeek}
+              assignments={data.assignments}
+              lastDone={data.lastDone}
+              members={data.members}
+              chores={data.chores}
+            />
+          )}
+          {tab === 'settings' && (
+            <Settings
+              member={me}
+              hasPhoto={Boolean(photos[me.id])}
+              onPhotoChange={handlePhotoChange}
+              onLogout={logout}
+            />
+          )}
+        </main>
+        <TabBar active={tab} onChange={setTab} />
+      </div>
+    </PhotosContext.Provider>
   )
 }
 

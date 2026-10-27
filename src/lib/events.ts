@@ -3,7 +3,14 @@
 import { getMyMemberId } from './me'
 import { supabase } from './supabaseClient'
 
-export type EventType = 'app_open' | 'login' | 'chore_done' | 'push_subscribed' | 'push_sent' | 'push_failed'
+export type EventType =
+  | 'app_open'
+  | 'login'
+  | 'chore_done'
+  | 'push_subscribed'
+  | 'push_sent'
+  | 'push_failed'
+  | 'avatar_changed'
 
 export function logEvent(type: EventType, payload: Record<string, unknown> = {}): void {
   supabase

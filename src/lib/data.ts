@@ -1,5 +1,6 @@
 // Reading and writing our tables. Screens never talk to Supabase directly.
 import { supabase } from './supabaseClient'
+import type { Photos } from './photos'
 import type { Assignment, Chore, Member } from './types'
 
 export async function loadMembers(): Promise<Member[]> {
@@ -78,6 +79,40 @@ export async function savePushSubscription(memberId: string, subscription: PushS
 
 export async function deletePushSubscription(endpoint: string): Promise<void> {
   const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint)
+  if (error) throw error
+}
+
+// Profile photos: private bucket, one file <member_id>.jpg each (docs/decisions/0010)
+const photoBucket = () => supabase.storage.from('avatars')
+
+/**
+ * Downloads all photos with the WG login and turns each into an object URL
+ * (a "blob:" address that only works inside this app). A photo that fails to
+ * load is left out, so that member keeps their emoji.
+ */
+export async function loadPhotos(): Promise<Photos> {
+  const { data: files, error } = await photoBucket().list()
+  if (error) throw error
+  const photos: Photos = {}
+  await Promise.all(
+    files
+      .filter((file) => file.name.endsWith('.jpg'))
+      .map(async (file) => {
+      // cacheNonce: a new photo gets a new address, so the browser can't show the old one
+      const { data: blob } = await photoBucket().download(file.name, { cacheNonce: file.updated_at ?? undefined })
+      if (blob) photos[file.name.replace('.jpg', '')] = URL.createObjectURL(blob)
+    }),
+  )
+  return photos
+}
+
+export async function savePhoto(memberId: string, photo: Blob): Promise<void> {
+  const { error } = await photoBucket().upload(`${memberId}.jpg`, photo, { upsert: true, contentType: 'image/jpeg' })
+  if (error) throw error
+}
+
+export async function deletePhoto(memberId: string): Promise<void> {
+  const { error } = await photoBucket().remove([`${memberId}.jpg`])
   if (error) throw error
 }
 
