@@ -75,7 +75,29 @@ No `SELECT`. `service_role` skips RLS, but **grants are checked before RLS**, so
    ```
    Exactly one request: the second update didn't fire, thanks to `when (old.done_at is null …)`.
 
-⏳ **Deploy, first real push, and the 4-iPhone matrix:** to be filled in from the real output.
+**Deploy** (Peer, 27.10., checklist below): migration `20261027150000` applied, function live:
+```
+$ supabase functions list
+notify-done   status: ACTIVE   version: 1   verify_jwt: false
+```
+
+**First real push** (27.10., 01:12–01:15 Vienna). Peer turned notifications on as "Peer", then, in a second session logged in as "Carla" (`login` at 01:12:46), marked Carla's chore done. The notification arrived. What the database recorded:
+```
+events
+18  01:14:59  Peer   push_subscribed  {"endpoint_host": "web.push.apple.com"}
+19  01:15:09  Carla  chore_done       {"assignment_id": "a03cca89-…"}
+20  01:15:11  Peer   push_sent        {"status": 201, "assignment_id": "a03cca89-…", "subscription_id": "cfcd984f-…"}
+
+net._http_response   (the trigger's call to our function)
+id 1   status_code 200   content {"sent":1,"total":1}
+```
+Reading it: tap at `:09`, Apple accepted the push (`201 Created`) at `:11`, so the whole chain took about 2 seconds. `total: 1` because Peer was the only subscribed member and the doer (Carla) is never notified. Afterwards the test chore was set back to open:
+```
+update assignments set done_at = null, done_by = null where id = 'a03cca89-…'
+```
+The test events stay (`events` is append-only).
+
+⏳ **The 4-iPhone matrix (12/12)** and the lock-screen screenshot: to be filled in.
 
 ### Setup checklist (done once by Peer)
 Values are created and stored in the terminal, so they never appear in a chat or in git.
@@ -123,7 +145,7 @@ curl -i -X POST "$(grep '^VITE_SUPABASE_URL=' .env.local | cut -d= -f2-)/functio
 ## 6. How we know it's right
 
 - **The database itself** answered the dry run: the grants match, the trigger fires once and only on "open → done".
-- ⏳ **Apple** is the judge for the rest: `push_sent` events with status `201`, and `net._http_response` showing `200` from our function.
+- **Apple** accepted the first real push (`push_sent`, status `201`), and our function answered the trigger with `200`, as recorded in `net._http_response`. Peer saw the notification arrive.
 - ⏳ **Other people, on their own phones:** the 12/12 matrix (each member marks a chore done, the other 3 confirm they got it).
 
 ## 7. Check yourself

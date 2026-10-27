@@ -32,9 +32,9 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 - [x] Event logging: `login`, `app_open`, `chore_done`
 
 ## Phase 4 — Push + rollout (Sun 25.10.)
-- [ ] Service worker push + notificationclick
-- [ ] Subscribe flow in Settings, store in `push_subscriptions`
-- [ ] Database Webhook → `notify-done` Edge Function; logs `push_sent`/`push_failed`
+- [x] Service worker push + notificationclick
+- [x] Subscribe flow in Settings, store in `push_subscriptions`
+- [x] Database trigger (pg_net, [ADR 0009](docs/decisions/0009-push-trigger-pg-net-vault.md)) → `notify-done` Edge Function; logs `push_sent`/`push_failed` (first real push 27.10., Apple answered 201)
 - [ ] All 4 iPhones: app on Home Screen, logged in, notifications on
 - [ ] **Push test matrix:** each member marks a test chore done → the other 3 receive it (12/12 deliveries). Then reset test data.
 - [ ] Lock-screen screenshot of our own notification → add to [08. UX reference](docs/learning/08-ux-reference.md) (left over from Phase 0)
@@ -93,3 +93,5 @@ Kept as is: the celebration animation and cheer texts (both liked them).
 - **MyWeek:** show days left this week ("noch 4 Tage"), borrowed from Flatastic's countdown.
 - **CI hardening:** run `npm run lint` + `npm run test` before deploy; `curl` smoke test of the live URL after deploy. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
 - **Maintenance:** update GitHub Actions to versions running on Node 24 (deprecation warning in the first run); pin Node version (`.nvmrc`); enable Dependabot + GitHub secret scanning / push protection. (see [01. Scaffolding](docs/learning/01-scaffolding.md#4-what-a-pro-would-also-do))
+- Add text that shows when the chore was done the last time (maybe we also need to add a feature for if you mark the chore as done later than you have done it)
+- Add funny texts for the notifications

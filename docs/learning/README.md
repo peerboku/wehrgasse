@@ -75,7 +75,7 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 
 | # | Chapter | Status | Read |
 |---|---|---|---|
-| 15 | [Push notifications end to end](15-push-notifications.md) | ⏳ (deploy + real pushes) | |
+| 15 | [Push notifications end to end](15-push-notifications.md) | ⏳ (first push ✅, 4-iPhone matrix open) | |
 
 ## Final exam for Phase 0: the reproducibility test
 
