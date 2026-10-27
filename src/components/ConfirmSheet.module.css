@@ -1,36 +1,73 @@
+/* Bottom sheet for "erledigt?" and "übernehmen?". Same class names as before + new .icon. */
 .backdrop {
   position: fixed;
   inset: 0;
   z-index: 10;
   display: flex;
   align-items: flex-end;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--scrim);
   animation: fadeIn 0.2s ease-out;
 }
 
 .sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  padding: 24px var(--space) calc(var(--space) + env(safe-area-inset-bottom));
-  background: var(--surface);
-  border-radius: 20px 20px 0 0;
-  animation: slideUp 0.25s ease-out;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-2) calc(env(safe-area-inset-right) + var(--space))
+    calc(env(safe-area-inset-bottom) + var(--space-4)) calc(env(safe-area-inset-left) + var(--space));
+  background: var(--card);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  text-align: center;
+  animation: slideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* grabber */
+.sheet::before {
+  content: '';
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--hairline-strong);
+}
+
+/* chore emoji tile (new element: <div className={styles.icon} aria-hidden>{chore.icon}</div>) */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-top: var(--space-6);
+  border-radius: var(--radius-tile);
+  background: var(--pastel);
+  font-size: 34px;
+  line-height: 1;
 }
 
 .question {
-  font-size: 20px;
-  text-align: center;
+  margin-top: var(--space-4);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 28px;
+  letter-spacing: -0.2px;
 }
 
 .hint {
-  margin-top: 6px;
-  color: var(--text-muted);
-  text-align: center;
+  margin-top: var(--space-1);
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
 }
 
 .buttons {
   display: grid;
-  gap: 10px;
-  margin-top: 20px;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-6);
 }
 
 @keyframes fadeIn {

@@ -44,12 +44,26 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 
 ## Extras pulled from Ideas
 - [x] **MyWeek:** days left this week ("noch 4 Tage", today included; Sunday "Nur noch heute! ⏳"), borrowed from Flatastic's countdown (27.10.)
-- [x] **Last done:** MyWeek card "Zuletzt erledigt vor 8 Tagen von Carla" (or "Zum ersten Mal dran …" if never done), Overview open rows "zuletzt gestern". Read from `assignments`, no schema change (27.10.) — not yet checked on the iPhone with real done rows
+- [x] **Last done:** MyWeek card "Zuletzt erledigt vor 8 Tagen von Carla" (or "Zum ersten Mal dran …" if never done), Overview open rows "zuletzt gestern" (since Design 3: a "Zuletzt erledigt" card under the wheel). Read from `assignments`, no schema change (27.10.) — not yet checked on the iPhone with real done rows
 - [x] **Photos of everyone** (Noa, hallway test): set your own photo in Settings, it replaces the animal emoji in `Avatar`. Private bucket `avatars`, only for the WG login, loaded with `download()`, resized + GPS removed on the phone ([ADR 0010](docs/decisions/0010-private-avatar-bucket.md)) (pulled and done 27.10., checked on the iPhone; test photos removed again, bucket empty)
 - [x] **Take over a chore** ("Ich übernehm das", pulled from "After launch #2"): in the WG tab tap someone else's open chore of this week → confirm → it's yours this week, shows in your "Meine Woche", the other 3 get "🔄 Noa übernimmt diese Woche Müll rausbringen (statt Peer)". Rotation unchanged. DB function `take_over()` + trigger `notify_taken_over` ([ADR 0011](docs/decisions/0011-take-over-via-function.md)), logs `assignment_swapped` (done 27.10.: pushed, deployed, checked on the iPhone)
 - [ ] **New design** (Peer, 27.10.): Peer makes 3 design proposals in claude.ai design (input: iPhone screenshots of every screen in light + dark, `index.css`, `strings.ts`, screens + components with their CSS modules, `mockData.ts`), the WG picks one, then it gets implemented here in the existing CSS modules. Core flow stays one tap away, still plain CSS, safe areas + dark mode. Record the choice as an ADR.
-  - [ ] 3 proposals made
-  - [ ] WG voted
+  - [x] 3 proposals made
+  - [x] WG voted: Design 3 "Knautsch × Drehscheibe" ([ADR 0012](docs/decisions/0012-design-3-knautsch-drehscheibe.md), handoff in `docs/wg-app-design3-handoff/`)
+  - [x] Chosen design implemented (27.10.): lint, type-check, 23/23 tests, WebKit screenshots light + dark. Not committed yet. Extra: "Zuletzt erledigt" card under the wheel (Peer's idea); "fällig bis Sonntag" dropped
+  - [ ] **Peer's review on the iPhone** (`npm run dev -- --host`, open the Network URL in Safari, or after deploy as Home Screen app). Tick each:
+    - [ ] Meine Woche: Erledigt button visible without scrolling, one tap opens the sheet, "Ja klar!" is green, confetti + "Stark! 💪" pill in the button's place
+    - [ ] Meine Woche: tap your avatar top right → Einstellungen; tap "Die WG diese Woche" → WG tab
+    - [ ] Meine Woche: "Ab Montag: …" shows the right chore for next week
+    - [ ] WG: your chore is at the top under the orange arrow; done slices are green; "1/4" in the middle is right
+    - [ ] WG: tap someone else's open slice → "Ja, mach ich! 💪" sheet (cancel it, or really take over and take it back)
+    - [ ] WG: "Zuletzt erledigt" matches what really happened; "Ab Montag" card shows all 4, you first
+    - [ ] Einstellungen: photo add/change/remove still works; notifications switch still works; logout works
+    - [ ] Home Screen app: nothing hidden behind the Dynamic Island or the home indicator; content scrolls under the tab bar
+    - [ ] Dark mode (Control Center): all 3 screens readable, no white boxes
+    - [ ] Reduce Motion on (Settings → Accessibility → Motion): no confetti, sheet appears without sliding, still works
+    - [ ] Bigger text (Settings → Display → Text Size, a few steps up): nothing cut off or overlapping, esp. the wheel labels
+    - [ ] Then: commit, deploy, and tick "Chosen design implemented + checked on the iPhone" below
   - [ ] Chosen design implemented + checked on the iPhone
 
 ## After launch (in order)

@@ -1,7 +1,7 @@
 // Reading and writing our tables. Screens never talk to Supabase directly.
 import { supabase } from './supabaseClient'
 import type { Photos } from './photos'
-import type { Assignment, Chore, Member } from './types'
+import type { Assignment, Chore, Member, RotationRow } from './types'
 
 export async function loadMembers(): Promise<Member[]> {
   const { data, error } = await supabase.from('members').select('id, name, emoji, color').order('name')
@@ -11,6 +11,13 @@ export async function loadMembers(): Promise<Member[]> {
 
 export async function loadChores(): Promise<Chore[]> {
   const { data, error } = await supabase.from('chores').select('id, name, icon, sort_order').order('sort_order')
+  if (error) throw error
+  return data
+}
+
+/** The fixed 4-week cycle. Used for the "Ab Montag" preview, next week's rows don't exist yet. */
+export async function loadRotation(): Promise<RotationRow[]> {
+  const { data, error } = await supabase.from('rotation_template').select('cycle_week, chore_id, member_id')
   if (error) throw error
   return data
 }

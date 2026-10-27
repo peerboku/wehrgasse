@@ -1,78 +1,118 @@
+/* Login + "Wer bist du?" – not drawn on the canvas; restyled with the Design 3 tokens.
+   Same class names as before. */
 .screen {
   min-height: 100dvh;
-  padding: calc(env(safe-area-inset-top) + 48px) var(--space) calc(env(safe-area-inset-bottom) + var(--space));
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top) + 48px) calc(env(safe-area-inset-right) + var(--space))
+    calc(env(safe-area-inset-bottom) + var(--space-4)) calc(env(safe-area-inset-left) + var(--space));
 }
 
 .title {
   font-size: 32px;
+  font-weight: 800;
+  line-height: 38px;
+  letter-spacing: -0.4px;
   text-align: center;
 }
 
 .subtitle {
-  margin-top: 6px;
-  color: var(--text-muted);
+  margin-top: var(--space-1);
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
   text-align: center;
 }
 
 .tiles {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 32px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-8);
 }
 
 .tile {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 24px 8px;
-  background: var(--surface);
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-2);
+  background: var(--card);
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 100ms ease-out;
 }
 
 .tile:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
+}
+
+.tile:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
 }
 
 .tileName {
-  font-size: 19px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 22px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 14px;
+  align-items: stretch;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
 }
 
 .label {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 22px;
 }
 
 .input {
   width: 100%;
-  padding: 14px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  min-height: 52px;
+  padding: 0 var(--space-4);
+  background: var(--card);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-button);
   /* 16px or more stops iOS from zooming into the field */
   font-size: 17px;
 }
 
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--pastel);
+}
+
 .error {
   color: var(--danger);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
 }
 
 .switch {
-  padding: 8px;
+  align-self: center;
+  min-height: 44px;
+  padding: 0 var(--space-2);
   border: none;
   background: none;
-  color: var(--text-muted);
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
 }

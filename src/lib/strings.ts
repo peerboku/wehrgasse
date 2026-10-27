@@ -26,12 +26,6 @@ export const strings = {
 
   weekRange,
 
-  // '2026-10-26' -> 'fällig bis Sonntag, 1. Nov.'
-  deadline: (weekStart: string) => {
-    const end = dayAndMonth(addDays(weekStart, 6))
-    return `fällig bis Sonntag, ${end.day}. ${end.month}`
-  },
-
   overdueSince: (days: number) => (days === 1 ? 'überfällig seit gestern' : `überfällig seit ${days} Tagen`),
 
   // 0 -> 'heute', 1 -> 'gestern', 8 -> 'vor 8 Tagen'
@@ -62,7 +56,8 @@ export const strings = {
   },
 
   myWeek: {
-    greeting: (name: string) => `Hi ${name}! 👋`,
+    greeting: (name: string) => `Hi ${name}!`,
+    openSettings: 'Einstellungen', // aria-label of your avatar top right
     yourChore: 'Diese Woche bist du dran mit',
     yourChoreFromMonday: 'Ab Montag bist du dran mit',
     daysLeft: (days: number) => (days === 1 ? 'Nur noch heute! ⏳' : `noch ${days} Tage`),
@@ -72,9 +67,14 @@ export const strings = {
     overdueTitle: 'Noch offen',
     fromWeek: (weekStart: string) => `aus der Woche ${weekRange(weekStart)}`,
     doneButton: 'Erledigt',
-    doneOn: (weekday: string) => `Erledigt am ${weekday} ✅`,
+    // When you have two open chores this week (after taking one over)
+    doneButtonFor: (chore: string) => `Erledigt: ${chore}`,
+    doneOn: (weekday: string) => `Erledigt am ${weekday}`,
     freeUntilMonday: 'Du hast frei bis Montag. 😎',
     doneError: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
+    crewTitle: 'Die WG diese Woche',
+    crewProgress: (done: number, total: number) => `${done} von ${total} erledigt`,
+    nextWeek: 'Ab Montag:',
   },
 
   confirm: {
@@ -97,21 +97,34 @@ export const strings = {
     title: 'Die WG diese Woche',
     overdueTitle: 'Überfällig',
     you: 'du',
-    open: 'offen',
-    doneOn: (weekday: string) => `erledigt ${weekday}`,
-    lastDone: (when: string) => `zuletzt ${when}`,
+    progress: (done: number, total: number) => `${done}/${total}`,
+    progressLabel: 'erledigt',
+    takeHint: 'Tippe auf eine offene Aufgabe, um sie zu übernehmen.',
+    statusOpen: 'offen',
+    statusDone: 'erledigt',
+    // 'du · offen', 'Carla · erledigt'
+    slotStatus: (who: string, status: string) => `${who} · ${status}`,
+    takeAria: (chore: string, name: string) => `${chore} von ${name} übernehmen`,
+    activityTitle: 'Zuletzt erledigt',
+    // 'gestern von Carla', 'vor 8 Tagen von dir'
+    activityWhen: (when: string, who: string) => `${when} von ${who}`,
+    activityByYou: 'dir',
+    activityNever: 'noch nie',
+    nextTitle: 'Ab Montag',
+    nextYou: 'Du',
   },
 
   settings: {
     title: 'Einstellungen',
     loggedInAs: (name: string) => `Angemeldet als ${name}`,
-    photoAdd: 'Foto hinzufügen 📸',
+    photoAdd: 'Foto hinzufügen',
     photoChange: 'Foto ändern',
     photoRemove: 'Foto entfernen',
     photoBusy: 'Einen Moment …',
-    photoHint: 'Nur ihr vier seht dein Foto. 🔒',
+    photoHint: 'Nur ihr vier seht dein Foto.',
     photoError: 'Das Foto hat nicht geklappt. Bist du online? Probier es nochmal.',
-    notificationsTitle: 'Benachrichtigungen',
+    sectionNotifications: 'Benachrichtigungen',
+    sectionApp: 'App',
     notificationsToggle: 'Benachrichtigungen aktivieren',
     notificationsHint: 'Du bekommst eine Nachricht, wenn jemand seine Aufgabe erledigt hat.',
     notificationsNeedInstall: 'Klappt nur, wenn die App auf deinem Home-Bildschirm liegt.',

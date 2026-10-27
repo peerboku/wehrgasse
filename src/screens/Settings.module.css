@@ -1,50 +1,161 @@
+/* Einstellungen: iOS-style grouped list. Keeps the old class names where they still fit
+   (.screen .title .card .switch .hint .problem .steps .toggleRow .textButton) and adds row parts. */
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .title {
-  font-size: 28px;
+  margin-bottom: var(--space-6);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 38px;
+  letter-spacing: -0.4px;
 }
 
+/* grouped section */
 .card {
+  background: var(--card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* "BENACHRICHTIGUNGEN", "APP" */
+.sectionHeader {
+  margin: var(--space-6) var(--space-4) var(--space-2);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+/* text under a card */
+.hint {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: var(--space);
-  background: var(--surface);
-  border-radius: var(--radius);
+  align-items: center;
+  gap: 6px;
+  margin: var(--space-2) var(--space-4) 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
 }
 
-.cardTitle {
-  font-size: 17px;
+.problem {
+  margin: var(--space-2) var(--space-4) 0;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
 }
 
+/* ---------- Profile ---------- */
 .me {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-4);
+  padding: var(--space-4);
 }
 
-/* Quiet link-style button, for the less common action under a big button */
-.textButton {
-  min-height: 44px;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--danger);
-  font: inherit;
+.avatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  background: var(--pastel);
+  font-size: 32px;
+  line-height: 1;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 28px;
+}
+
+.loggedIn {
+  color: var(--muted);
   font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.divider {
+  height: 0.5px;
+  margin-left: var(--space-4);
+  background: var(--hairline);
+}
+
+/* ---------- Rows ---------- */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 56px;
+  padding: 0 var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+  text-align: left;
   cursor: pointer;
 }
 
-.toggleRow {
+button.row:active {
+  background: var(--hairline);
+}
+
+.rowIcon {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 44px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-icon);
+  background: var(--fill);
+  color: var(--ink);
+}
+
+.rowIconPhoto {
+  background: var(--pastel);
+  color: var(--primary-ink);
+}
+
+.rowIconBell {
+  background: var(--chip-bg);
+  color: var(--chip-fg);
+}
+
+.rowLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+
+.chevronOpen {
+  transform: rotate(90deg);
+}
+
+/* label row with the switch */
+.toggleRow {
+  composes: row;
   cursor: pointer;
 }
 
@@ -56,7 +167,7 @@
   height: 31px;
   margin: 0;
   appearance: none;
-  background: var(--border);
+  background: var(--ring-open);
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.2s;
@@ -71,21 +182,16 @@
   height: 27px;
   background: #ffffff;
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
   transition: transform 0.2s;
 }
 
 .switch:checked {
-  background: var(--accent);
+  background: var(--done);
 }
 
 .switch:checked::after {
   transform: translateX(20px);
-}
-
-.hint {
-  color: var(--text-muted);
-  font-size: 15px;
 }
 
 .switch:disabled {
@@ -93,13 +199,70 @@
   cursor: default;
 }
 
-.problem {
-  color: var(--danger);
-  font-size: 15px;
+.switch:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
+/* install steps inside the open disclosure */
 .steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   margin: 0;
-  padding-left: 20px;
-  line-height: 1.5;
+  padding: var(--space-1) var(--space-4) var(--space-4) 60px;
+  list-style: none;
+  counter-reset: step;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.steps li {
+  position: relative;
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  top: -1px;
+  left: -32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--pastel);
+  color: var(--primary-ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* "Foto entfernen", or other quiet actions inside a card */
+.textButton {
+  composes: row;
+  color: var(--danger);
+}
+
+/* card around "Abmelden", 24 px below whatever comes before it */
+.logoutCard {
+  margin-top: var(--space-6);
+}
+
+/* "Abmelden": its own card, centred red text */
+.logout {
+  composes: row;
+  justify-content: center;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron,
+  .switch,
+  .switch::after {
+    transition: none;
+  }
 }

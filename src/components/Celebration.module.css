@@ -1,29 +1,54 @@
+/* Shown for ~1.6 s after "Ja klar!": confetti + cheer pill in the slot where the Erledigt button was.
+   Same class names as before. Pieces are now coloured shapes instead of emoji:
+   set style={{ '--x': '37%', '--delay': '0.1s', '--drift': '-30px', '--color': '#7a6ff0' }} per piece. */
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
   pointer-events: none; /* the app underneath stays tappable */
 }
 
 .piece {
   position: absolute;
-  top: -40px;
+  top: -20px;
   left: var(--x);
-  font-size: 28px;
+  width: 10px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--color, #ff9a3d);
   animation: fall 1.4s ease-in var(--delay) forwards;
 }
 
+.piece:nth-child(3n) {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.piece:nth-child(3n + 1) {
+  width: 12px;
+  height: 7px;
+}
+
+/* sits exactly where the Erledigt button was */
 .cheer {
-  padding: 14px 24px;
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  font-size: 24px;
-  font-weight: 700;
+  position: absolute;
+  left: calc(env(safe-area-inset-left) + var(--space));
+  right: calc(env(safe-area-inset-right) + var(--space));
+  bottom: calc(env(safe-area-inset-bottom) + var(--tabbar-height) + var(--space-5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: var(--content-max);
+  min-height: 56px;
+  margin: 0 auto;
+  border-radius: var(--radius-button);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 22px;
   animation: pop 1.6s ease-out forwards;
 }
 
@@ -35,11 +60,11 @@
 
 @keyframes pop {
   0% {
-    transform: scale(0.5);
+    transform: scale(0.9);
     opacity: 0;
   }
   15% {
-    transform: scale(1.1);
+    transform: scale(1.03);
     opacity: 1;
   }
   25%,

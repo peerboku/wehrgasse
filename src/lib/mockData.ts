@@ -3,7 +3,7 @@
 // The app itself loads everything from Supabase (src/lib/data.ts).
 
 import type { Assignment, Chore, Member, RotationRow } from './types'
-import { cycleWeek } from './week'
+import { rotationForWeek } from './week'
 
 export const members: Member[] = [
   { id: 'peer', name: 'Peer', emoji: '🦊', color: '#e8833a' },
@@ -43,9 +43,7 @@ export const rotationTemplate: RotationRow[] = [
 
 /** One open assignment per chore for this week, like ensure_week() in the database does. */
 export function assignmentsForWeek(weekStartDate: string): Assignment[] {
-  return rotationTemplate
-    .filter((row) => row.cycle_week === cycleWeek(weekStartDate))
-    .map((row) => ({
+  return rotationForWeek(rotationTemplate, weekStartDate).map((row) => ({
       id: `${weekStartDate}-${row.chore_id}`,
       week_start: weekStartDate,
       chore_id: row.chore_id,

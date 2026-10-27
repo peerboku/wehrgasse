@@ -8,18 +8,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: var(--space-4);
   min-height: 100dvh;
   margin: 0;
   padding: 0 var(--space);
-  color: var(--text-muted);
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 20px;
   text-align: center;
 }
 
 .content {
-  max-width: 560px;
+  max-width: var(--content-max);
   margin: 0 auto;
-  /* room for the notch on top and the tab bar at the bottom */
-  padding: calc(env(safe-area-inset-top) + 20px) calc(env(safe-area-inset-right) + var(--space))
-    calc(env(safe-area-inset-bottom) + var(--tabbar-height) + 24px) calc(env(safe-area-inset-left) + var(--space));
+  /* status bar / Dynamic Island on top, tab bar at the bottom */
+  padding: calc(env(safe-area-inset-top) + var(--space-2)) calc(env(safe-area-inset-right) + var(--space))
+    calc(env(safe-area-inset-bottom) + var(--tabbar-height) + var(--space-6)) calc(env(safe-area-inset-left) + var(--space));
 }

@@ -1,42 +1,65 @@
+/* Calm tab bar from direction C: translucent, line icons, orange dot under the active tab.
+   Same class names as before. The emoji icons are replaced by inline SVGs (see HANDOFF.md › TabBar). */
 .tabBar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   height: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
   /* keep the buttons above the iPhone home indicator */
-  padding-bottom: env(safe-area-inset-bottom);
-  background: var(--surface);
-  border-top: 1px solid var(--border);
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  background: var(--bar);
+  border-top: 0.5px solid var(--hairline);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
 }
 
 .tab {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
+  min-height: 44px;
+  padding: 0;
   border: none;
   background: none;
-  color: var(--text-muted);
-  font-size: 11px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 12px;
   cursor: pointer;
 }
 
+/* indicator dot, transparent unless active */
+.tab::after {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -4px;
+  border-radius: 12px;
+}
+
 .icon {
-  font-size: 22px;
-  filter: grayscale(1);
-  opacity: 0.6;
+  width: 24px;
+  height: 24px;
+  /* SVG uses stroke="currentColor" */
 }
 
 .active {
-  color: var(--accent);
-  font-weight: 600;
+  color: var(--ink);
+  font-weight: 700;
 }
 
-.active .icon {
-  filter: none;
-  opacity: 1;
+.active::after {
+  background: var(--primary);
 }

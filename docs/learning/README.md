@@ -83,6 +83,7 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 |---|---|---|---|
 | 16 | [Private photos: Storage buckets, RLS on files, stripping GPS](16-private-photos-storage.md) | ✅ | |
 | 17 | [Take over a chore: database functions (RPC) and a second push type](17-take-over-rpc-and-second-push.md) | ⏳ (db push, deploy, iPhone check open) | |
+| 18 | [A new look: design tokens, CSS variables per element, and a wheel](18-design-tokens-and-the-wheel.md) | ⏳ (iPhone review open) | |
 
 ## Final exam for Phase 0: the reproducibility test
 

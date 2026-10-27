@@ -3,6 +3,8 @@
 // do math on plain dates ('YYYY-MM-DD', no time of day). Plain dates have no
 // daylight saving time, so a week can never be shifted by an hour.
 
+import type { RotationRow } from './types'
+
 const TIME_ZONE = 'Europe/Vienna'
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
@@ -65,6 +67,14 @@ export function cycleWeek(weekStartDate: string): number {
   const weeks = Math.floor(daysBetween(ANCHOR_WEEK, weekStartDate) / 7)
   // JavaScript's % can return negative numbers for weeks before the anchor
   return ((weeks % CYCLE_LENGTH) + CYCLE_LENGTH) % CYCLE_LENGTH
+}
+
+/**
+ * Who does what in a week according to rotation_template (one row per chore).
+ * One-off take-overs only change this week's assignments, so for next week the template is the truth.
+ */
+export function rotationForWeek(rotation: RotationRow[], weekStartDate: string): RotationRow[] {
+  return rotation.filter((row) => row.cycle_week === cycleWeek(weekStartDate))
 }
 
 /** Days left in the week, today included: Monday = 7, Sunday = 1 ("nur noch heute"). */

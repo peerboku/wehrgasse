@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import { assignmentsForWeek, choreById, members, chores, memberById, rotationTemplate } from './mockData'
-import { ANCHOR_WEEK, addDays, cycleWeek, daysAgo, daysLeft, daysOverdue, viennaDate, weekStart } from './week'
+import {
+  ANCHOR_WEEK,
+  addDays,
+  cycleWeek,
+  daysAgo,
+  daysLeft,
+  daysOverdue,
+  rotationForWeek,
+  viennaDate,
+  weekStart,
+} from './week'
 
 describe('weekStart (Europe/Vienna)', () => {
   it('a normal Wednesday belongs to the Monday before', () => {
@@ -119,5 +129,30 @@ describe('rotation (matches the table in CLAUDE.md)', () => {
       expect(rows.map((row) => row.member_id).sort()).toEqual(members.map((m) => m.id).sort())
       expect(rows.map((row) => row.chore_id).sort()).toEqual(chores.map((c) => c.id).sort())
     }
+  })
+})
+
+describe('rotationForWeek ("Ab Montag" preview)', () => {
+  const nameOf = (rows: { member_id: string; chore_id: string }[]) =>
+    Object.fromEntries(rows.map((row) => [memberById(row.member_id).name, choreById(row.chore_id).name]))
+
+  it('in the anchor week, next week is cycle week 1', () => {
+    const next = rotationForWeek(rotationTemplate, addDays(ANCHOR_WEEK, 7))
+    expect(nameOf(next)).toEqual({
+      Peer: 'Bad Carla & Peer',
+      Carla: 'Müll rausbringen',
+      Noa: 'Küche & Staubsaugen',
+      Manu: 'Bad Noa & Manu',
+    })
+  })
+
+  it('after cycle week 3 it starts again at 0', () => {
+    const next = rotationForWeek(rotationTemplate, addDays(ANCHOR_WEEK, 4 * 7))
+    expect(next.every((row) => row.cycle_week === 0)).toBe(true)
+    expect(next).toHaveLength(4)
+  })
+
+  it('an empty template (not loaded) gives no rows, so the preview is hidden', () => {
+    expect(rotationForWeek([], ANCHOR_WEEK)).toEqual([])
   })
 })

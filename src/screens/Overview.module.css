@@ -1,118 +1,424 @@
+/* WG tab: chore wheel (Drehscheibe) + "Ab Montag" card. New markup, see HANDOFF.md › WG. */
 .screen {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .title {
-  font-size: 28px;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 38px;
+  letter-spacing: -0.4px;
 }
 
-.weekBox {
-  margin-top: -8px;
-  padding: 12px 14px;
-  background: var(--surface);
-  border-radius: var(--radius);
+.subline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 2px;
 }
 
 .week {
-  font-size: 20px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.countChip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--space-2);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--chip-fg);
+  font-size: 12px;
   font-weight: 700;
 }
 
-.deadline {
-  margin-top: 2px;
-  color: var(--text-muted);
-  font-size: 17px;
+/* ---------- Wheel ---------- */
+.wheelWrap {
+  position: relative;
+  width: min(300px, 100%);
+  aspect-ratio: 1;
+  margin: calc(var(--space-6) + 8px) auto 0;
 }
 
-.overdueTitle {
-  margin-bottom: 8px;
-  color: var(--danger);
+/* orange marker pointing at your quarter (top) */
+.pointer {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  width: 22px;
+  height: 12px;
+  margin-left: -11px;
+  background: var(--primary);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+/* background is set inline: conic-gradient built from the slots, see HANDOFF.md */
+.wheel {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--wheel-bg, var(--card));
+  box-shadow: var(--shadow-card);
+}
+
+/* the 4px gaps between slices; rotate per divider: style={{ '--angle': '45deg' }} */
+.divider {
+  position: absolute;
+  top: calc(50% - 2px);
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--bg);
+  transform: rotate(var(--angle));
+}
+
+/* odd number of slices: one half line per gap, from the centre outwards */
+.dividerHalf {
+  left: 50%;
+  width: 50%;
+  transform-origin: left center;
+}
+
+/* label position per slot: style={{ '--x': '50%', '--y': '18.7%' }} */
+.slot {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+}
+
+.slotInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  width: 104px;
+  min-height: 44px;
+  padding: 6px 0;
+  border: none;
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+
+button.slotInner {
+  cursor: pointer;
+}
+
+button.slotInner:active {
+  background: var(--hairline);
+}
+
+button.slotInner:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.slotAvatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--ring-open);
+  border-radius: 50%;
+  background: var(--card);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.slotAvatarMe {
+  border-color: var(--primary);
+}
+
+.slotAvatarDone {
+  border-color: var(--done);
+}
+
+.choreBadge {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.doneBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  background: var(--done);
+  color: var(--on-done);
+}
+
+.slotChore {
+  max-width: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.slotStatus {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.slotStatusDone {
+  color: var(--done-ink);
+}
+
+/* centre: "1/4 erledigt" */
+.hub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  margin: -44px 0 0 -44px;
+  border: 4px solid var(--bg);
+  border-radius: 50%;
+  background: var(--card);
+}
+
+.hubRatio {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 28px;
+}
+
+.hubLabel {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.hint {
+  margin-top: var(--space-5);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* ---------- Cards below the wheel: "Zuletzt erledigt" and "Ab Montag" ---------- */
+.card {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-1);
+}
+
+.cardTitle {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+.nextDates {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* "Zuletzt erledigt": one row per chore (Peer's idea, not drawn on the canvas) */
+.activityList {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-2) var(--space-1);
+}
+
+.activityItem + .activityItem {
+  border-top: 0.5px solid var(--hairline);
+}
+
+.activityIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-icon);
+  background: var(--pastel);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.activityChore {
+  flex: 1;
+  min-width: 0;
   font-size: 15px;
   font-weight: 600;
+  line-height: 20px;
+}
+
+.activityWhen {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+  text-align: right;
+}
+
+.nextGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nextItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-2);
+  border-radius: 14px;
+  background: var(--fill);
+}
+
+.nextItemMe {
+  background: var(--pastel);
+}
+
+/* style={{ '--member': member.color }} */
+.nextAvatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--member, #888) var(--tint-pct), transparent);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.nextText {
+  min-width: 0;
+}
+
+.nextName {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.nextChore {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* ---------- Overdue from earlier weeks (not drawn; list below the wheel) ---------- */
+.overdueTitle {
+  margin: var(--space-6) var(--space-4) var(--space-2);
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
+  background: var(--card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 
 .row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background: var(--surface);
-  border-radius: var(--radius);
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-4);
 }
 
-.rowButton {
-  width: 100%;
-  border: none;
-  text-align: left;
-  cursor: pointer;
+.row + .row {
+  border-top: 0.5px solid var(--hairline);
 }
 
-.rowButton:active {
-  opacity: 0.6;
-}
-
-.rowMe {
-  background: var(--highlight);
-}
-
-.rowOverdue {
-  background: var(--danger-soft);
-}
-
-.text {
-  display: block;
+.rowText {
   flex: 1;
-  min-width: 0; /* lets long chore names wrap instead of pushing the status out */
+  min-width: 0;
 }
 
-.chore {
+.rowChore {
   display: block;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 22px;
 }
 
-.member {
+.rowMeta {
   display: block;
-  color: var(--text-muted);
-  font-size: 15px;
-}
-
-.lastDone {
-  display: block;
-  color: var(--text-muted);
-  font-size: 13px;
-}
-
-.status {
-  flex-shrink: 0;
-  max-width: 40%;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.statusOpen {
-  background: var(--border);
-  color: var(--text-muted);
-}
-
-.statusDone {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.statusOverdue {
   color: var(--danger);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Avatar } from '../components/Avatar'
-import { Button } from '../components/Button'
+import { BellIcon, CameraIcon, ChevronIcon, LockIcon, PhoneIcon } from '../components/Icons'
 import { disablePush, enablePush, isPushOn, pushSupported, type EnableResult } from '../lib/push'
 import { strings } from '../lib/strings'
 import type { Member } from '../lib/types'
@@ -23,6 +23,7 @@ function isInstalled(): boolean {
 export function Settings({ member, hasPhoto, onPhotoChange, onLogout }: Props) {
   const [notificationsOn, setNotificationsOn] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [installOpen, setInstallOpen] = useState(false)
   const [photoBusy, setPhotoBusy] = useState(false)
   // The real file picker is hidden (it can't be styled), our button "clicks" it
   const photoInput = useRef<HTMLInputElement>(null)
@@ -62,8 +63,13 @@ export function Settings({ member, hasPhoto, onPhotoChange, onLogout }: Props) {
 
       <section className={styles.card}>
         <div className={styles.me}>
-          <Avatar member={member} size={72} />
-          <p>{strings.settings.loggedInAs(member.name)}</p>
+          <span className={styles.avatar}>
+            <Avatar member={member} size={56} tint={false} />
+          </span>
+          <div>
+            <p className={styles.name}>{member.name}</p>
+            <p className={styles.loggedIn}>{strings.settings.loggedInAs(member.name)}</p>
+          </div>
         </div>
         <input
           ref={photoInput}
@@ -76,21 +82,37 @@ export function Settings({ member, hasPhoto, onPhotoChange, onLogout }: Props) {
             if (file) changePhoto(file)
           }}
         />
-        <Button variant="secondary" disabled={photoBusy} onClick={() => photoInput.current?.click()}>
-          {photoBusy ? strings.settings.photoBusy : hasPhoto ? strings.settings.photoChange : strings.settings.photoAdd}
-        </Button>
+        <div className={styles.divider} />
+        <button type="button" className={styles.row} disabled={photoBusy} onClick={() => photoInput.current?.click()}>
+          <span className={`${styles.rowIcon} ${styles.rowIconPhoto}`}>
+            <CameraIcon size={18} strokeWidth={2.2} />
+          </span>
+          <span className={styles.rowLabel}>
+            {photoBusy ? strings.settings.photoBusy : hasPhoto ? strings.settings.photoChange : strings.settings.photoAdd}
+          </span>
+          <ChevronIcon className={styles.chevron} size={16} strokeWidth={2.6} />
+        </button>
         {hasPhoto && !photoBusy && (
-          <button className={styles.textButton} onClick={() => changePhoto(null)}>
-            {strings.settings.photoRemove}
-          </button>
+          <>
+            <div className={styles.divider} />
+            <button type="button" className={styles.textButton} onClick={() => changePhoto(null)}>
+              {strings.settings.photoRemove}
+            </button>
+          </>
         )}
-        <p className={styles.hint}>{strings.settings.photoHint}</p>
       </section>
+      <p className={styles.hint}>
+        <LockIcon size={13} strokeWidth={2.4} />
+        {strings.settings.photoHint}
+      </p>
 
+      <h2 className={styles.sectionHeader}>{strings.settings.sectionNotifications}</h2>
       <section className={styles.card}>
-        <h2 className={styles.cardTitle}>{strings.settings.notificationsTitle}</h2>
         <label className={styles.toggleRow}>
-          <span>{strings.settings.notificationsToggle}</span>
+          <span className={`${styles.rowIcon} ${styles.rowIconBell}`}>
+            <BellIcon size={18} strokeWidth={2.2} />
+          </span>
+          <span className={styles.rowLabel}>{strings.settings.notificationsToggle}</span>
           <input
             type="checkbox"
             role="switch"
@@ -100,26 +122,48 @@ export function Settings({ member, hasPhoto, onPhotoChange, onLogout }: Props) {
             onChange={(event) => toggleNotifications(event.target.checked)}
           />
         </label>
-        <p className={styles.hint}>{strings.settings.notificationsHint}</p>
-        {!installed && <p className={styles.hint}>{strings.settings.notificationsNeedInstall}</p>}
-        {problem === 'denied' && <p className={styles.problem}>{strings.settings.notificationsDenied}</p>}
-        {problem === 'error' && <p className={styles.problem}>{strings.settings.notificationsError}</p>}
       </section>
+      <p className={styles.hint}>{strings.settings.notificationsHint}</p>
+      {!installed && <p className={styles.problem}>{strings.settings.notificationsNeedInstall}</p>}
+      {problem === 'denied' && <p className={styles.problem}>{strings.settings.notificationsDenied}</p>}
+      {problem === 'error' && <p className={styles.problem}>{strings.settings.notificationsError}</p>}
 
       {!installed && (
-        <section className={styles.card}>
-          <h2 className={styles.cardTitle}>{strings.settings.installTitle}</h2>
-          <ol className={styles.steps}>
-            {strings.settings.installSteps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-        </section>
+        <>
+          <h2 className={styles.sectionHeader}>{strings.settings.sectionApp}</h2>
+          <section className={styles.card}>
+            <button
+              type="button"
+              className={styles.row}
+              aria-expanded={installOpen}
+              onClick={() => setInstallOpen((open) => !open)}
+            >
+              <span className={styles.rowIcon}>
+                <PhoneIcon size={18} strokeWidth={2.2} />
+              </span>
+              <span className={styles.rowLabel}>{strings.settings.installTitle}</span>
+              <ChevronIcon
+                className={`${styles.chevron} ${installOpen ? styles.chevronOpen : ''}`}
+                size={16}
+                strokeWidth={2.6}
+              />
+            </button>
+            {installOpen && (
+              <ol className={styles.steps}>
+                {strings.settings.installSteps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            )}
+          </section>
+        </>
       )}
 
-      <Button variant="secondary" onClick={onLogout}>
-        {strings.settings.logout}
-      </Button>
+      <section className={`${styles.card} ${styles.logoutCard}`}>
+        <button type="button" className={styles.logout} onClick={onLogout}>
+          {strings.settings.logout}
+        </button>
+      </section>
     </div>
   )
 }

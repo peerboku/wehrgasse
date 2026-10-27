@@ -1,31 +1,70 @@
+/* Chunky "Knautsch" buttons: flat colour + hard 3D edge underneath.
+   Pressing moves the button down onto its edge. Same class names as before + new .done variant. */
 .button {
-  display: block;
+  --edge: var(--edge-button);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   width: 100%;
-  min-height: 52px; /* big enough for a thumb */
-  padding: 12px 20px;
+  min-height: 56px;
+  margin-bottom: var(--edge); /* keeps the edge from touching the next element */
+  padding: 0 var(--space-5);
   border: none;
-  border-radius: 14px;
+  border-radius: var(--radius-button);
   font-size: 17px;
-  font-weight: 600;
+  font-weight: 800;
+  line-height: 22px;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition:
+    transform 100ms ease-out,
+    box-shadow 100ms ease-out;
 }
 
 .button:active {
-  transform: scale(0.97);
+  transform: translateY(var(--edge));
+  box-shadow: 0 0 0 transparent;
 }
 
+.button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Main action: "Erledigt", "Ja, mach ich!" */
 .primary {
-  background: var(--accent);
-  color: var(--accent-text);
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 0 var(--edge) 0 var(--primary-edge);
 }
 
+/* Confirming something is done: "Ja klar!" */
+.done {
+  background: var(--done);
+  color: var(--on-done);
+  box-shadow: 0 var(--edge) 0 var(--done-edge);
+}
+
+/* "Abbrechen", "Nochmal versuchen" */
 .secondary {
-  background: var(--border);
-  color: var(--text);
+  --edge: var(--edge-secondary);
+  min-height: 52px;
+  background: var(--fill);
+  color: var(--ink);
+  font-weight: 700;
+  box-shadow: 0 var(--edge) 0 var(--fill-edge);
 }
 
-.danger {
-  background: var(--danger);
-  color: #ffffff;
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+  .button:active {
+    transform: none; /* edge still disappears, so the press stays visible */
+  }
 }

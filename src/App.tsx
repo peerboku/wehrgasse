@@ -9,6 +9,7 @@ import {
   loadLastDone,
   loadMembers,
   loadPhotos,
+  loadRotation,
   markDone,
   onAssignmentsChange,
   savePhoto,
@@ -20,8 +21,8 @@ import { PhotosContext, resizePhoto, type Photos } from './lib/photos'
 import { disablePush } from './lib/push'
 import { strings } from './lib/strings'
 import { supabase } from './lib/supabaseClient'
-import type { Assignment, Chore, Member } from './lib/types'
-import { ANCHOR_WEEK, weekStart } from './lib/week'
+import type { Assignment, Chore, Member, RotationRow } from './lib/types'
+import { ANCHOR_WEEK, addDays, rotationForWeek, weekStart } from './lib/week'
 import { Login, PickMember } from './screens/Login'
 import { MyWeek } from './screens/MyWeek'
 import { Overview } from './screens/Overview'
@@ -33,6 +34,7 @@ type Data = {
   chores: Chore[]
   assignments: Assignment[]
   lastDone: Assignment[] // newest done row per chore
+  rotation: RotationRow[] // empty if it couldn't be loaded, then "Ab Montag" is hidden
 }
 
 // No router: the active tab is just a piece of state (see docs/decisions/0002).
@@ -60,13 +62,18 @@ function App() {
 
   const reloadAll = useCallback(async () => {
     try {
-      const [members, chores, assignments, lastDone] = await Promise.all([
+      const [members, chores, assignments, lastDone, rotation] = await Promise.all([
         loadMembers(),
         loadChores(),
         loadAssignments(currentWeek),
         loadLastDone(),
+        // Only needed for the "Ab Montag" preview, so the app still starts without it
+        loadRotation().catch((error) => {
+          console.warn(error)
+          return []
+        }),
       ])
-      setData({ members, chores, assignments, lastDone })
+      setData({ members, chores, assignments, lastDone, rotation })
       setLoadFailed(false)
     } catch (error) {
       console.warn(error)
@@ -161,6 +168,7 @@ function App() {
   }
 
   const myId = me.id
+  const nextWeek = rotationForWeek(data.rotation, addDays(currentWeek, 7))
 
   async function handleMarkDone(assignmentId: string) {
     const doneAt = new Date().toISOString()
@@ -254,7 +262,10 @@ function App() {
               lastDone={data.lastDone}
               members={data.members}
               chores={data.chores}
+              nextWeek={nextWeek}
               onMarkDone={handleMarkDone}
+              onOpenWG={() => setTab('overview')}
+              onOpenSettings={() => setTab('settings')}
             />
           )}
           {tab === 'overview' && (
@@ -265,6 +276,7 @@ function App() {
               lastDone={data.lastDone}
               members={data.members}
               chores={data.chores}
+              nextWeek={nextWeek}
               onTakeOver={handleTakeOver}
             />
           )}

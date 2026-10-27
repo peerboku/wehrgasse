@@ -19,3 +19,4 @@ Rules:
 | [0009](0009-push-trigger-pg-net-vault.md) | Push via DB trigger (pg_net + Vault) in a migration, shared secret | Accepted |
 | [0010](0010-private-avatar-bucket.md) | Profile photos in a private bucket, loaded with `download()` | Accepted |
 | [0011](0011-take-over-via-function.md) | "Take over a chore" through a database function `take_over()` | Accepted |
+| [0012](0012-design-3-knautsch-drehscheibe.md) | New look: Design 3 "Knautsch × Drehscheibe" | Accepted |

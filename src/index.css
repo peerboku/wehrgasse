@@ -1,39 +1,123 @@
-/* Design tokens: change colours and sizes here, everything else uses them. */
+/* Design tokens – Design 3 "Knautsch × Drehscheibe".
+   Change colours and sizes here; every module uses these variables. */
 :root {
   color-scheme: light dark;
-  --bg: #f2f2f7;
-  --surface: #ffffff;
-  --text: #1c1c1e;
-  --text-muted: #6e6e73;
-  --border: #e5e5ea;
-  --accent: #1f9d6b;
-  --accent-text: #ffffff;
-  --accent-soft: #e3f5ec;
-  --danger: #d93a3a;
-  --danger-soft: #fdecec;
-  --highlight: #fff8e1;
 
-  --radius: 16px;
-  --space: 16px;
-  --tabbar-height: 56px;
+  /* Surfaces */
+  --bg: #f4f2fb;
+  --card: #ffffff;
+  --fill: #efecf8; /* secondary buttons, icon tiles, next-week cells */
+  --fill-edge: #dcd6ef; /* 3D edge under secondary buttons */
+  --bar: rgba(244, 242, 251, 0.88); /* tab bar (with backdrop blur) */
+  --hairline: rgba(29, 24, 56, 0.1);
+  --hairline-strong: rgba(29, 24, 56, 0.18);
+  --scrim: rgba(29, 24, 56, 0.4);
+  --shadow-card: 0 1px 2px rgba(29, 24, 56, 0.06), 0 8px 24px rgba(29, 24, 56, 0.06);
 
-  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  /* Text */
+  --ink: #1d1838;
+  --muted: #6b6685;
+
+  /* Primary action: orange "Erledigt" button */
+  --primary: #ff9a3d;
+  --primary-edge: #e07b1f;
+  --on-primary: #2b1300;
+  --primary-ink: #b45309; /* orange used as text/icon on light surfaces */
+  --pastel: #fff0e2; /* chore tile, own avatar, icon tiles */
+
+  /* Done: green */
+  --done: #34c065;
+  --done-edge: #239a4e;
+  --on-done: #04240f;
+  --done-tint: #dcf4e4; /* wheel quadrant when done */
+  --done-ink: #17663a; /* green as text on light surfaces */
+  --chip-bg: #e6f6ec;
+  --chip-fg: #17663a;
+
+  /* Misc */
+  --ring-open: #dcd6ef; /* avatar ring for open chores */
+  --danger: #c4352b;
+  --danger-tint: #fdecea;
+  --tint-pct: 16%; /* member colour tint strength, see color-mix() in modules */
+
+  /* Legacy aliases so untouched components keep working during the migration */
+  --surface: var(--card);
+  --text: var(--ink);
+  --text-muted: var(--muted);
+  --border: var(--hairline-strong);
+  --accent: var(--done);
+  --accent-text: var(--on-done);
+  --accent-soft: var(--chip-bg);
+  --danger-soft: var(--danger-tint);
+  --highlight: var(--pastel);
+
+  /* Spacing: 8-pt grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space: 20px; /* page side margin */
+
+  /* Shape */
+  --radius-card: 24px;
+  --radius-sheet: 28px;
+  --radius-tile: 20px; /* 64–72px emoji tiles */
+  --radius-button: 16px;
+  --radius-icon: 10px; /* 32px icon tiles */
+  --radius: var(--radius-card);
+  --edge-button: 4px; /* chunky 3D edge, primary */
+  --edge-secondary: 3px;
+
+  /* Layout */
+  --tabbar-height: 49px;
+  --content-max: 560px;
+
+  /* Type: SF Pro Rounded on iPhone, no web font needed */
+  font-family: ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
   -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000;
-    --surface: #1c1c1e;
-    --text: #f2f2f7;
-    --text-muted: #98989f;
-    --border: #38383a;
-    --accent: #30c48d;
-    --accent-text: #00281a;
-    --accent-soft: #10301f;
-    --danger: #ff6b6b;
-    --danger-soft: #3a1414;
-    --highlight: #2c2614;
+    --bg: #121022;
+    --card: #1f1b36;
+    --fill: #2a2546;
+    --fill-edge: #14112a;
+    --bar: rgba(18, 16, 34, 0.88);
+    --hairline: rgba(255, 255, 255, 0.08);
+    --hairline-strong: rgba(255, 255, 255, 0.18);
+    --scrim: rgba(0, 0, 0, 0.6);
+    --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+    --ink: #f3f1fb;
+    --muted: #aaa5c4;
+
+    --primary: #ff9a3d;
+    --primary-edge: #c2650f;
+    --on-primary: #2b1300;
+    --primary-ink: #ffb370;
+    --pastel: rgba(255, 154, 61, 0.18);
+
+    --done: #34c065;
+    --done-edge: #1e8443;
+    --on-done: #04240f;
+    --done-tint: rgba(52, 192, 101, 0.24);
+    --done-ink: #7fe0a3;
+    --chip-bg: rgba(52, 192, 101, 0.18);
+    --chip-fg: #7fe0a3;
+
+    --ring-open: #4a4470;
+    --danger: #ff7b72;
+    --danger-tint: rgba(255, 123, 114, 0.16);
+    --tint-pct: 26%;
   }
 }
 
@@ -45,7 +129,7 @@ html,
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--text);
+  color: var(--ink);
   /* no grey flash when tapping on iPhone */
   -webkit-tap-highlight-color: transparent;
 }
@@ -62,3 +146,7 @@ h3,
 p {
   margin: 0;
 }
+
+/* Type scale (iOS-style). Use these values in modules; do not invent new sizes.
+   Large title 32/38 800 · Title 28/34 800 · Sheet title 22/28 800 · Headline 17/22 700
+   Body 17/22 500–600 · Subhead 15/20 500 · Footnote 13/18 500 · Caption 12/16 600 · Tab 10/12 600 */
