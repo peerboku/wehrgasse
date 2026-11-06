@@ -133,6 +133,56 @@ commit;
 
 **Tested 27.10.** The `update`, `delete` and both `alter table` lines ran against the live database with a made-up id (`00000000-…`) inside `begin; … rollback;`. No error, nothing changed, and afterwards both triggers showed `tgenabled = O` (enabled).
 
+### Recipe: a chore from a week before launch, done late (Sun 1.11.2026)
+
+Carla did her "Küche & Staubsaugen" and Peer his "Bad Carla & Peer" from the week of **19.10.**, late, on Tue 27.10. and Fri 30.10. Nobody could tap: the app starts at the anchor week 26.10., so 19.10. has no rows at all (`ensure_current_week()` does nothing before the anchor).
+
+**First try was wrong.** "Done on 27.10." made me (Claude) look in the week that contains 27.10., which is 26.10. There, Küche belongs to Manu and Bad Carla & Peer to Carla, so it looked like a take-over. I moved both rows to the doer, marked them done and wrote `assignment_swapped` + `chore_done` events. Peer: "these are the chores from last week". The clue I should have checked first: **19.10. is cycle week 3, and there Carla has Küche and Peer has Bad Carla & Peer**, exactly who did them. The done date says *when* someone finished it. It doesn't tell you *which week* the chore belongs to (overdue rule "B").
+
+**The fix, in one transaction**:
+
+```sql
+begin;
+alter table public.assignments disable trigger notify_done;
+alter table public.assignments disable trigger notify_taken_over;  -- undoing the member_id change would push
+
+-- undo the wrong first try: this week's 2 rows back to their owner, open again
+update public.assignments set member_id = '<old owner>', done_at = null, done_by = null
+where id = '<this week's row>' and member_id = '<doer>';
+delete from public.events where payload->>'source' = 'manual';
+
+-- week 19.10.: insert only the 2 chores that were done (open ones would show as red "überfällig")
+insert into public.assignments (week_start, chore_id, member_id, done_at, done_by)
+values ('2026-10-19', '<chore>', '<member>', timestamptz '2026-10-27 12:00 Europe/Vienna', '<member>'), (…);
+
+-- the event the app writes on "erledigt", plus "source": "manual" to find hand-entered rows
+insert into public.events (created_at, member_id, type, payload)
+select done_at, member_id, 'chore_done', jsonb_build_object('assignment_id', id, 'source', 'manual')
+from public.assignments where week_start = '2026-10-19';
+
+alter table public.assignments enable trigger notify_done;
+alter table public.assignments enable trigger notify_taken_over;
+commit;
+```
+
+- `insert` fires no trigger (table at the top), so no push. Times are 12:00 Vienna because only the dates were known.
+- Each run first ended in `rollback;` (dry run), then again in `commit;`.
+
+**Surprise:** `supabase db dump --linked --data-only` (the "backup first" habit) needs Docker: `DockerRunError … Cannot connect to the Docker daemon`. With Docker off, the backup was a `select` of the rows before the change.
+
+**Result:**
+
+```
+week_start  chore                 member  done (Vienna)        manual events
+2026-10-19  Bad Carla & Peer      Peer    2026-10-30 12:00     1
+2026-10-19  Küche & Staubsaugen   Carla   2026-10-27 12:00     1
+2026-10-26  Müll rausbringen      Peer    –                    0
+2026-10-26  Bad Noa & Manu        Manu    2026-11-01 15:58     0
+2026-10-26  Bad Carla & Peer      Carla   –                    0
+2026-10-26  Küche & Staubsaugen   Manu    –                    0
+pg_trigger: notify_done O, notify_taken_over O · push_* events in the last 30 min: 0
+```
+
 ### Should we ever delete from `events`?
 
 `CLAUDE.md` says `events` is append-only, and the "push test matrix" idea in `ROADMAP.md` says "nothing gets deleted". Today we deleted 40 rows anyway. That's no contradiction: the rule protects the **statistics** (built from `events` + `assignments`), and test data or a mis-tap would make them wrong. Deleting the events that belong to a mistake keeps them right.
