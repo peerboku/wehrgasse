@@ -5,7 +5,7 @@ All longer texts the app shows: push notifications, popups (sheets), the celebra
 
 Rules for new texts:
 - German, du-Form, short, a bit playful.
-- Keep the placeholders exactly as written: `{name}`, `{chore}`, `{old}`, `{days}`. Every variant must use the same placeholders as the current text (you may change the order).
+- Keep the placeholders exactly as written: `{name}`, `{chore}`, `{old}`, `{days}`, `{late}`. Every variant must use the same placeholders as the current text (you may change the order).
 - Push texts: max. ~100 characters, otherwise the iPhone lock screen cuts them off. Start with an emoji so you see at a glance what happened.
 
 Where the texts live in code:
@@ -32,6 +32,29 @@ Goes to everyone except the new owner. `{name}` = who took it over, `{chore}` = 
 
 Current:
 - 🔄 {name} übernimmt diese Woche {chore} (statt {old})
+
+More:
+-
+-
+-
+
+### 1.3 Someone cleaned too late: you can skip
+Goes only to this week's owner of the chore, when last week's chore is marked done on Wednesday or later. `{late}` = who cleaned too late, `{chore}` = the chore. The other two get 1.1 as usual.
+With "Küche & Staubsaugen" this is ~105 characters, right at the lock-screen limit.
+
+Current:
+- 🐷 {late} das Drecksschwein hat zu spät geputzt – du kannst diese Woche {chore} überspringen!
+
+More:
+-
+-
+-
+
+### 1.4 Someone skipped their chore
+Goes to the other 3 (the late one too). `{name}` = who skipped, `{chore}` = the chore, `{late}` = who cleaned too late.
+
+Current:
+- ⏭️ {name} überspringt diese Woche {chore} ({late} hat zu spät geputzt)
 
 More:
 -
@@ -85,6 +108,30 @@ More:
 
 Button, current:
 - Ja, mach ich! 💪
+
+More:
+-
+-
+
+### 2.3 Confirm "skip"
+Shown after tapping "Überspringen" on "Meine Woche". `{chore}` = the chore, `{late}` = who cleaned too late.
+
+Question, current:
+- „{chore}“ diese Woche überspringen?
+
+More:
+-
+-
+
+Hint below, current:
+- Weil {late} zu spät geputzt hat. Alle anderen werden benachrichtigt.
+
+More:
+-
+-
+
+Button, current:
+- Ja, überspringen 😎
 
 More:
 -
@@ -159,6 +206,27 @@ More:
 -
 -
 
+### 4.6 You may skip (someone cleaned too late)
+In your chore card, above the "Überspringen" button. `{late}` = who cleaned too late.
+
+Current:
+- 🐷 {late} das Drecksschwein hat zu spät geputzt – du kannst diese Woche überspringen!
+
+More:
+-
+-
+-
+
+### 4.7 You skipped your chore
+Big text in your card instead of "Erledigt am …".
+
+Current:
+- Übersprungen 😎
+
+More:
+-
+-
+
 ---
 
 ## 5. Login
@@ -182,7 +250,7 @@ More:
 ---
 
 ## 6. Errors
-Same text for "done", "take over" and notifications in Settings. Probably better to keep it plain, but if you want:
+Same text for "done", "take over", "skip" and notifications in Settings. Probably better to keep it plain, but if you want:
 
 Current:
 - Das hat nicht geklappt. Bist du online? Probier es nochmal.

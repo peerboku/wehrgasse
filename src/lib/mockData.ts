@@ -50,6 +50,7 @@ export function assignmentsForWeek(weekStartDate: string): Assignment[] {
       member_id: row.member_id,
       done_at: null,
       done_by: null,
+      skipped: false,
     }))
 }
 

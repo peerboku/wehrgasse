@@ -70,6 +70,10 @@ export const strings = {
     // When you have two open chores this week (after taking one over)
     doneButtonFor: (chore: string) => `Erledigt: ${chore}`,
     doneOn: (weekday: string) => `Erledigt am ${weekday}`,
+    // Someone did last week's chore on Wednesday or later, so you may skip this week's
+    skipOffer: (late: string) => `🐷 ${late} das Drecksschwein hat zu spät geputzt – du kannst diese Woche überspringen!`,
+    skipButton: 'Überspringen',
+    skipped: 'Übersprungen 😎',
     freeUntilMonday: 'Du hast frei bis Montag. 😎',
     doneError: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
     crewTitle: 'Die WG diese Woche',
@@ -91,6 +95,13 @@ export const strings = {
     error: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
   },
 
+  skip: {
+    question: (chore: string) => `„${chore}“ diese Woche überspringen?`,
+    hint: (late: string) => `Weil ${late} zu spät geputzt hat. Alle anderen werden benachrichtigt.`,
+    yes: 'Ja, überspringen 😎',
+    error: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
+  },
+
   cheers: ['Stark! 💪', 'Die WG dankt dir! ✨', 'Blitzblank! 🧽', 'Legende! 🏆', 'Sauber gemacht! 🫧'],
 
   overview: {
@@ -102,6 +113,7 @@ export const strings = {
     takeHint: 'Tippe auf eine offene Aufgabe, um sie zu übernehmen.',
     statusOpen: 'offen',
     statusDone: 'erledigt',
+    statusSkipped: 'übersprungen',
     // 'du · offen', 'Carla · erledigt'
     slotStatus: (who: string, status: string) => `${who} · ${status}`,
     takeAria: (chore: string, name: string) => `${chore} von ${name} übernehmen`,

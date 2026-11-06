@@ -68,28 +68,31 @@ docs/
 
 **Overdue (rule "B"):** an assignment with `done_at IS NULL` and a past week stays open and visible ("überfällig seit X Tagen", red) until its owner marks it done. It does not block or change the new week's assignment of the same chore.
 
+**Skip after late cleaning ("Überspringen"):** if an older open row of a chore is marked done in the current week on **Wednesday 00:00 Europe/Vienna or later**, this week's owner of that chore may skip it (button on their card in "Meine Woche", confirm sheet; "Erledigt" stays possible). A skip closes the row like done (`done_at`, `done_by`) plus `skipped = true`, through DB function `skip_week()` (security definer, checks the rule via `skippable_assignment()`), ADR 0015. Skipped rows are not "Zuletzt erledigt". Same rule in `lateEnoughToSkip()` (`src/lib/week.ts`, tested).
+
 **Marking done:** only the assigned member can mark their own assignment done (enforced in the UI; the DB only checks `done_by = member_id`, see ADR 0007). Tap → confirmation sheet ("Alle anderen werden benachrichtigt") → done. Small celebration animation afterwards (playful, short).
 
-**Notifications:** on "done" (to the other 3) and on "take over" (to everyone except the new owner, so the old owner hears it too). Nothing else sends push.
+**Notifications:** on "done" (to the other 3), on "take over" (to everyone except the new owner, so the old owner hears it too), and on "skip" (to the other 3). If a "done" is late enough for a skip, this week's owner of that chore gets the skip-offer text instead of the normal one. Nothing else sends push. All texts collected in `docs/texts.md`.
 
 ## Data model (initial)
 - `members` (id uuid, name, emoji, color) — not linked to auth.users
 - `chores` (id, name, icon, sort_order)
 - `rotation_template` (cycle_week 0–3, chore_id, member_id; unique(cycle_week, chore_id))
-- `assignments` (id, week_start date, chore_id, member_id, done_at timestamptz null, done_by uuid null; unique(week_start, chore_id))
+- `assignments` (id, week_start date, chore_id, member_id, done_at timestamptz null, done_by uuid null, skipped boolean default false; unique(week_start, chore_id))
 - `push_subscriptions` (id, member_id, endpoint unique, p256dh, auth, created_at)
 - `events` (id, created_at, member_id, type text, payload jsonb) — **append-only**
 - Storage bucket `avatars` — **private**, one file `<member_id>.jpg` per member (256×256 JPEG, resized and EXIF/GPS-stripped on the phone). Read with `download()` only, never public or signed URLs (ADR 0010). No photo = emoji.
 
-RLS: all tables readable only by the authenticated WG user, nothing for `anon`. On `assignments` only `done_at`/`done_by` are updatable (column grant), with `done_by = member_id`; `member_id` changes only through `take_over()` (security definer: this week + open only). `events` insert-only, no update/delete. Members, chores, template change only via migrations.
+RLS: all tables readable only by the authenticated WG user, nothing for `anon`. On `assignments` only `done_at`/`done_by` are updatable (column grant), with `done_by = member_id`; `member_id` changes only through `take_over()` (security definer: this week + open only), `skipped` only through `skip_week()`. `events` insert-only, no update/delete. Members, chores, template change only via migrations.
 
 ## Event logging (required from day 1)
-Every meaningful action inserts into `events` via `src/lib/events.ts`. Types: `app_open`, `login`, `chore_done`, `assignment_swapped`, `push_subscribed`, `push_sent`, `push_failed`, `avatar_changed`. Statistics later are built only from `events` + `assignments`. Never skip logging to "save time".
+Every meaningful action inserts into `events` via `src/lib/events.ts`. Types: `app_open`, `login`, `chore_done`, `chore_skipped`, `assignment_swapped`, `push_subscribed`, `push_sent`, `push_failed`, `avatar_changed`. Statistics later are built only from `events` + `assignments`. Never skip logging to "save time".
 
 ## Push notifications (iOS specifics)
 - Works only for the PWA added to the Home Screen (iOS 16.4+). Show an install hint in Settings when not running standalone (`display-mode: standalone`).
 - Request permission **only from a button tap** ("Benachrichtigungen aktivieren"), never on load.
 - Flow: `assignments.done_at` set (or `member_id` changed, `kind: 'taken_over'`) → database trigger → Edge Function `notify-done` → sends to other members' subscriptions → logs `push_sent`/`push_failed`. Delete subscriptions that return 404/410.
+- Flow for skip: `skip_week()` sets `done_at` too, so the same `notify_done` trigger fires; the Edge Function reads `skipped`.
 - Notification text example: "✅ Carla hat Bad Carla & Peer erledigt". Tapping opens the app.
 
 ## Secrets

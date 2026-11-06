@@ -50,7 +50,7 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 - [ ] **New design** (Peer, 27.10.): Peer makes 3 design proposals in claude.ai design (input: iPhone screenshots of every screen in light + dark, `index.css`, `strings.ts`, screens + components with their CSS modules, `mockData.ts`), the WG picks one, then it gets implemented here in the existing CSS modules. Core flow stays one tap away, still plain CSS, safe areas + dark mode. Record the choice as an ADR.
   - [x] 3 proposals made
   - [x] WG voted: Design 3 "Knautsch × Drehscheibe" ([ADR 0012](docs/decisions/0012-design-3-knautsch-drehscheibe.md), handoff in `docs/wg-app-design3-handoff/`)
-  - [x] Chosen design implemented (27.10.): lint, type-check, 23/23 tests, WebKit screenshots light + dark. Not committed yet. Extra: "Zuletzt erledigt" card under the wheel (Peer's idea); "fällig bis Sonntag" dropped
+  - [x] Chosen design implemented (27.10.): lint, type-check, 23/23 tests, WebKit screenshots light + dark. Extra: "Zuletzt erledigt" card under the wheel (Peer's idea); "fällig bis Sonntag" dropped
   - [ ] **Peer's review on the iPhone** (`npm run dev -- --host`, open the Network URL in Safari, or after deploy as Home Screen app). Tick each:
     - [ ] Meine Woche: Erledigt button visible without scrolling, one tap opens the sheet, "Ja klar!" is green, confetti + "Stark! 💪" pill in the button's place
     - [ ] Meine Woche: tap your avatar top right → Einstellungen; tap "Die WG diese Woche" → WG tab
@@ -65,7 +65,10 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
     - [ ] Bigger text (Settings → Display → Text Size, a few steps up): nothing cut off or overlapping, esp. the wheel labels
     - [ ] Then: commit, deploy, and tick "Chosen design implemented + checked on the iPhone" below
   - [ ] Chosen design implemented + checked on the iPhone
-- [x] **New app icon** (sponge on ink, handoff in `docs/wg-app-icon/`): files in `public/`, `index.html`, manifest, notification icon; old house icons + `npm run icons` generator removed; leftover old colours (manifest `theme_color`/`background_color`, `<meta name="theme-color">`) set to Design 3's `--bg` ([ADR 0014](docs/decisions/0014-app-icon-from-design-handoff.md)) (27.10.: build, lint, 23/23 tests, manifest + precache checked). Not committed yet
+- [x] **Skip after late cleaning** ("Überspringen", Peer, 01.11.): if last week's chore is only marked done on Wednesday or later of the next week, this week's owner of that chore may skip it. Button on their card ("🐷 Peer das Drecksschwein hat zu spät geputzt – du kannst diese Woche überspringen!"), confirm sheet, wheel shows "übersprungen". Push: the 🐷 text to this week's owner when the late chore is done, "⏭️ Carla überspringt diese Woche …" to the other 3 on skip. Column `assignments.skipped`, DB functions `skippable_assignment()` + `skip_week()`, logs `chore_skipped` ([ADR 0015](docs/decisions/0015-skip-after-late-cleaning.md)). Texts in [docs/texts.md](docs/texts.md) 1.3, 1.4, 2.3, 4.6, 4.7 (01.11.: lint, type-check, 31/31 tests, build, WebKit screenshots light + dark)
+  - [ ] Peer: `supabase db push` + `supabase functions deploy notify-done`
+  - [ ] First real case checked (earliest Wed 04.11.: a week-26.10. chore still open gets done → 🐷 push, button, skip, ⏭️ push)
+- [x] **New app icon** (sponge on ink, handoff in `docs/wg-app-icon/`): files in `public/`, `index.html`, manifest, notification icon; old house icons + `npm run icons` generator removed; leftover old colours (manifest `theme_color`/`background_color`, `<meta name="theme-color">`) set to Design 3's `--bg` ([ADR 0014](docs/decisions/0014-app-icon-from-design-handoff.md)) (27.10.: build, lint, 23/23 tests, manifest + precache checked)
   - [ ] After deploy, on all 4 iPhones: remove the app from the Home Screen, add it again → sponge icon; log in + „Benachrichtigungen aktivieren" again (re-adding wipes the app's storage). Do this **before** the Phase 4 push test matrix
 
 ## After launch (in order)

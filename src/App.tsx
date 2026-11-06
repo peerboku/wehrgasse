@@ -13,6 +13,7 @@ import {
   markDone,
   onAssignmentsChange,
   savePhoto,
+  skipWeek,
   takeOver,
 } from './lib/data'
 import { logEvent } from './lib/events'
@@ -193,6 +194,35 @@ function App() {
     }
   }
 
+  // "Überspringen": my chore of this week is closed because lateMemberId cleaned too late
+  async function handleSkip(assignment: Assignment, lateMemberId: string) {
+    const doneAt = new Date().toISOString()
+    const doneBy = myId
+    // Show it as skipped right away, the database catches up in the background
+    setData(
+      (previous) =>
+        previous && {
+          ...previous,
+          assignments: previous.assignments.map((a) =>
+            a.id === assignment.id ? { ...a, done_at: doneAt, done_by: doneBy, skipped: true } : a,
+          ),
+        },
+    )
+    try {
+      await skipWeek(assignment.id, doneBy)
+      logEvent('chore_skipped', {
+        assignment_id: assignment.id,
+        chore_id: assignment.chore_id,
+        week_start: assignment.week_start,
+        late_member_id: lateMemberId,
+      })
+    } catch (error) {
+      console.warn(error)
+      alert(strings.skip.error)
+      reloadAssignments()
+    }
+  }
+
   // "Ich übernehm das": someone else's open chore of this week becomes mine
   async function handleTakeOver(assignment: Assignment) {
     const takenBy = myId
@@ -264,6 +294,7 @@ function App() {
               chores={data.chores}
               nextWeek={nextWeek}
               onMarkDone={handleMarkDone}
+              onSkip={handleSkip}
               onOpenWG={() => setTab('overview')}
               onOpenSettings={() => setTab('settings')}
             />

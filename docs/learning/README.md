@@ -85,6 +85,7 @@ Status: ✅ written from real evidence · ⏳ partly waiting for you
 | 17 | [Take over a chore: database functions (RPC) and a second push type](17-take-over-rpc-and-second-push.md) | ⏳ (db push, deploy, iPhone check open) | |
 | 18 | [A new look: design tokens, CSS variables per element, and a wheel](18-design-tokens-and-the-wheel.md) | ⏳ (iPhone review open) | |
 | 20 | [A new app icon: swapping assets in a PWA without leaving old ones behind](20-new-app-icon.md) | ⏳ (re-add on all 4 iPhones open) | |
+| 21 | ["Überspringen": one rule in two languages, and a flag instead of a new state](21-skip-after-late-cleaning.md) | ⏳ (db push, deploy, first real case open) | |
 
 ### Operations (Tue 27.10.2026)
 

@@ -22,3 +22,4 @@ Rules:
 | [0012](0012-design-3-knautsch-drehscheibe.md) | New look: Design 3 "Knautsch × Drehscheibe" | Accepted |
 | [0013](0013-fix-mistakes-by-deleting-events.md) | Fix mistakes in runtime data with direct SQL, deleting the matching events | Accepted |
 | [0014](0014-app-icon-from-design-handoff.md) | App icon: ship the design handoff's PNGs, drop the Node icon generator | Accepted |
+| [0015](0015-skip-after-late-cleaning.md) | "Überspringen" after late cleaning: `skipped` flag on the done row, set by `skip_week()` | Accepted |

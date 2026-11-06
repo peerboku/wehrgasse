@@ -26,19 +26,23 @@ export async function loadRotation(): Promise<RotationRow[]> {
 export async function loadAssignments(currentWeek: string): Promise<Assignment[]> {
   const { data, error } = await supabase
     .from('assignments')
-    .select('id, week_start, chore_id, member_id, done_at, done_by')
+    .select('id, week_start, chore_id, member_id, done_at, done_by, skipped')
     .or(`week_start.eq.${currentWeek},done_at.is.null`)
     .lte('week_start', currentWeek)
   if (error) throw error
   return data
 }
 
-/** For each chore its newest done assignment (when and by whom it was done last). Never-done chores are missing. */
+/**
+ * For each chore its newest done assignment (when and by whom it was done last). Never-done chores are missing.
+ * Skipped rows don't count: "Zuletzt erledigt" should name who really cleaned (and the skip rule needs that row).
+ */
 export async function loadLastDone(): Promise<Assignment[]> {
   const { data, error } = await supabase
     .from('assignments')
-    .select('id, week_start, chore_id, member_id, done_at, done_by')
+    .select('id, week_start, chore_id, member_id, done_at, done_by, skipped')
     .not('done_at', 'is', null)
+    .eq('skipped', false)
     .order('done_at', { ascending: false })
   if (error) throw error
   // Newest first, so the first row we meet per chore is the last time it was done
@@ -65,6 +69,15 @@ export async function markDone(assignmentId: string, memberId: string, doneAt: s
  */
 export async function takeOver(assignmentId: string, memberId: string): Promise<void> {
   const { error } = await supabase.rpc('take_over', { p_assignment_id: assignmentId, p_member_id: memberId })
+  if (error) throw error
+}
+
+/**
+ * "Überspringen": closes this week's assignment because someone cleaned too late.
+ * The database function skip_week() checks the rule (migration 20261101120000).
+ */
+export async function skipWeek(assignmentId: string, memberId: string): Promise<void> {
+  const { error } = await supabase.rpc('skip_week', { p_assignment_id: assignmentId, p_member_id: memberId })
   if (error) throw error
 }
 

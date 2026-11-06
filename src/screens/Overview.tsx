@@ -211,10 +211,12 @@ function Wheel({ slots, me, members, chores, doneCount, onTake }: WheelProps) {
           '--x': `${50 + 32 * Math.sin(toRadians(i * step))}%`,
           '--y': `${50 - 32 * Math.cos(toRadians(i * step))}%`,
         } as CSSProperties
-        const status = strings.overview.slotStatus(
-          isMe ? strings.overview.you : owner.name,
-          done ? strings.overview.statusDone : strings.overview.statusOpen,
-        )
+        const statusText = assignment.skipped
+          ? strings.overview.statusSkipped
+          : done
+            ? strings.overview.statusDone
+            : strings.overview.statusOpen
+        const status = strings.overview.slotStatus(isMe ? strings.overview.you : owner.name, statusText)
 
         const content = (
           <>

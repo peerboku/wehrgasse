@@ -28,4 +28,5 @@ export type Assignment = {
   member_id: string
   done_at: string | null // ISO timestamp
   done_by: string | null
+  skipped: boolean // closed with "Überspringen" (done_at/done_by are set too), see docs/decisions/0015
 }

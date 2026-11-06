@@ -3,7 +3,7 @@
 // do math on plain dates ('YYYY-MM-DD', no time of day). Plain dates have no
 // daylight saving time, so a week can never be shifted by an hour.
 
-import type { RotationRow } from './types'
+import type { Assignment, RotationRow } from './types'
 
 const TIME_ZONE = 'Europe/Vienna'
 const MS_PER_DAY = 24 * 60 * 60 * 1000
@@ -86,6 +86,17 @@ export function daysLeft(weekStartDate: string, now: Date = new Date()): number 
 /** Calendar days in Vienna since a timestamp like done_at: today = 0, yesterday = 1. */
 export function daysAgo(timestamp: string, now: Date = new Date()): number {
   return daysBetween(viennaDate(new Date(timestamp)), viennaDate(now))
+}
+
+/**
+ * "Überspringen" rule: an older row of the chore (`late`) was marked done this week,
+ * on Wednesday or later in Vienna. Then this week's owner may skip. Same rule as
+ * skippable_assignment() in the database (migration 20261101120000).
+ */
+export function lateEnoughToSkip(late: Pick<Assignment, 'week_start' | 'done_at'>, currentWeek: string): boolean {
+  if (!late.done_at || late.week_start >= currentWeek) return false
+  const wednesday = addDays(currentWeek, 2)
+  return viennaDate(new Date(late.done_at)) >= wednesday
 }
 
 /** Days since the week's Sunday. The Monday after counts as 1 ("seit gestern"). */

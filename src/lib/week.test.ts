@@ -7,6 +7,7 @@ import {
   daysAgo,
   daysLeft,
   daysOverdue,
+  lateEnoughToSkip,
   rotationForWeek,
   viennaDate,
   weekStart,
@@ -62,6 +63,49 @@ describe('daysOverdue', () => {
 
   it('Wednesday after the week is 3 days overdue', () => {
     expect(daysOverdue('2026-10-19', new Date('2026-10-28T09:00:00Z'))).toBe(3)
+  })
+})
+
+describe('lateEnoughToSkip ("Überspringen")', () => {
+  const thisWeek = '2026-11-02'
+  const lastWeek = { week_start: '2026-10-26' }
+
+  it('done Tuesday 23:59 in Vienna is not late enough', () => {
+    // November: Vienna is UTC+1, so 23:59 Vienna = 22:59 UTC
+    expect(lateEnoughToSkip({ ...lastWeek, done_at: '2026-11-03T22:59:00Z' }, thisWeek)).toBe(false)
+  })
+
+  it('done Wednesday 00:00 in Vienna is late enough, although it is still Tuesday in UTC', () => {
+    expect(lateEnoughToSkip({ ...lastWeek, done_at: '2026-11-03T23:00:00Z' }, thisWeek)).toBe(true)
+  })
+
+  it('done on Sunday of the next week still counts', () => {
+    expect(lateEnoughToSkip({ ...lastWeek, done_at: '2026-11-08T12:00:00Z' }, thisWeek)).toBe(true)
+  })
+
+  it('done in its own week (on time) does not count', () => {
+    expect(lateEnoughToSkip({ ...lastWeek, done_at: '2026-10-29T12:00:00Z' }, thisWeek)).toBe(false)
+  })
+
+  it("this week's own row never counts", () => {
+    expect(lateEnoughToSkip({ week_start: thisWeek, done_at: '2026-11-05T12:00:00Z' }, thisWeek)).toBe(false)
+  })
+
+  it('two weeks late, done on Thursday, counts too', () => {
+    expect(lateEnoughToSkip({ week_start: '2026-10-19', done_at: '2026-11-05T12:00:00Z' }, thisWeek)).toBe(true)
+  })
+
+  it('done last week on Wednesday (not this week) does not count', () => {
+    // Overdue from 19.10., done on Wed 28.10.: that was the 26.10. week's chance, not this week's
+    expect(lateEnoughToSkip({ week_start: '2026-10-19', done_at: '2026-10-28T12:00:00Z' }, thisWeek)).toBe(false)
+  })
+
+  it('DST week (29.03.2027): Wednesday 00:00 in Vienna is 22:00 UTC on Tuesday', () => {
+    const dstWeek = '2027-03-29'
+    const before = { week_start: '2027-03-22', done_at: '2027-03-30T21:59:00Z' }
+    const after = { week_start: '2027-03-22', done_at: '2027-03-30T22:00:00Z' }
+    expect(lateEnoughToSkip(before, dstWeek)).toBe(false)
+    expect(lateEnoughToSkip(after, dstWeek)).toBe(true)
   })
 })
 

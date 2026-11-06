@@ -1,10 +1,14 @@
 // Edge Function notify-done: tells the other members what happened to a chore.
 //   kind 'done':       "✅ Carla hat Bad Carla & Peer erledigt"
 //   kind 'taken_over': "🔄 Noa übernimmt diese Woche Müll rausbringen (statt Peer)"
+//   a skip (assignment.skipped): "⏭️ Carla überspringt diese Woche Müll rausbringen (Peer hat zu spät geputzt)"
+//   done too late (Wednesday or later of the next week): this week's owner of the
+//   chore gets "🐷 Peer das Drecksschwein hat zu spät geputzt – …", the others the normal text.
 // Runs on Supabase (Deno), not in the browser. Called by the database triggers
 // notify_done() (migration 20261027150000_push_webhook.sql) with { assignment_id }
 // and notify_taken_over() (20261027180000_take_over.sql) with
-// { kind: 'taken_over', assignment_id, from_member_id }.
+// { kind: 'taken_over', assignment_id, from_member_id }. Skips come through
+// notify_done() too, a skip sets done_at (20261101120000_skip_after_late.sql).
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
 
@@ -17,9 +21,16 @@ function doneText(memberName: string, choreName: string) {
 function takenOverText(newName: string, choreName: string, oldName: string) {
   return `🔄 ${newName} übernimmt diese Woche ${choreName} (statt ${oldName})`
 }
+function skipOfferText(lateName: string, choreName: string) {
+  return `🐷 ${lateName} das Drecksschwein hat zu spät geputzt – du kannst diese Woche ${choreName} überspringen!`
+}
+function skippedText(memberName: string, choreName: string, lateName: string) {
+  return `⏭️ ${memberName} überspringt diese Woche ${choreName} (${lateName} hat zu spät geputzt)`
+}
 
-// Calls from the first trigger have no kind, they are always 'done'
-type Kind = 'done' | 'taken_over'
+// Calls from the first trigger have no kind; the function finds out itself if it's
+// 'done', 'skipped' or 'skip_offer'. Only used in the push_sent/push_failed events.
+type Kind = 'done' | 'taken_over' | 'skipped' | 'skip_offer'
 
 // Apple keeps an undelivered push this long (seconds) if the phone is offline
 const ONE_DAY = 24 * 60 * 60
@@ -62,13 +73,48 @@ Deno.serve(async (request) => {
 })
 
 async function notifyDone(assignmentId: string) {
-  const assignment = await selectOne('assignments', 'chore_id, done_by', assignmentId)
+  const assignment = await selectOne('assignments', 'chore_id, done_by, week_start, skipped', assignmentId)
   const [chore, doer] = await Promise.all([
     selectOne('chores', 'name', assignment.chore_id),
     selectOne('members', 'name', assignment.done_by),
   ])
+
+  if (assignment.skipped) {
+    // Who cleaned too late: the newest real (not skipped) done row of this chore from an older week
+    const { data: late, error } = await supabase
+      .from('assignments')
+      .select('done_by')
+      .eq('chore_id', assignment.chore_id)
+      .lt('week_start', assignment.week_start)
+      .eq('skipped', false)
+      .not('done_at', 'is', null)
+      .order('done_at', { ascending: false })
+      .limit(1)
+      .single()
+    if (error) throw error
+    const lateMember = await selectOne('members', 'name', late.done_by)
+    // Everyone except the person who skipped, so the late one hears it too
+    const text = skippedText(doer.name, chore.name, lateMember.name)
+    return notifyAllExcept([assignment.done_by], text, assignmentId, 'skipped')
+  }
+
+  // Done too late? Then the database knows this week's row that may now be skipped
+  const { data: skippableId, error } = await supabase.rpc('skippable_assignment', { p_chore_id: assignment.chore_id })
+  if (error) throw error
+  if (skippableId) {
+    const skippable = await selectOne('assignments', 'member_id, week_start', skippableId)
+    // Only if THIS row is the late one (older week), and not when the late one has both rows
+    if (assignment.week_start < skippable.week_start && skippable.member_id !== assignment.done_by) {
+      const [offer, others] = await Promise.all([
+        notifyOnly(skippable.member_id, skipOfferText(doer.name, chore.name), assignmentId, 'skip_offer'),
+        notifyAllExcept([assignment.done_by, skippable.member_id], doneText(doer.name, chore.name), assignmentId, 'done'),
+      ])
+      return { sent: offer.sent + others.sent, total: offer.total + others.total }
+    }
+  }
+
   // Everyone except the person who did it
-  return notifyAllExcept(assignment.done_by, doneText(doer.name, chore.name), assignmentId, 'done')
+  return notifyAllExcept([assignment.done_by], doneText(doer.name, chore.name), assignmentId, 'done')
 }
 
 async function notifyTakenOver(assignmentId: string, fromMemberId: string) {
@@ -80,16 +126,28 @@ async function notifyTakenOver(assignmentId: string, fromMemberId: string) {
   ])
   // Everyone except the person who took it over, so the old owner hears it too
   const text = takenOverText(newOwner.name, chore.name, oldOwner.name)
-  return notifyAllExcept(assignment.member_id, text, assignmentId, 'taken_over')
+  return notifyAllExcept([assignment.member_id], text, assignmentId, 'taken_over')
 }
 
-async function notifyAllExcept(memberId: string, text: string, assignmentId: string, kind: Kind) {
+async function notifyAllExcept(memberIds: string[], text: string, assignmentId: string, kind: Kind) {
   const { data: subscriptions, error } = await supabase
     .from('push_subscriptions')
     .select('id, member_id, endpoint, p256dh, auth')
-    .neq('member_id', memberId)
+    .not('member_id', 'in', `(${memberIds.join(',')})`)
   if (error) throw error
+  return sendAll(subscriptions, text, assignmentId, kind)
+}
 
+async function notifyOnly(memberId: string, text: string, assignmentId: string, kind: Kind) {
+  const { data: subscriptions, error } = await supabase
+    .from('push_subscriptions')
+    .select('id, member_id, endpoint, p256dh, auth')
+    .eq('member_id', memberId)
+  if (error) throw error
+  return sendAll(subscriptions, text, assignmentId, kind)
+}
+
+async function sendAll(subscriptions: Subscription[], text: string, assignmentId: string, kind: Kind) {
   const payload = JSON.stringify({ title: TITLE, body: text })
   const delivered = await Promise.all(
     subscriptions.map((subscription) => send(subscription, payload, assignmentId, kind)),

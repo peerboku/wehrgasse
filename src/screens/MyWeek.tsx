@@ -7,7 +7,7 @@ import { CheckIcon, ChevronIcon, ClockIcon, RotateIcon } from '../components/Ico
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
 import type { Assignment, Chore, Member, RotationRow } from '../lib/types'
-import { daysAgo, daysLeft, daysOverdue, viennaWeekdayIndex, weekStart } from '../lib/week'
+import { daysAgo, daysLeft, daysOverdue, lateEnoughToSkip, viennaWeekdayIndex, weekStart } from '../lib/week'
 import styles from './MyWeek.module.css'
 
 type Props = {
@@ -19,6 +19,7 @@ type Props = {
   chores: Chore[]
   nextWeek: RotationRow[] // empty = unknown, then the "Ab Montag" row is hidden
   onMarkDone: (assignmentId: string) => void
+  onSkip: (assignment: Assignment, lateMemberId: string) => void
   onOpenWG: () => void
   onOpenSettings: () => void
 }
@@ -32,10 +33,12 @@ export function MyWeek({
   chores,
   nextWeek,
   onMarkDone,
+  onSkip,
   onOpenWG,
   onOpenSettings,
 }: Props) {
   const [confirming, setConfirming] = useState<Assignment | null>(null)
+  const [confirmingSkip, setConfirmingSkip] = useState<{ assignment: Assignment; late: Member } | null>(null)
   const [celebrating, setCelebrating] = useState(false)
   // useCallback keeps the same function between renders, so the celebration timer isn't restarted
   const finishCelebration = useCallback(() => setCelebrating(false), [])
@@ -64,6 +67,19 @@ export function MyWeek({
     return strings.myWeek.lastDone(strings.daysAgo(daysAgo(last.done_at)), who)
   }
 
+  // Who cleaned this chore too late, so I may skip it this week (null = no skip)
+  function lateCleaner(assignment: Assignment): Member | null {
+    const last = lastDone.find((a) => a.chore_id === assignment.chore_id)
+    if (!last?.done_by || !lateEnoughToSkip(last, currentWeek)) return null
+    return byId(members, last.done_by)
+  }
+
+  function confirmSkip() {
+    if (!confirmingSkip) return
+    onSkip(confirmingSkip.assignment, confirmingSkip.late.id)
+    setConfirmingSkip(null)
+  }
+
   function confirmDone() {
     if (!confirming) return
     onMarkDone(confirming.id)
@@ -85,6 +101,7 @@ export function MyWeek({
 
       {thisWeek.map((assignment) => {
         const chore = byId(chores, assignment.chore_id)
+        const late = assignment.done_at ? null : lateCleaner(assignment)
         return assignment.done_at ? (
           <section key={assignment.id} className={styles.hero}>
             <div className={styles.doneTile} aria-hidden="true">
@@ -92,7 +109,9 @@ export function MyWeek({
             </div>
             <p className={styles.eyebrow}>{chore.name}</p>
             <h2 className={styles.choreName}>
-              {strings.myWeek.doneOn(strings.weekday(viennaWeekdayIndex(assignment.done_at)))}
+              {assignment.skipped
+                ? strings.myWeek.skipped
+                : strings.myWeek.doneOn(strings.weekday(viennaWeekdayIndex(assignment.done_at)))}
             </h2>
             <p className={styles.free}>{strings.myWeek.freeUntilMonday}</p>
           </section>
@@ -113,6 +132,18 @@ export function MyWeek({
               </p>
             )}
             <p className={styles.lastDone}>{lastDoneText(assignment)}</p>
+            {late && (
+              <div className={styles.skipOffer}>
+                <p className={styles.skipText}>{strings.myWeek.skipOffer(late.name)}</p>
+                <Button
+                  variant="secondary"
+                  className={styles.smallButton}
+                  onClick={() => setConfirmingSkip({ assignment, late })}
+                >
+                  {strings.myWeek.skipButton}
+                </Button>
+              </div>
+            )}
           </section>
         )
       })}
@@ -214,6 +245,16 @@ export function MyWeek({
           yesVariant="done"
           onConfirm={confirmDone}
           onCancel={() => setConfirming(null)}
+        />
+      )}
+      {confirmingSkip && (
+        <ConfirmSheet
+          icon={byId(chores, confirmingSkip.assignment.chore_id).icon}
+          question={strings.skip.question(byId(chores, confirmingSkip.assignment.chore_id).name)}
+          hint={strings.skip.hint(confirmingSkip.late.name)}
+          yesLabel={strings.skip.yes}
+          onConfirm={confirmSkip}
+          onCancel={() => setConfirmingSkip(null)}
         />
       )}
       {celebrating && <Celebration onFinished={finishCelebration} />}
