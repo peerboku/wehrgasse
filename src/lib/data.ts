@@ -64,6 +64,25 @@ export async function markDone(assignmentId: string, memberId: string, doneAt: s
 }
 
 /**
+ * "Doch nicht erledigt?": your done chore of this week is open again (docs/decisions/0016).
+ * No migration needed: the column grant on done_at/done_by and the policy
+ * "done_by is null or done_by = member_id" already allow setting both back to null.
+ * Skipped rows stay closed, and no push goes out (notify_done only fires on open -> done).
+ */
+export async function undoDone(assignmentId: string, memberId: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('assignments')
+    .update({ done_at: null, done_by: null })
+    .eq('id', assignmentId)
+    .eq('done_by', memberId)
+    .eq('skipped', false)
+    .select('id')
+  if (error) throw error
+  // Nothing changed: already open again (other phone) or skipped
+  if (data.length === 0) throw new Error('undoDone: nothing to undo')
+}
+
+/**
  * "Ich übernehm das": this week's open assignment becomes memberId's. The database
  * function take_over() checks "this week + still open" (migration 20261027180000).
  */

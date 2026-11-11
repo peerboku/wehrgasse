@@ -7,6 +7,7 @@ export type EventType =
   | 'app_open'
   | 'login'
   | 'chore_done'
+  | 'chore_reopened'
   | 'chore_skipped'
   | 'assignment_swapped'
   | 'push_subscribed'

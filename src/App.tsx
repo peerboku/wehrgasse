@@ -15,6 +15,7 @@ import {
   savePhoto,
   skipWeek,
   takeOver,
+  undoDone,
 } from './lib/data'
 import { logEvent } from './lib/events'
 import { clearMyMemberId, getMyMemberId, setMyMemberId } from './lib/me'
@@ -194,6 +195,35 @@ function App() {
     }
   }
 
+  // "Doch nicht erledigt?": my done chore of this week is open again (no push, docs/decisions/0016)
+  async function handleUndoDone(assignment: Assignment) {
+    // Show it as open right away, the database catches up in the background
+    setData(
+      (previous) =>
+        previous && {
+          ...previous,
+          assignments: previous.assignments.map((a) =>
+            a.id === assignment.id ? { ...a, done_at: null, done_by: null } : a,
+          ),
+        },
+    )
+    try {
+      await undoDone(assignment.id, myId)
+      // chore_done stays in events; stats subtract the reopened ones
+      logEvent('chore_reopened', {
+        assignment_id: assignment.id,
+        chore_id: assignment.chore_id,
+        week_start: assignment.week_start,
+        done_at: assignment.done_at,
+      })
+    } catch (error) {
+      console.warn(error)
+      alert(strings.undo.error)
+    }
+    // "Zuletzt erledigt" comes from the server, so reload in any case
+    reloadAssignments()
+  }
+
   // "Überspringen": my chore of this week is closed because lateMemberId cleaned too late
   async function handleSkip(assignment: Assignment, lateMemberId: string) {
     const doneAt = new Date().toISOString()
@@ -295,6 +325,7 @@ function App() {
               nextWeek={nextWeek}
               onMarkDone={handleMarkDone}
               onSkip={handleSkip}
+              onUndoDone={handleUndoDone}
               onOpenWG={() => setTab('overview')}
               onOpenSettings={() => setTab('settings')}
             />

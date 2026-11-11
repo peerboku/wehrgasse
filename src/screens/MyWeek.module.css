@@ -230,6 +230,28 @@
   line-height: 20px;
 }
 
+/* "↩ Doch nicht erledigt?": orange pill = something you can tap; green stays "done" */
+.undoLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px; /* iPhone tap size */
+  margin-top: var(--space-3);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: var(--pastel);
+  color: var(--primary-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.undoLink:active {
+  background: color-mix(in srgb, var(--primary) 30%, var(--pastel));
+}
+
 /* ---------- "Die WG diese Woche" strip (link/button to the WG tab) ---------- */
 .crew {
   display: block;

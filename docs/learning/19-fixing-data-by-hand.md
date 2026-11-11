@@ -183,6 +183,36 @@ week_start  chore                 member  done (Vienna)        manual events
 pg_trigger: notify_done O, notify_taken_over O · push_* events in the last 30 min: 0
 ```
 
+### Recipe: remove a done row completely (Sat 7.11.2026)
+
+Peer asked to remove Carla's "Bad Carla & Peer" from the week of **26.10.** (marked done Sun 1.11. 20:19), so that "Zuletzt erledigt" shows **Peer, 30.10.** again and Carla sees nothing overdue.
+
+**Why not the "undo erledigt" recipe?** That sets `done_at` back to `null`, and a past week's open row is rule "B": Carla would get a red "überfällig seit 13 Tagen". "Zuletzt erledigt" comes from `assignments` (`loadLastDone()` in [`src/lib/data.ts`](../../src/lib/data.ts)), not from `events`, so deleting only the event would change nothing on screen. So: **delete the whole row** plus its events. The week then simply has no entry for that chore. The hourly cron won't bring it back: `ensure_current_week()` only creates rows for the current week.
+
+**Look first:** the row (`837d69ed-…`) and its events: #125 `chore_done`, #126–128 `push_sent`. That printed output was the backup (Docker off, so no `db dump`).
+
+**Dry run, then for real:**
+
+```
+$ supabase db query --linked "begin; delete from public.assignments where id = '837d69ed-…'; delete from public.events where id in (125,126,127,128) and payload->>'assignment_id' = '837d69ed-…' returning id, type; rollback;"
+→ 125 chore_done · 126 push_sent · 127 push_sent · 128 push_sent
+
+$ supabase db query --linked "begin; delete from public.events where id in (125,126,127,128) and payload->>'assignment_id' = '837d69ed-…'; delete from public.assignments where id = '837d69ed-…' returning id, week_start; commit;"
+→ 837d69ed-… 2026-10-26
+```
+
+The two `where` conditions on the event delete are a seatbelt: a mistyped id can't delete some other assignment's event. The order of the statements was switched for the real run so that the last `select`-like output (the only one `db query` prints) is the assignment.
+
+**Check:**
+
+```
+week_start  member  done (Vienna)         done_by  leftover events
+2026-10-19  Peer    2026-10-30 12:00      Peer     0
+2026-11-02  Peer    –                     –        0
+```
+
+`delete` fires no trigger, so no push went out. The old "✅ Carla hat … erledigt" stays on the other phones.
+
 ### Should we ever delete from `events`?
 
 `CLAUDE.md` says `events` is append-only, and the "push test matrix" idea in `ROADMAP.md` says "nothing gets deleted". Today we deleted 40 rows anyway. That's no contradiction: the rule protects the **statistics** (built from `events` + `assignments`), and test data or a mis-tap would make them wrong. Deleting the events that belong to a mistake keeps them right.

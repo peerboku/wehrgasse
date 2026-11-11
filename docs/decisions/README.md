@@ -23,3 +23,4 @@ Rules:
 | [0013](0013-fix-mistakes-by-deleting-events.md) | Fix mistakes in runtime data with direct SQL, deleting the matching events | Accepted |
 | [0014](0014-app-icon-from-design-handoff.md) | App icon: ship the design handoff's PNGs, drop the Node icon generator | Accepted |
 | [0015](0015-skip-after-late-cleaning.md) | "Überspringen" after late cleaning: `skipped` flag on the done row, set by `skip_week()` | Accepted |
+| [0016](0016-undo-done-in-app.md) | Undo "erledigt" in the app: reset `done_at` with the existing grant, log `chore_reopened` | Accepted |

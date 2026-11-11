@@ -3,7 +3,7 @@ import { Avatar } from '../components/Avatar'
 import { Button } from '../components/Button'
 import { Celebration } from '../components/Celebration'
 import { ConfirmSheet } from '../components/ConfirmSheet'
-import { CheckIcon, ChevronIcon, ClockIcon, RotateIcon } from '../components/Icons'
+import { CheckIcon, ChevronIcon, ClockIcon, RotateIcon, UndoIcon } from '../components/Icons'
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
 import type { Assignment, Chore, Member, RotationRow } from '../lib/types'
@@ -20,6 +20,7 @@ type Props = {
   nextWeek: RotationRow[] // empty = unknown, then the "Ab Montag" row is hidden
   onMarkDone: (assignmentId: string) => void
   onSkip: (assignment: Assignment, lateMemberId: string) => void
+  onUndoDone: (assignment: Assignment) => void
   onOpenWG: () => void
   onOpenSettings: () => void
 }
@@ -34,11 +35,13 @@ export function MyWeek({
   nextWeek,
   onMarkDone,
   onSkip,
+  onUndoDone,
   onOpenWG,
   onOpenSettings,
 }: Props) {
   const [confirming, setConfirming] = useState<Assignment | null>(null)
   const [confirmingSkip, setConfirmingSkip] = useState<{ assignment: Assignment; late: Member } | null>(null)
+  const [confirmingUndo, setConfirmingUndo] = useState<Assignment | null>(null)
   const [celebrating, setCelebrating] = useState(false)
   // useCallback keeps the same function between renders, so the celebration timer isn't restarted
   const finishCelebration = useCallback(() => setCelebrating(false), [])
@@ -80,6 +83,14 @@ export function MyWeek({
     setConfirmingSkip(null)
   }
 
+  function confirmUndo() {
+    if (!confirmingUndo) return
+    onUndoDone(confirmingUndo)
+    setConfirmingUndo(null)
+    // Stop the confetti, so the Erledigt button is back right away
+    finishCelebration()
+  }
+
   function confirmDone() {
     if (!confirming) return
     onMarkDone(confirming.id)
@@ -114,6 +125,13 @@ export function MyWeek({
                 : strings.myWeek.doneOn(strings.weekday(viennaWeekdayIndex(assignment.done_at)))}
             </h2>
             <p className={styles.free}>{strings.myWeek.freeUntilMonday}</p>
+            {/* A skip stays final, only "Erledigt" can be undone */}
+            {!assignment.skipped && (
+              <button type="button" className={styles.undoLink} onClick={() => setConfirmingUndo(assignment)}>
+                <UndoIcon size={16} strokeWidth={2.6} />
+                {strings.myWeek.undoLink}
+              </button>
+            )}
           </section>
         ) : (
           <section key={assignment.id} className={styles.hero}>
@@ -255,6 +273,16 @@ export function MyWeek({
           yesLabel={strings.skip.yes}
           onConfirm={confirmSkip}
           onCancel={() => setConfirmingSkip(null)}
+        />
+      )}
+      {confirmingUndo && (
+        <ConfirmSheet
+          icon={byId(chores, confirmingUndo.chore_id).icon}
+          question={strings.undo.question(byId(chores, confirmingUndo.chore_id).name)}
+          hint={strings.undo.hint}
+          yesLabel={strings.undo.yes}
+          onConfirm={confirmUndo}
+          onCancel={() => setConfirmingUndo(null)}
         />
       )}
       {celebrating && <Celebration onFinished={finishCelebration} />}

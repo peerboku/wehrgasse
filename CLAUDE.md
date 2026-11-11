@@ -72,6 +72,8 @@ docs/
 
 **Marking done:** only the assigned member can mark their own assignment done (enforced in the UI; the DB only checks `done_by = member_id`, see ADR 0007). Tap → confirmation sheet ("Alle anderen werden benachrichtigt") → done. Small celebration animation afterwards (playful, short).
 
+**Undo ("Doch nicht erledigt?"):** your own done chore of **this** week shows an undo pill on its card in "Meine Woche" until Sunday → confirm sheet → `done_at`/`done_by` back to `null` (existing column grant, no DB function), event `chore_reopened`, **no push**. Skipped rows can't be undone. Overdue rows done this week aren't offered (they leave "Meine Woche"); fix those by hand (chapter 19). ADR 0016.
+
 **Notifications:** on "done" (to the other 3), on "take over" (to everyone except the new owner, so the old owner hears it too), and on "skip" (to the other 3). If a "done" is late enough for a skip, this week's owner of that chore gets the skip-offer text instead of the normal one. Nothing else sends push. All texts collected in `docs/texts.md`.
 
 ## Data model (initial)
@@ -86,7 +88,7 @@ docs/
 RLS: all tables readable only by the authenticated WG user, nothing for `anon`. On `assignments` only `done_at`/`done_by` are updatable (column grant), with `done_by = member_id`; `member_id` changes only through `take_over()` (security definer: this week + open only), `skipped` only through `skip_week()`. `events` insert-only, no update/delete. Members, chores, template change only via migrations.
 
 ## Event logging (required from day 1)
-Every meaningful action inserts into `events` via `src/lib/events.ts`. Types: `app_open`, `login`, `chore_done`, `chore_skipped`, `assignment_swapped`, `push_subscribed`, `push_sent`, `push_failed`, `avatar_changed`. Statistics later are built only from `events` + `assignments`. Never skip logging to "save time".
+Every meaningful action inserts into `events` via `src/lib/events.ts`. Types: `app_open`, `login`, `chore_done`, `chore_reopened`, `chore_skipped`, `assignment_swapped`, `push_subscribed`, `push_sent`, `push_failed`, `avatar_changed`. Statistics later are built only from `events` + `assignments`. A `chore_reopened` cancels the newest earlier `chore_done` with the same `assignment_id` (its payload also carries the old `done_at`). Never skip logging to "save time".
 
 ## Push notifications (iOS specifics)
 - Works only for the PWA added to the Home Screen (iOS 16.4+). Show an install hint in Settings when not running standalone (`display-mode: standalone`).

@@ -137,6 +137,30 @@ More:
 -
 -
 
+### 2.4 Confirm "undo"
+Shown after tapping "Doch nicht erledigt?" on your done card. `{chore}` = the chore. No push goes out.
+
+Question, current:
+- „{chore}“ doch nicht erledigt?
+
+More:
+-
+-
+
+Hint below, current:
+- Dann ist sie wieder offen. Die anderen bekommen keine Nachricht.
+
+More:
+-
+-
+
+Button, current:
+- Ja, wieder öffnen
+
+More:
+-
+-
+
 ---
 
 ## 3. Celebration after "done"
@@ -222,6 +246,16 @@ Big text in your card instead of "Erledigt am …".
 
 Current:
 - Übersprungen 😎
+
+More:
+-
+-
+
+### 4.8 Undo link on your done card
+Small orange pill under "Du hast frei bis Montag. 😎" (not on skipped cards). Keep it short, it has to fit in one line.
+
+Current:
+- Doch nicht erledigt?
 
 More:
 -

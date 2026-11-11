@@ -75,6 +75,8 @@ export const strings = {
     skipButton: 'Überspringen',
     skipped: 'Übersprungen 😎',
     freeUntilMonday: 'Du hast frei bis Montag. 😎',
+    // On your done card until Sunday, not on skipped ones
+    undoLink: 'Doch nicht erledigt?',
     doneError: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
     crewTitle: 'Die WG diese Woche',
     crewProgress: (done: number, total: number) => `${done} von ${total} erledigt`,
@@ -99,6 +101,13 @@ export const strings = {
     question: (chore: string) => `„${chore}“ diese Woche überspringen?`,
     hint: (late: string) => `Weil ${late} zu spät geputzt hat. Alle anderen werden benachrichtigt.`,
     yes: 'Ja, überspringen 😎',
+    error: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
+  },
+
+  undo: {
+    question: (chore: string) => `„${chore}“ doch nicht erledigt?`,
+    hint: 'Dann ist sie wieder offen. Die anderen bekommen keine Nachricht.',
+    yes: 'Ja, wieder öffnen',
     error: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
   },
 
