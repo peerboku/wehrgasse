@@ -11,7 +11,8 @@ Private web app for 4 flatmates (Peer, Carla, Noa, Manu) to see **who does which
 - Work in small steps. Use plan mode for anything touching >2 files or the database schema. Ask before schema changes.
 - Only build what is in the current phase of `ROADMAP.md`. Propose extras as notes in ROADMAP.md "Ideas", don't build them.
 - After each finished task: update the checkbox in ROADMAP.md.
-- After each step: add or update the chapter in `docs/learning/` (template in its README), written from real commands and output, including mistakes. Add an ADR in `docs/decisions/` for any choice that had real alternatives.
+- `docs/learning/` is frozen as of 2026-11-15: don't write new chapters or extend existing ones. It stays as reference. Learning now happens in a central, cross-project setup (being designed in the fantasy_league session of 2026-11-15) where Peer writes the lessons and Claude only asks and attaches evidence.
+- Add an ADR in `docs/decisions/` for any choice that had real alternatives.
 
 ## Language rules
 - **UI text: German** (du-Form, short, friendly, a bit playful).

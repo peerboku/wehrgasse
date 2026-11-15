@@ -1,5 +1,10 @@
 # Learning log — building the WG-App
 
+> **Frozen 2026-11-15.** No new chapters. These 23 chapters stay as reference for this app. Lessons from here get
+> mined into a central, cross-project learning setup, where Peer writes the lessons in their own words and Claude
+> only asks questions and attaches evidence. Reason: Claude wrote ~29,000 words here, but Peer read 3 chapters and
+> the "Your notes" sections stayed empty, so the writing taught Claude, not Peer.
+
 This folder is a course textbook that writes itself while we build the app. Every step we take gets one chapter: first the general idea, then exactly how we did it here, with the real commands and real output, not a cleaned-up story.
 
 Two kinds of records, kept apart on purpose:
