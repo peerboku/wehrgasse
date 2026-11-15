@@ -213,6 +213,76 @@ week_start  member  done (Vienna)         done_by  leftover events
 
 `delete` fires no trigger, so no push went out. The old "✅ Carla hat … erledigt" stays on the other phones.
 
+### Recipe: someone else's overdue chore done by you + a mis-tap reopened (Wed 11.11.2026)
+
+Peer: "Peer did Küche & Staubsaugen from Noa on Monday 9th November. Carla didn't do Bad Carla & Peer two days ago, it is still open."
+
+**Reading it right first** (lesson from 1.11.). The week of 9.11. is cycle week 2, and there Küche is already **Peer's**. So "from Noa" can only be **last week's (2.11.) Küche**, which was Noa's, open and overdue. Carla's row was this week's, tapped "erledigt" on Mon 18:44 (event #154, plus 3 pushes). Four minutes later she also marked last week's Müll done. That one is real, so it stayed. Claude wrote this reading back to Peer and only started after the "yes".
+
+**Owner or doer?** Noa was the owner, Peer did it. The policy `with check (done_by is null or done_by = member_id)` doesn't allow "owned by Noa, done by Peer", so the row moves to Peer the way a take-over would. Noa stays on record as `from_member_id` in the `assignment_swapped` event.
+
+**Reopening without deleting.** Since the undo feature (chapter 22) there's an event type for this, `chore_reopened`. It cancels the newest earlier `chore_done` of the same assignment. So, unlike on 7.11., nothing was deleted from `events`. Carla could have done this part herself with "Doch nicht erledigt?" in "Meine Woche".
+
+**The transaction** (in a file, `supabase db query --linked -f fix.sql`), short version:
+
+```sql
+begin;
+alter table public.assignments disable trigger notify_done;        -- done_at null → value would push
+alter table public.assignments disable trigger notify_taken_over;  -- member_id change would push
+
+-- 2.11. Küche: Noa → Peer, done Mon 9.11. (time unknown → 12:00 Vienna)
+update public.assignments
+set member_id = '<Peer>', done_by = '<Peer>', done_at = timestamptz '2026-11-09 12:00 Europe/Vienna'
+where id = '<row>' and member_id = '<Noa>' and done_at is null;   -- seatbelt: still Noa's and open
+insert into public.events (created_at, member_id, type, payload) values
+  ('2026-11-09 12:00 Europe/Vienna', '<Peer>', 'assignment_swapped',
+   '{"assignment_id": …, "chore_id": …, "week_start": "2026-11-02", "from_member_id": "<Noa>", "source": "manual"}'),
+  ('2026-11-09 12:00 Europe/Vienna', '<Peer>', 'chore_done', '{"assignment_id": …, "source": "manual"}');
+
+-- 9.11. Bad Carla & Peer: log chore_reopened with the old done_at FIRST, then clear it
+insert into public.events (member_id, type, payload)
+select member_id, 'chore_reopened', jsonb_build_object('assignment_id', id, 'chore_id', chore_id,
+       'week_start', week_start, 'done_at', done_at, 'source', 'manual')
+from public.assignments where id = '<row>' and done_at is not null;
+update public.assignments set done_at = null, done_by = null
+where id = '<row>' and member_id = '<Carla>' and done_at is not null;
+
+alter table public.assignments enable trigger notify_done;
+alter table public.assignments enable trigger notify_taken_over;
+select …;   -- the only output db query prints
+commit;     -- dry run: rollback;
+```
+
+- **Order matters** in the Carla part: the event reads `done_at` from the row, so it has to come before the `update` that clears it.
+- **Monday, not today.** The done date is the real one (9.11.), not "now". Had it been Wednesday or later, the skip rule would have offered this week's Küche owner (Peer) "Überspringen".
+- **A mistake on the way:** a check query with `tgname || '=' || tgenabled` failed with `operator is not unique: text || "char"`. `tgenabled` has the odd Postgres type `"char"`; `tgenabled::text` fixed it.
+
+**Dry run (`rollback;`), then a check that it left nothing behind:**
+
+```
+week_start  chore                member  done_vienna       done_by  manual_events
+2026-11-02  Küche & Staubsaugen  Peer    2026-11-09 12:00  Peer     assignment_swapped,chore_done
+2026-11-09  Bad Carla & Peer     Carla   NULL              NULL     chore_reopened
+→ after rollback: Küche still Noa / open, Carla still done 18:44, 0 manual events, both triggers O
+```
+
+**Real run (`commit;`)** printed the same two lines. **Check:**
+
+```
+2026-11-02  Müll rausbringen     Carla  2026-11-09 18:48  Carla
+2026-11-02  Bad Noa & Manu       Manu   –                 –      (overdue)
+2026-11-02  Bad Carla & Peer     Peer   –                 –      (overdue)
+2026-11-02  Küche & Staubsaugen  Peer   2026-11-09 12:00  Peer
+2026-11-09  Müll rausbringen     Manu   –
+2026-11-09  Bad Noa & Manu       Noa    –
+2026-11-09  Bad Carla & Peer     Carla  –
+2026-11-09  Küche & Staubsaugen  Peer   –
+triggers: notify_taken_over=O notify_done=O · push_* events in the last 10 min: 0
+manual events: 171 assignment_swapped · 172 chore_done · 173 chore_reopened
+```
+
+No push went out. The others still have Carla's "✅ … erledigt" from Monday on their phones, so tell them in the flat chat.
+
 ### Should we ever delete from `events`?
 
 `CLAUDE.md` says `events` is append-only, and the "push test matrix" idea in `ROADMAP.md` says "nothing gets deleted". Today we deleted 40 rows anyway. That's no contradiction: the rule protects the **statistics** (built from `events` + `assignments`), and test data or a mis-tap would make them wrong. Deleting the events that belong to a mistake keeps them right.
@@ -251,7 +321,7 @@ The others get a push: the trigger doesn't care who made the change. But there i
 - **The database, after the reset:** 4 open rows for 2026-10-26 that match cycle week 0 in `CLAUDE.md`; `events` count 0 (output above).
 - **Postgres parsed the recipes:** the dry run with a fake id inside `begin; … rollback;` raised no error; `pg_trigger` showed both triggers enabled afterwards.
 - **The trigger table** comes from the `when` clauses in [`20261027150000_push_webhook.sql`](../../supabase/migrations/20261027150000_push_webhook.sql) and [`20261027180000_take_over.sql`](../../supabase/migrations/20261027180000_take_over.sql).
-- ⏳ **A real undo** of a real mis-tap hasn't happened yet. The first time it does, paste the `returning` output here.
+- ✅ **A real undo** of a real mis-tap: Carla's "Bad Carla & Peer", 11.11. (output in the recipe above), done with a `chore_reopened` event instead of the delete recipe.
 
 ## 7. Check yourself
 
