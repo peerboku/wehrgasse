@@ -3,10 +3,11 @@ import { Avatar } from '../components/Avatar'
 import { Button } from '../components/Button'
 import { Celebration } from '../components/Celebration'
 import { ConfirmSheet } from '../components/ConfirmSheet'
+import { SkipSheet } from '../components/SkipSheet'
 import { CheckIcon, ChevronIcon, ClockIcon, RotateIcon, UndoIcon } from '../components/Icons'
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
-import type { Assignment, Chore, Member, RotationRow } from '../lib/types'
+import type { Assignment, Chore, Member, RotationRow, SkipReason } from '../lib/types'
 import { daysAgo, daysLeft, daysOverdue, lateEnoughToSkip, viennaWeekdayIndex, weekStart } from '../lib/week'
 import styles from './MyWeek.module.css'
 
@@ -19,7 +20,7 @@ type Props = {
   chores: Chore[]
   nextWeek: RotationRow[] // empty = unknown, then the "Ab Montag" row is hidden
   onMarkDone: (assignmentId: string) => void
-  onSkip: (assignment: Assignment, lateMemberId: string) => void
+  onSkip: (assignment: Assignment, reason: SkipReason, lateMemberId?: string) => void
   onUndoDone: (assignment: Assignment) => void
   onOpenWG: () => void
   onOpenSettings: () => void
@@ -40,7 +41,8 @@ export function MyWeek({
   onOpenSettings,
 }: Props) {
   const [confirming, setConfirming] = useState<Assignment | null>(null)
-  const [confirmingSkip, setConfirmingSkip] = useState<{ assignment: Assignment; late: Member } | null>(null)
+  // late = who cleaned too late (this week's chore), null for an overdue one
+  const [confirmingSkip, setConfirmingSkip] = useState<{ assignment: Assignment; late: Member | null } | null>(null)
   const [confirmingUndo, setConfirmingUndo] = useState<Assignment | null>(null)
   const [celebrating, setCelebrating] = useState(false)
   // useCallback keeps the same function between renders, so the celebration timer isn't restarted
@@ -77,9 +79,9 @@ export function MyWeek({
     return byId(members, last.done_by)
   }
 
-  function confirmSkip() {
+  function confirmSkip(reason: SkipReason, lateMemberId?: string) {
     if (!confirmingSkip) return
-    onSkip(confirmingSkip.assignment, confirmingSkip.late.id)
+    onSkip(confirmingSkip.assignment, reason, lateMemberId)
     setConfirmingSkip(null)
   }
 
@@ -182,9 +184,19 @@ export function MyWeek({
                   <p className={styles.overdueWeek}>{strings.myWeek.fromWeek(assignment.week_start)}</p>
                   <p className={styles.overdueSince}>{strings.overdueSince(daysOverdue(assignment.week_start))}</p>
                 </div>
-                <Button className={styles.smallButton} onClick={() => setConfirming(assignment)}>
-                  {strings.myWeek.doneButton}
-                </Button>
+                {/* Overdue chores can always be skipped, the sheet warns if nobody cleaned since */}
+                <div className={styles.overdueButtons}>
+                  <Button className={styles.smallButton} onClick={() => setConfirming(assignment)}>
+                    {strings.myWeek.doneButton}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    className={styles.smallButton}
+                    onClick={() => setConfirmingSkip({ assignment, late: null })}
+                  >
+                    {strings.myWeek.skipButton}
+                  </Button>
+                </div>
               </div>
             )
           })}
@@ -266,11 +278,14 @@ export function MyWeek({
         />
       )}
       {confirmingSkip && (
-        <ConfirmSheet
-          icon={byId(chores, confirmingSkip.assignment.chore_id).icon}
-          question={strings.skip.question(byId(chores, confirmingSkip.assignment.chore_id).name)}
-          hint={strings.skip.hint(confirmingSkip.late.name)}
-          yesLabel={strings.skip.yes}
+        <SkipSheet
+          assignment={confirmingSkip.assignment}
+          me={member}
+          currentWeek={currentWeek}
+          members={members}
+          chores={chores}
+          lastDone={lastDone}
+          late={confirmingSkip.late}
           onConfirm={confirmSkip}
           onCancel={() => setConfirmingSkip(null)}
         />

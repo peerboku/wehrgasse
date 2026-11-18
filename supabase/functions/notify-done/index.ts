@@ -1,14 +1,14 @@
 // Edge Function notify-done: tells the other members what happened to a chore.
 //   kind 'done':       "✅ Carla hat Bad Carla & Peer erledigt"
 //   kind 'taken_over': "🔄 Noa übernimmt diese Woche Müll rausbringen (statt Peer)"
-//   a skip (assignment.skipped): "⏭️ Carla überspringt diese Woche Müll rausbringen (Peer hat zu spät geputzt)"
+//   a skip (assignment.skipped): no push at all (docs/decisions/0017)
 //   done too late (Wednesday or later of the next week): this week's owner of the
 //   chore gets "🐷 Peer das Drecksschwein hat zu spät geputzt – …", the others the normal text.
 // Runs on Supabase (Deno), not in the browser. Called by the database triggers
 // notify_done() (migration 20261027150000_push_webhook.sql) with { assignment_id }
 // and notify_taken_over() (20261027180000_take_over.sql) with
-// { kind: 'taken_over', assignment_id, from_member_id }. Skips come through
-// notify_done() too, a skip sets done_at (20261101120000_skip_after_late.sql).
+// { kind: 'taken_over', assignment_id, from_member_id }. Skips set done_at too, but
+// the trigger leaves them out (20261118120000_skip_overdue_and_for_others.sql).
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
 
@@ -24,13 +24,10 @@ function takenOverText(newName: string, choreName: string, oldName: string) {
 function skipOfferText(lateName: string, choreName: string) {
   return `🐷 ${lateName} das Drecksschwein hat zu spät geputzt – du kannst diese Woche ${choreName} überspringen!`
 }
-function skippedText(memberName: string, choreName: string, lateName: string) {
-  return `⏭️ ${memberName} überspringt diese Woche ${choreName} (${lateName} hat zu spät geputzt)`
-}
 
 // Calls from the first trigger have no kind; the function finds out itself if it's
-// 'done', 'skipped' or 'skip_offer'. Only used in the push_sent/push_failed events.
-type Kind = 'done' | 'taken_over' | 'skipped' | 'skip_offer'
+// 'done' or 'skip_offer'. Only used in the push_sent/push_failed events.
+type Kind = 'done' | 'taken_over' | 'skip_offer'
 
 // Apple keeps an undelivered push this long (seconds) if the phone is offline
 const ONE_DAY = 24 * 60 * 60
@@ -74,29 +71,13 @@ Deno.serve(async (request) => {
 
 async function notifyDone(assignmentId: string) {
   const assignment = await selectOne('assignments', 'chore_id, done_by, week_start, skipped', assignmentId)
+  // Skips are silent. The trigger already leaves them out, this is just in case.
+  if (assignment.skipped) return { sent: 0, total: 0 }
+
   const [chore, doer] = await Promise.all([
     selectOne('chores', 'name', assignment.chore_id),
     selectOne('members', 'name', assignment.done_by),
   ])
-
-  if (assignment.skipped) {
-    // Who cleaned too late: the newest real (not skipped) done row of this chore from an older week
-    const { data: late, error } = await supabase
-      .from('assignments')
-      .select('done_by')
-      .eq('chore_id', assignment.chore_id)
-      .lt('week_start', assignment.week_start)
-      .eq('skipped', false)
-      .not('done_at', 'is', null)
-      .order('done_at', { ascending: false })
-      .limit(1)
-      .single()
-    if (error) throw error
-    const lateMember = await selectOne('members', 'name', late.done_by)
-    // Everyone except the person who skipped, so the late one hears it too
-    const text = skippedText(doer.name, chore.name, lateMember.name)
-    return notifyAllExcept([assignment.done_by], text, assignmentId, 'skipped')
-  }
 
   // Done too late? Then the database knows this week's row that may now be skipped
   const { data: skippableId, error } = await supabase.rpc('skippable_assignment', { p_chore_id: assignment.chore_id })

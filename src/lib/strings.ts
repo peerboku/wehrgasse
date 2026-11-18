@@ -94,12 +94,22 @@ export const strings = {
     question: (chore: string) => `„${chore}“ diese Woche übernehmen?`,
     hint: (name: string) => `Statt ${name}. Alle anderen werden benachrichtigt.`,
     yes: 'Ja, mach ich! 💪',
+    // Only Peer sees it (members.can_skip_for_others), e.g. when someone is on holiday
+    skipInstead: 'Lieber überspringen',
     error: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
   },
 
+  // Skips never send a push (docs/decisions/0017)
   skip: {
     question: (chore: string) => `„${chore}“ diese Woche überspringen?`,
-    hint: (late: string) => `Weil ${late} zu spät geputzt hat. Alle anderen werden benachrichtigt.`,
+    hint: (late: string) => `Weil ${late} zu spät geputzt hat. Niemand wird benachrichtigt.`,
+    // An overdue chore, yours or (for Peer) someone else's
+    questionOverdue: (chore: string, weekStart: string) => `„${chore}“ aus der Woche ${weekRange(weekStart)} überspringen?`,
+    hintCleaned: (when: string, who: string) => `Ist inzwischen geputzt (zuletzt ${when} von ${who}). Niemand wird benachrichtigt.`,
+    hintNotCleaned: (chore: string) => `⚠️ Seitdem hat niemand „${chore}“ geputzt. Niemand wird benachrichtigt.`,
+    // Peer skips someone else's chore of this week
+    questionFor: (chore: string, name: string) => `„${chore}“ diese Woche für ${name} überspringen?`,
+    hintFor: (name: string) => `Dann bleibt es diese Woche liegen, auch für ${name}. Niemand wird benachrichtigt.`,
     yes: 'Ja, überspringen 😎',
     error: 'Das hat nicht geklappt. Bist du online? Probier es nochmal.',
   },

@@ -4,7 +4,7 @@ import type { Photos } from './photos'
 import type { Assignment, Chore, Member, RotationRow } from './types'
 
 export async function loadMembers(): Promise<Member[]> {
-  const { data, error } = await supabase.from('members').select('id, name, emoji, color').order('name')
+  const { data, error } = await supabase.from('members').select('id, name, emoji, color, can_skip_for_others').order('name')
   if (error) throw error
   return data
 }
@@ -92,8 +92,9 @@ export async function takeOver(assignmentId: string, memberId: string): Promise<
 }
 
 /**
- * "Überspringen": closes this week's assignment because someone cleaned too late.
- * The database function skip_week() checks the rule (migration 20261101120000).
+ * "Überspringen": closes an open assignment without cleaning, and without a push.
+ * memberId = who skips. The database function skip_week() checks who may skip what
+ * (migration 20261118120000, docs/decisions/0017).
  */
 export async function skipWeek(assignmentId: string, memberId: string): Promise<void> {
   const { error } = await supabase.rpc('skip_week', { p_assignment_id: assignmentId, p_member_id: memberId })

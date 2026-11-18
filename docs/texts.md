@@ -51,15 +51,7 @@ More:
 -
 
 ### 1.4 Someone skipped their chore
-Goes to the other 3 (the late one too). `{name}` = who skipped, `{chore}` = the chore, `{late}` = who cleaned too late.
-
-Current:
-- ⏭️ {name} überspringt diese Woche {chore} ({late} hat zu spät geputzt)
-
-More:
--
--
--
+Removed 18.11.: skips send no push anymore ([ADR 0017](decisions/0017-skip-overdue-for-others-silent.md)).
 
 ---
 
@@ -113,8 +105,13 @@ More:
 -
 -
 
+Second button, only Peer sees it (opens 2.3 c), current:
+- Lieber überspringen
+
 ### 2.3 Confirm "skip"
-Shown after tapping "Überspringen" on "Meine Woche". `{chore}` = the chore, `{late}` = who cleaned too late.
+Shown after tapping "Überspringen". No push goes out. Three cases (`src/components/SkipSheet.tsx`):
+
+**a) Your chore of this week, someone cleaned too late.** `{chore}` = the chore, `{late}` = who cleaned too late.
 
 Question, current:
 - „{chore}“ diese Woche überspringen?
@@ -124,13 +121,40 @@ More:
 -
 
 Hint below, current:
-- Weil {late} zu spät geputzt hat. Alle anderen werden benachrichtigt.
+- Weil {late} zu spät geputzt hat. Niemand wird benachrichtigt.
 
 More:
 -
 -
 
-Button, current:
+**b) An overdue chore** (yours on "Meine Woche", anyone's for Peer in the WG overview). `{chore}` = the chore, `{week}` = e.g. "26.10. – 01.11.", `{when}` = e.g. "vor 3 Tagen", `{who}` = who cleaned it last.
+
+Question, current:
+- „{chore}“ aus der Woche {week} überspringen?
+
+Hint if it was cleaned in a later week, current:
+- Ist inzwischen geputzt (zuletzt {when} von {who}). Niemand wird benachrichtigt.
+
+Hint if nobody has cleaned it since, current:
+- ⚠️ Seitdem hat niemand „{chore}“ geputzt. Niemand wird benachrichtigt.
+
+More:
+-
+-
+
+**c) Peer skips someone else's chore of this week** (e.g. holiday). `{chore}` = the chore, `{name}` = whose chore it is. Opened with the button "Lieber überspringen" in the take-over sheet (2.2).
+
+Question, current:
+- „{chore}“ diese Woche für {name} überspringen?
+
+Hint below, current:
+- Dann bleibt es diese Woche liegen, auch für {name}. Niemand wird benachrichtigt.
+
+More:
+-
+-
+
+Button for all three, current:
 - Ja, überspringen 😎
 
 More:

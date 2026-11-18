@@ -3,6 +3,7 @@ import { assignmentsForWeek, choreById, members, chores, memberById, rotationTem
 import {
   ANCHOR_WEEK,
   addDays,
+  cleanedSince,
   cycleWeek,
   daysAgo,
   daysLeft,
@@ -106,6 +107,32 @@ describe('lateEnoughToSkip ("Überspringen")', () => {
     const after = { week_start: '2027-03-22', done_at: '2027-03-30T22:00:00Z' }
     expect(lateEnoughToSkip(before, dstWeek)).toBe(false)
     expect(lateEnoughToSkip(after, dstWeek)).toBe(true)
+  })
+})
+
+describe('cleanedSince (skipping an overdue chore)', () => {
+  const overdue = { chore_id: 'bath-cp', week_start: '2026-10-26' }
+  const doneRow = (chore_id: string, week_start: string) => ({
+    id: `${chore_id}-${week_start}`,
+    week_start,
+    chore_id,
+    member_id: 'carla',
+    done_at: '2026-11-04T12:00:00Z',
+    done_by: 'carla',
+    skipped: false,
+  })
+
+  it("a later week's row of the same chore was done: cleaned since", () => {
+    const later = doneRow('bath-cp', '2026-11-02')
+    expect(cleanedSince(overdue, [later])).toBe(later)
+  })
+
+  it('the chore was never done: not cleaned since', () => {
+    expect(cleanedSince(overdue, [doneRow('trash', '2026-11-02')])).toBeNull()
+  })
+
+  it('only an older week was done: not cleaned since', () => {
+    expect(cleanedSince(overdue, [doneRow('bath-cp', '2026-10-19')])).toBeNull()
   })
 })
 

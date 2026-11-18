@@ -1,6 +1,6 @@
 # 0015 — "Überspringen" after late cleaning: a `skipped` flag on the done row, set by `skip_week()`
 
-**Status:** Accepted, 2026-11-01.
+**Status:** Accepted, 2026-11-01. Partly superseded by [0017](0017-skip-overdue-for-others-silent.md): skips send no push anymore, overdue chores can always be skipped, Peer may skip anyone's.
 
 ## Context
 Peer's rule: if last week's chore is only done on **Wednesday or later of the following week**, the person who has that chore **this** week may skip it ("Peer das Drecksschwein hat zu spät geputzt, du kannst diese Woche überspringen"). Example: Peer cleans the 26.10. bathroom on Thu 05.11.; the bathroom is clean, so the person who has it in the week of 02.11. may skip.

@@ -99,6 +99,19 @@ export function lateEnoughToSkip(late: Pick<Assignment, 'week_start' | 'done_at'
   return viennaDate(new Date(late.done_at)) >= wednesday
 }
 
+/**
+ * Skipping an overdue chore: was it cleaned in a later week? Returns that later done row
+ * (for "zuletzt gestern von Carla"), or null if nobody has cleaned it since (warning in the sheet).
+ * lastDone = newest real done row per chore (loadLastDone(), skips are left out). docs/decisions/0017
+ */
+export function cleanedSince(
+  overdue: Pick<Assignment, 'chore_id' | 'week_start'>,
+  lastDone: Assignment[],
+): Assignment | null {
+  const last = lastDone.find((a) => a.chore_id === overdue.chore_id)
+  return last && last.week_start > overdue.week_start ? last : null
+}
+
 /** Days since the week's Sunday. The Monday after counts as 1 ("seit gestern"). */
 export function daysOverdue(weekStartDate: string, now: Date = new Date()): number {
   const sunday = addDays(weekStartDate, 6)

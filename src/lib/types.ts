@@ -6,6 +6,7 @@ export type Member = {
   name: string
   emoji: string
   color: string
+  can_skip_for_others: boolean // Peer: may skip anyone's open chore, see docs/decisions/0017
 }
 
 export type Chore = {
@@ -28,5 +29,8 @@ export type Assignment = {
   member_id: string
   done_at: string | null // ISO timestamp
   done_by: string | null
-  skipped: boolean // closed with "Überspringen" (done_at/done_by are set too), see docs/decisions/0015
+  skipped: boolean // closed with "Überspringen" (done_at/done_by are set too), see docs/decisions/0015 and 0017
 }
+
+/** Why a chore was skipped, stored in the chore_skipped event (docs/decisions/0017). */
+export type SkipReason = 'late_cleaning' | 'overdue' | 'for_other'

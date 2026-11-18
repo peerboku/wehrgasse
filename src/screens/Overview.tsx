@@ -1,10 +1,12 @@
 import { useState, type CSSProperties } from 'react'
 import { Avatar } from '../components/Avatar'
+import { Button } from '../components/Button'
 import { ConfirmSheet } from '../components/ConfirmSheet'
+import { SkipSheet } from '../components/SkipSheet'
 import { CheckIcon, ChevronIcon, ClockIcon, RotateIcon } from '../components/Icons'
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
-import type { Assignment, Chore, Member, RotationRow } from '../lib/types'
+import type { Assignment, Chore, Member, RotationRow, SkipReason } from '../lib/types'
 import { addDays, daysAgo, daysOverdue } from '../lib/week'
 import styles from './Overview.module.css'
 
@@ -17,12 +19,15 @@ type Props = {
   chores: Chore[]
   nextWeek: RotationRow[] // empty = unknown, then the "Ab Montag" card is hidden
   onTakeOver: (assignment: Assignment) => void
+  onSkip: (assignment: Assignment, reason: SkipReason) => void
 }
 
 // Everyone's chores this week as a wheel ("Drehscheibe"). Only the owner can mark done (in "Meine Woche"),
 // but anyone can take over someone else's open chore of this week ("Ich übernehm das").
-export function Overview({ me, currentWeek, assignments, lastDone, members, chores, nextWeek, onTakeOver }: Props) {
+// Peer (can_skip_for_others) may also skip anyone's open chore here (docs/decisions/0017).
+export function Overview({ me, currentWeek, assignments, lastDone, members, chores, nextWeek, onTakeOver, onSkip }: Props) {
   const [confirming, setConfirming] = useState<Assignment | null>(null)
+  const [confirmingSkip, setConfirmingSkip] = useState<Assignment | null>(null)
 
   const sortOrder = (choreId: string) => byId(chores, choreId).sort_order
   const byChoreOrder = (a: Assignment, b: Assignment) => sortOrder(a.chore_id) - sortOrder(b.chore_id)
@@ -81,6 +86,15 @@ export function Overview({ me, currentWeek, assignments, lastDone, members, chor
                       )}
                     </span>
                   </span>
+                  {me.can_skip_for_others && (
+                    <Button
+                      variant="secondary"
+                      className={styles.smallButton}
+                      onClick={() => setConfirmingSkip(assignment)}
+                    >
+                      {strings.myWeek.skipButton}
+                    </Button>
+                  )}
                 </li>
               )
             })}
@@ -152,6 +166,32 @@ export function Overview({ me, currentWeek, assignments, lastDone, members, chor
             setConfirming(null)
           }}
           onCancel={() => setConfirming(null)}
+          extraAction={
+            me.can_skip_for_others
+              ? {
+                  label: strings.takeOver.skipInstead,
+                  onClick: () => {
+                    setConfirmingSkip(confirming)
+                    setConfirming(null)
+                  },
+                }
+              : undefined
+          }
+        />
+      )}
+      {confirmingSkip && (
+        <SkipSheet
+          assignment={confirmingSkip}
+          me={me}
+          currentWeek={currentWeek}
+          members={members}
+          chores={chores}
+          lastDone={lastDone}
+          onConfirm={(reason) => {
+            onSkip(confirmingSkip, reason)
+            setConfirmingSkip(null)
+          }}
+          onCancel={() => setConfirmingSkip(null)}
         />
       )}
     </div>

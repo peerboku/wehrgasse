@@ -22,5 +22,6 @@ Rules:
 | [0012](0012-design-3-knautsch-drehscheibe.md) | New look: Design 3 "Knautsch × Drehscheibe" | Accepted |
 | [0013](0013-fix-mistakes-by-deleting-events.md) | Fix mistakes in runtime data with direct SQL, deleting the matching events | Accepted |
 | [0014](0014-app-icon-from-design-handoff.md) | App icon: ship the design handoff's PNGs, drop the Node icon generator | Accepted |
-| [0015](0015-skip-after-late-cleaning.md) | "Überspringen" after late cleaning: `skipped` flag on the done row, set by `skip_week()` | Accepted |
+| [0015](0015-skip-after-late-cleaning.md) | "Überspringen" after late cleaning: `skipped` flag on the done row, set by `skip_week()` | Partly superseded by 0017 |
 | [0016](0016-undo-done-in-app.md) | Undo "erledigt" in the app: reset `done_at` with the existing grant, log `chore_reopened` | Accepted |
+| [0017](0017-skip-overdue-for-others-silent.md) | Skip overdue chores any time, Peer skips others' chores (`can_skip_for_others`), skips send no push | Accepted |

@@ -23,7 +23,7 @@ import { PhotosContext, resizePhoto, type Photos } from './lib/photos'
 import { disablePush } from './lib/push'
 import { strings } from './lib/strings'
 import { supabase } from './lib/supabaseClient'
-import type { Assignment, Chore, Member, RotationRow } from './lib/types'
+import type { Assignment, Chore, Member, RotationRow, SkipReason } from './lib/types'
 import { ANCHOR_WEEK, addDays, rotationForWeek, weekStart } from './lib/week'
 import { Login, PickMember } from './screens/Login'
 import { MyWeek } from './screens/MyWeek'
@@ -224,8 +224,9 @@ function App() {
     reloadAssignments()
   }
 
-  // "Überspringen": my chore of this week is closed because lateMemberId cleaned too late
-  async function handleSkip(assignment: Assignment, lateMemberId: string) {
+  // "Überspringen": closes an open chore without cleaning, no push (docs/decisions/0017).
+  // Mine after late cleaning (lateMemberId), mine overdue, or (Peer) someone else's.
+  async function handleSkip(assignment: Assignment, reason: SkipReason, lateMemberId?: string) {
     const doneAt = new Date().toISOString()
     const doneBy = myId
     // Show it as skipped right away, the database catches up in the background
@@ -244,7 +245,9 @@ function App() {
         assignment_id: assignment.id,
         chore_id: assignment.chore_id,
         week_start: assignment.week_start,
-        late_member_id: lateMemberId,
+        owner_id: assignment.member_id,
+        reason,
+        ...(lateMemberId && { late_member_id: lateMemberId }),
       })
     } catch (error) {
       console.warn(error)
@@ -340,6 +343,7 @@ function App() {
               chores={data.chores}
               nextWeek={nextWeek}
               onTakeOver={handleTakeOver}
+              onSkip={handleSkip}
             />
           )}
           {tab === 'settings' && (

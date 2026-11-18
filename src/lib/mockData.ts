@@ -6,10 +6,10 @@ import type { Assignment, Chore, Member, RotationRow } from './types'
 import { rotationForWeek } from './week'
 
 export const members: Member[] = [
-  { id: 'peer', name: 'Peer', emoji: '🦊', color: '#e8833a' },
-  { id: 'carla', name: 'Carla', emoji: '🐼', color: '#7a6ff0' },
-  { id: 'noa', name: 'Noa', emoji: '🦉', color: '#2fa36b' },
-  { id: 'manu', name: 'Manu', emoji: '🐻', color: '#d9534f' },
+  { id: 'peer', name: 'Peer', emoji: '🦊', color: '#e8833a', can_skip_for_others: true },
+  { id: 'carla', name: 'Carla', emoji: '🐼', color: '#7a6ff0', can_skip_for_others: false },
+  { id: 'noa', name: 'Noa', emoji: '🦉', color: '#2fa36b', can_skip_for_others: false },
+  { id: 'manu', name: 'Manu', emoji: '🐻', color: '#d9534f', can_skip_for_others: false },
 ]
 
 export const chores: Chore[] = [

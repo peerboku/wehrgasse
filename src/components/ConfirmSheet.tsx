@@ -10,11 +10,21 @@ type Props = {
   yesVariant?: 'primary' | 'done' // green "Ja klar!" for done, orange for taking over
   onConfirm: () => void
   onCancel: () => void
+  extraAction?: { label: string; onClick: () => void } // a second choice, e.g. "Lieber überspringen"
 }
 
 // Bottom sheet that asks "really?" before anything is sent to the others
 // ("erledigt?" in Meine Woche, "übernehmen?" in the WG overview).
-export function ConfirmSheet({ icon, question, hint, yesLabel, yesVariant = 'primary', onConfirm, onCancel }: Props) {
+export function ConfirmSheet({
+  icon,
+  question,
+  hint,
+  yesLabel,
+  yesVariant = 'primary',
+  onConfirm,
+  onCancel,
+  extraAction,
+}: Props) {
   return (
     <div className={styles.backdrop} onClick={onCancel}>
       <div
@@ -38,6 +48,11 @@ export function ConfirmSheet({ icon, question, hint, yesLabel, yesVariant = 'pri
           <Button variant={yesVariant} onClick={onConfirm}>
             {yesLabel}
           </Button>
+          {extraAction && (
+            <Button variant="secondary" onClick={extraAction.onClick}>
+              {extraAction.label}
+            </Button>
+          )}
           <Button variant="secondary" onClick={onCancel}>
             {strings.confirm.cancel}
           </Button>
