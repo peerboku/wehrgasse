@@ -305,11 +305,34 @@ button.slotInner:focus-visible {
 
 .activityWhen {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: var(--muted);
   font-size: 13px;
   font-weight: 500;
   line-height: 18px;
   text-align: right;
+}
+
+/* dot before "gestern von Carla": green < 7 days, yellow 7–13, red 14+ (freshness() in week.ts) */
+.freshDot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.fresh {
+  background: var(--done);
+}
+
+.aging {
+  background: var(--warn);
+}
+
+.stale {
+  background: var(--danger);
 }
 
 .nextGrid {

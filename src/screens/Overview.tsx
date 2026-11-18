@@ -7,7 +7,7 @@ import { CheckIcon, ChevronIcon, ClockIcon, RotateIcon } from '../components/Ico
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
 import type { Assignment, Chore, Member, RotationRow, SkipReason } from '../lib/types'
-import { addDays, daysAgo, daysOverdue } from '../lib/week'
+import { addDays, daysAgo, daysOverdue, freshness } from '../lib/week'
 import styles from './Overview.module.css'
 
 type Props = {
@@ -118,6 +118,9 @@ export function Overview({ me, currentWeek, assignments, lastDone, members, chor
                 </span>
                 <span className={styles.activityChore}>{chore.name}</span>
                 <span className={styles.activityWhen}>
+                  {last?.done_at && (
+                    <span className={`${styles.freshDot} ${styles[freshness(daysAgo(last.done_at))]}`} aria-hidden="true" />
+                  )}
                   {last?.done_at && who
                     ? strings.overview.activityWhen(strings.daysAgo(daysAgo(last.done_at)), who)
                     : strings.overview.activityNever}

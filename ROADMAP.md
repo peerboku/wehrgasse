@@ -43,6 +43,8 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 - [ ] Short message in the flat chat: link + "add to Home Screen" steps
 
 ## Extras pulled from Ideas
+- [x] **Colour dot in "Zuletzt erledigt"** (Peer, 18.11.): WG card under the wheel, dot before "… von Carla": green under 7 days, yellow 7–13, red 14+ (`freshness()` in `week.ts`, tested). "noch nie" gets no dot. New token `--warn` (18.11.: lint, type-check, 37/37 tests, build; no screenshots)
+  - [ ] iPhone check after deploy: colours readable in light + dark mode
 - [x] **MyWeek:** days left this week ("noch 4 Tage", today included; Sunday "Nur noch heute! ⏳"), borrowed from Flatastic's countdown (27.10.)
 - [x] **Last done:** MyWeek card "Zuletzt erledigt vor 8 Tagen von Carla" (or "Zum ersten Mal dran …" if never done), Overview open rows "zuletzt gestern" (since Design 3: a "Zuletzt erledigt" card under the wheel). Read from `assignments`, no schema change (27.10.) — not yet checked on the iPhone with real done rows
 - [x] **Photos of everyone** (Noa, hallway test): set your own photo in Settings, it replaces the animal emoji in `Avatar`. Private bucket `avatars`, only for the WG login, loaded with `download()`, resized + GPS removed on the phone ([ADR 0010](docs/decisions/0010-private-avatar-bucket.md)) (pulled and done 27.10., checked on the iPhone; test photos removed again, bucket empty)

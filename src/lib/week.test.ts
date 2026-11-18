@@ -6,6 +6,7 @@ import {
   cleanedSince,
   cycleWeek,
   daysAgo,
+  freshness,
   daysLeft,
   daysOverdue,
   lateEnoughToSkip,
@@ -173,6 +174,23 @@ describe('daysAgo', () => {
   it('across the DST night (25.10.2026): Saturday to Monday is 2 days', () => {
     // Saturday 12:00 Vienna is summer time (UTC+2) = 10:00 UTC
     expect(daysAgo('2026-10-24T10:00:00Z', new Date('2026-10-26T09:00:00Z'))).toBe(2)
+  })
+})
+
+describe('freshness ("Zuletzt erledigt" dot)', () => {
+  it('green under 7 days', () => {
+    expect(freshness(0)).toBe('fresh')
+    expect(freshness(6)).toBe('fresh')
+  })
+
+  it('yellow from 7 to 13 days', () => {
+    expect(freshness(7)).toBe('aging')
+    expect(freshness(13)).toBe('aging')
+  })
+
+  it('red from 14 days', () => {
+    expect(freshness(14)).toBe('stale')
+    expect(freshness(30)).toBe('stale')
   })
 })
 

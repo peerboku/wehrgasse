@@ -38,6 +38,7 @@
   --ring-open: #dcd6ef; /* avatar ring for open chores */
   --danger: #c4352b;
   --danger-tint: #fdecea;
+  --warn: #e0a800; /* yellow dot: "Zuletzt erledigt" 7–13 days ago */
   --tint-pct: 16%; /* member colour tint strength, see color-mix() in modules */
 
   /* Legacy aliases so untouched components keep working during the migration */
@@ -117,6 +118,7 @@
     --ring-open: #4a4470;
     --danger: #ff7b72;
     --danger-tint: rgba(255, 123, 114, 0.16);
+    --warn: #ffd24d;
     --tint-pct: 26%;
   }
 }

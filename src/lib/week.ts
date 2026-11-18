@@ -89,6 +89,17 @@ export function daysAgo(timestamp: string, now: Date = new Date()): number {
 }
 
 /**
+ * Colour of the dot in the "Zuletzt erledigt" card: under 7 days green,
+ * 7–13 days yellow, 14 days or more red. Input is daysAgo().
+ */
+export type Freshness = 'fresh' | 'aging' | 'stale'
+export function freshness(days: number): Freshness {
+  if (days < 7) return 'fresh'
+  if (days < 14) return 'aging'
+  return 'stale'
+}
+
+/**
  * "Überspringen" rule: an older row of the chore (`late`) was marked done this week,
  * on Wednesday or later in Vienna. Then this week's owner may skip. Same rule as
  * skippable_assignment() in the database (migration 20261101120000).
