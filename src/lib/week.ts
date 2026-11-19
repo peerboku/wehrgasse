@@ -19,8 +19,8 @@ const viennaFormat = new Intl.DateTimeFormat('en-US', {
   day: '2-digit',
 })
 
-/** The calendar date in Vienna at this moment, e.g. '2026-10-21'. */
-export function viennaDate(instant: Date): string {
+/** The calendar date in Vienna at this moment, e.g. '2026-10-21'. Without an argument: today. */
+export function viennaDate(instant: Date = new Date()): string {
   const parts = viennaFormat.formatToParts(instant)
   const get = (type: string) => parts.find((part) => part.type === type)!.value
   return `${get('year')}-${get('month')}-${get('day')}`
@@ -81,6 +81,30 @@ export function rotationForWeek(rotation: RotationRow[], weekStartDate: string):
 export function daysLeft(weekStartDate: string, now: Date = new Date()): number {
   const sunday = addDays(weekStartDate, 6)
   return daysBetween(viennaDate(now), sunday) + 1
+}
+
+/**
+ * Day picked in the "erledigt?" sheet, kept between the chore's Monday and today.
+ * Empty (iOS "Löschen" button) = today. iOS doesn't always enforce min/max on the field.
+ */
+export function clampDoneDate(picked: string, weekStartDate: string, today: string): string {
+  if (!picked || picked > today) return today
+  if (picked < weekStartDate) return weekStartDate
+  return picked
+}
+
+const viennaHourFormat = new Intl.DateTimeFormat('en-US', { timeZone: TIME_ZONE, hour: 'numeric', hourCycle: 'h23' })
+
+/**
+ * 12:00 in Vienna on this date, as a timestamp for done_at (a backdated "erledigt"
+ * means a day, not an exact minute). Vienna is UTC+1 in winter, UTC+2 in summer:
+ * start at 11:00 UTC, look which hour that is in Vienna, and correct by the difference.
+ */
+export function viennaNoon(date: string): string {
+  const [year, month, day] = date.split('-').map(Number)
+  const guess = new Date(Date.UTC(year, month - 1, day, 11))
+  const hour = Number(viennaHourFormat.formatToParts(guess).find((part) => part.type === 'hour')!.value)
+  return new Date(guess.getTime() + (12 - hour) * 60 * 60 * 1000).toISOString()
 }
 
 /** Calendar days in Vienna since a timestamp like done_at: today = 0, yesterday = 1. */

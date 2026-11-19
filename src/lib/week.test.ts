@@ -3,6 +3,7 @@ import { assignmentsForWeek, choreById, members, chores, memberById, rotationTem
 import {
   ANCHOR_WEEK,
   addDays,
+  clampDoneDate,
   cleanedSince,
   cycleWeek,
   daysAgo,
@@ -12,6 +13,7 @@ import {
   lateEnoughToSkip,
   rotationForWeek,
   viennaDate,
+  viennaNoon,
   weekStart,
 } from './week'
 
@@ -243,5 +245,54 @@ describe('rotationForWeek ("Ab Montag" preview)', () => {
 
   it('an empty template (not loaded) gives no rows, so the preview is hidden', () => {
     expect(rotationForWeek([], ANCHOR_WEEK)).toEqual([])
+  })
+})
+
+describe('clampDoneDate (day picked in the "erledigt?" sheet)', () => {
+  const monday = '2026-11-16'
+  const today = '2026-11-19'
+
+  it('a day inside the range stays as picked', () => {
+    expect(clampDoneDate('2026-11-17', monday, today)).toBe('2026-11-17')
+  })
+
+  it('the chore\'s Monday and today are both allowed', () => {
+    expect(clampDoneDate(monday, monday, today)).toBe(monday)
+    expect(clampDoneDate(today, monday, today)).toBe(today)
+  })
+
+  it('an empty field (iOS "Löschen") means today', () => {
+    expect(clampDoneDate('', monday, today)).toBe(today)
+  })
+
+  it('before the chore\'s week becomes its Monday', () => {
+    expect(clampDoneDate('2026-11-10', monday, today)).toBe(monday)
+  })
+
+  it('a day in the future becomes today', () => {
+    expect(clampDoneDate('2026-11-21', monday, today)).toBe(today)
+  })
+
+  it('an overdue chore can go back to its own Monday, weeks ago', () => {
+    expect(clampDoneDate('2026-10-27', '2026-10-26', today)).toBe('2026-10-27')
+  })
+})
+
+describe('viennaNoon (done_at for a backdated "erledigt")', () => {
+  it('in winter (UTC+1) noon in Vienna is 11:00 UTC', () => {
+    expect(viennaNoon('2026-11-16')).toBe('2026-11-16T11:00:00.000Z')
+  })
+
+  it('in summer (UTC+2) noon in Vienna is 10:00 UTC', () => {
+    expect(viennaNoon('2027-06-14')).toBe('2027-06-14T10:00:00.000Z')
+  })
+
+  it('on the days the clocks change it is still that day in Vienna', () => {
+    // 25.10.2026: back to UTC+1 at 03:00; 28.03.2027: to UTC+2 at 02:00
+    expect(viennaNoon('2026-10-25')).toBe('2026-10-25T11:00:00.000Z')
+    expect(viennaNoon('2027-03-28')).toBe('2027-03-28T10:00:00.000Z')
+    for (const day of ['2026-10-25', '2026-10-26', '2027-03-28', '2027-03-29']) {
+      expect(viennaDate(new Date(viennaNoon(day)))).toBe(day)
+    }
   })
 })

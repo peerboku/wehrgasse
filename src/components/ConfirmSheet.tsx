@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { strings } from '../lib/strings'
 import { Button } from './Button'
 import styles from './ConfirmSheet.module.css'
@@ -11,6 +12,7 @@ type Props = {
   onConfirm: () => void
   onCancel: () => void
   extraAction?: { label: string; onClick: () => void } // a second choice, e.g. "Lieber überspringen"
+  children?: ReactNode // extra field between hint and buttons, e.g. "Wann?" in the done sheet
 }
 
 // Bottom sheet that asks "really?" before anything is sent to the others
@@ -24,6 +26,7 @@ export function ConfirmSheet({
   onConfirm,
   onCancel,
   extraAction,
+  children,
 }: Props) {
   return (
     <div className={styles.backdrop} onClick={onCancel}>
@@ -44,6 +47,7 @@ export function ConfirmSheet({
           {question}
         </h2>
         <p className={styles.hint}>{hint}</p>
+        {children}
         <div className={styles.buttons}>
           <Button variant={yesVariant} onClick={onConfirm}>
             {yesLabel}

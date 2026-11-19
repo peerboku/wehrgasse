@@ -24,7 +24,7 @@ import { disablePush } from './lib/push'
 import { strings } from './lib/strings'
 import { supabase } from './lib/supabaseClient'
 import type { Assignment, Chore, Member, RotationRow, SkipReason } from './lib/types'
-import { ANCHOR_WEEK, addDays, rotationForWeek, weekStart } from './lib/week'
+import { ANCHOR_WEEK, addDays, rotationForWeek, viennaDate, viennaNoon, weekStart } from './lib/week'
 import { Login, PickMember } from './screens/Login'
 import { MyWeek } from './screens/MyWeek'
 import { Overview } from './screens/Overview'
@@ -172,8 +172,11 @@ function App() {
   const myId = me.id
   const nextWeek = rotationForWeek(data.rotation, addDays(currentWeek, 7))
 
-  async function handleMarkDone(assignmentId: string) {
-    const doneAt = new Date().toISOString()
+  // doneOn = day picked in the sheet. Today = this moment, an earlier day = 12:00 Vienna that day
+  async function handleMarkDone(assignmentId: string, doneOn: string) {
+    const now = new Date()
+    const backdated = doneOn !== viennaDate(now)
+    const doneAt = backdated ? viennaNoon(doneOn) : now.toISOString()
     const doneBy = myId
     // Show it as done right away, the database catches up in the background
     setData(
@@ -187,7 +190,7 @@ function App() {
     )
     try {
       await markDone(assignmentId, doneBy, doneAt)
-      logEvent('chore_done', { assignment_id: assignmentId })
+      logEvent('chore_done', backdated ? { assignment_id: assignmentId, backdated: true, done_on: doneOn } : { assignment_id: assignmentId })
     } catch (error) {
       console.warn(error)
       alert(strings.myWeek.doneError)

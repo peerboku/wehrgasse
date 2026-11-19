@@ -25,3 +25,4 @@ Rules:
 | [0015](0015-skip-after-late-cleaning.md) | "Überspringen" after late cleaning: `skipped` flag on the done row, set by `skip_week()` | Partly superseded by 0017 |
 | [0016](0016-undo-done-in-app.md) | Undo "erledigt" in the app: reset `done_at` with the existing grant, log `chore_reopened` | Accepted |
 | [0017](0017-skip-overdue-for-others-silent.md) | Skip overdue chores any time, Peer skips others' chores (`can_skip_for_others`), skips send no push | Accepted |
+| [0018](0018-pick-done-day.md) | Pick the day in the "erledigt?" sheet: native date field, earlier days stored as 12:00 Vienna | Accepted |

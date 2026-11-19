@@ -418,3 +418,27 @@
 .actionBar > button {
   margin-bottom: 0;
 }
+
+/* "Wann?" row in the done sheet: label + native date field (iOS opens its calendar) */
+.when {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.date {
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-icon);
+  background: var(--fill);
+  color: var(--ink);
+  /* 16px or more, otherwise iOS zooms in when the field is tapped */
+  font: inherit;
+  font-size: 17px;
+  font-weight: 700;
+}

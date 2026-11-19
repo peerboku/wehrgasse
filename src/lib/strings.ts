@@ -88,6 +88,8 @@ export const strings = {
     hint: 'Alle anderen werden benachrichtigt.',
     yes: 'Ja klar!',
     cancel: 'Abbrechen',
+    when: 'Wann?',
+    whenAria: 'Wann hast du es erledigt?',
   },
 
   takeOver: {

@@ -74,7 +74,7 @@ docs/
 - **Overdue:** the owner may skip their own overdue chore any time (button on the overdue card). The confirm sheet says whether it was cleaned since (`cleanedSince()`, `src/lib/week.ts`, tested) or warns that nobody has.
 - **For others:** only members with `can_skip_for_others` (Peer) may skip anyone's open chore, this week or overdue (e.g. holidays): "Lieber überspringen" in the take-over sheet and "Überspringen" on overdue rows in the WG overview.
 
-**Marking done:** only the assigned member can mark their own assignment done (enforced in the UI; the DB only checks `done_by = member_id`, see ADR 0007). Tap → confirmation sheet ("Alle anderen werden benachrichtigt") → done. Small celebration animation afterwards (playful, short).
+**Marking done:** only the assigned member can mark their own assignment done (enforced in the UI; the DB only checks `done_by = member_id`, see ADR 0007). Tap → confirmation sheet ("Alle anderen werden benachrichtigt") → done. Small celebration animation afterwards (playful, short). The sheet has a "Wann?" date field (default today, allowed: the row's Monday up to today) for when someone forgot to tap: an earlier day is stored as 12:00 Europe/Vienna that day, `chore_done` gets `backdated: true, done_on`, the push is the same (ADR 0018).
 
 **Undo ("Doch nicht erledigt?"):** your own done chore of **this** week shows an undo pill on its card in "Meine Woche" until Sunday → confirm sheet → `done_at`/`done_by` back to `null` (existing column grant, no DB function), event `chore_reopened`, **no push**. Skipped rows can't be undone. Overdue rows done this week aren't offered (they leave "Meine Woche"); fix those by hand (chapter 19). ADR 0016.
 

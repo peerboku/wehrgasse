@@ -81,6 +81,12 @@ More:
 -
 -
 
+Date field label (default today, for when you forgot to tap on the day), current:
+- Wann?
+
+Screen reader label of the date field, current:
+- Wann hast du es erledigt?
+
 ### 2.2 Confirm "take over"
 Shown after tapping someone else's open chore in the WG overview. `{chore}` = the chore, `{name}` = whose chore it is.
 

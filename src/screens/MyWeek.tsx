@@ -8,7 +8,16 @@ import { CheckIcon, ChevronIcon, ClockIcon, RotateIcon, UndoIcon } from '../comp
 import { byId } from '../lib/data'
 import { strings } from '../lib/strings'
 import type { Assignment, Chore, Member, RotationRow, SkipReason } from '../lib/types'
-import { daysAgo, daysLeft, daysOverdue, lateEnoughToSkip, viennaWeekdayIndex, weekStart } from '../lib/week'
+import {
+  clampDoneDate,
+  daysAgo,
+  daysLeft,
+  daysOverdue,
+  lateEnoughToSkip,
+  viennaDate,
+  viennaWeekdayIndex,
+  weekStart,
+} from '../lib/week'
 import styles from './MyWeek.module.css'
 
 type Props = {
@@ -19,7 +28,7 @@ type Props = {
   members: Member[]
   chores: Chore[]
   nextWeek: RotationRow[] // empty = unknown, then the "Ab Montag" row is hidden
-  onMarkDone: (assignmentId: string) => void
+  onMarkDone: (assignmentId: string, doneOn: string) => void // doneOn = Vienna date picked in the sheet
   onSkip: (assignment: Assignment, reason: SkipReason, lateMemberId?: string) => void
   onUndoDone: (assignment: Assignment) => void
   onOpenWG: () => void
@@ -41,6 +50,9 @@ export function MyWeek({
   onOpenSettings,
 }: Props) {
   const [confirming, setConfirming] = useState<Assignment | null>(null)
+  // Day picked in the "erledigt?" sheet ('YYYY-MM-DD'), for when you forgot to tap on the day.
+  // today is fixed when the sheet opens, it's the latest day you can pick
+  const [doneDate, setDoneDate] = useState({ picked: '', today: '' })
   // late = who cleaned too late (this week's chore), null for an overdue one
   const [confirmingSkip, setConfirmingSkip] = useState<{ assignment: Assignment; late: Member | null } | null>(null)
   const [confirmingUndo, setConfirmingUndo] = useState<Assignment | null>(null)
@@ -93,9 +105,16 @@ export function MyWeek({
     finishCelebration()
   }
 
+  // Every "Erledigt" tap opens the sheet with today picked
+  function askDone(assignment: Assignment) {
+    const today = viennaDate()
+    setDoneDate({ picked: today, today })
+    setConfirming(assignment)
+  }
+
   function confirmDone() {
     if (!confirming) return
-    onMarkDone(confirming.id)
+    onMarkDone(confirming.id, clampDoneDate(doneDate.picked, confirming.week_start, doneDate.today))
     setConfirming(null)
     setCelebrating(true)
   }
@@ -186,7 +205,7 @@ export function MyWeek({
                 </div>
                 {/* Overdue chores can always be skipped, the sheet warns if nobody cleaned since */}
                 <div className={styles.overdueButtons}>
-                  <Button className={styles.smallButton} onClick={() => setConfirming(assignment)}>
+                  <Button className={styles.smallButton} onClick={() => askDone(assignment)}>
                     {strings.myWeek.doneButton}
                   </Button>
                   <Button
@@ -257,7 +276,7 @@ export function MyWeek({
       {/* Fixed above the tab bar. While celebrating, the cheer shows in this slot instead */}
       {nextToDo && !celebrating && (
         <div className={styles.actionBar}>
-          <Button onClick={() => setConfirming(nextToDo)}>
+          <Button onClick={() => askDone(nextToDo)}>
             <CheckIcon size={22} strokeWidth={3} />
             {openThisWeek.length > 1
               ? strings.myWeek.doneButtonFor(byId(chores, nextToDo.chore_id).name)
@@ -275,7 +294,21 @@ export function MyWeek({
           yesVariant="done"
           onConfirm={confirmDone}
           onCancel={() => setConfirming(null)}
-        />
+        >
+          {/* Only days of the chore's own week up to today; min/max are clamped again in confirmDone */}
+          <label className={styles.when}>
+            {strings.confirm.when}
+            <input
+              type="date"
+              className={styles.date}
+              value={doneDate.picked}
+              min={confirming.week_start}
+              max={doneDate.today}
+              aria-label={strings.confirm.whenAria}
+              onChange={(event) => setDoneDate({ ...doneDate, picked: event.target.value })}
+            />
+          </label>
+        </ConfirmSheet>
       )}
       {confirmingSkip && (
         <SkipSheet
