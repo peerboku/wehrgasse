@@ -1,10 +1,12 @@
 -- Usage report: how much the app gets used, and by whom.
---
--- How to use: Supabase dashboard -> SQL Editor -> New query -> paste ONE block
--- (or the whole file and select one block) -> Run. Save it as a snippet, e.g. "Nutzung".
+-- Built as cells for a Supabase notebook (one cell per block below), but every
+-- block also runs on its own in the SQL Editor.
 -- Read-only: only SELECTs, nothing is changed.
---
 -- Not a migration: this folder is ignored by `supabase db push`.
+--
+-- Each block starts with:
+--   MARKDOWN: text for a markdown cell above the SQL cell
+--   CHART:    how to set the cell's chart (none = keep as table)
 --
 -- Good to know:
 -- - All times and days are Europe/Vienna, weeks start on Monday.
@@ -13,7 +15,11 @@
 -- - push_sent/push_failed events carry the member who RECEIVED the push.
 
 
--- 1) Per person: overview ---------------------------------------------------------
+-- =================================================================================
+-- MARKDOWN: ## 👥 Wer nutzt die App?
+--           Letzter Besuch, App-Starts, aktive Tage, erledigte Aufgaben, Push an/aus.
+-- CHART:    none (table)
+-- =================================================================================
 select
   m.emoji || ' ' || m.name                                                    as member,
   to_char(max(e.created_at) at time zone 'Europe/Vienna', 'YYYY-MM-DD HH24:MI') as last_seen,
@@ -37,28 +43,33 @@ group by m.id
 order by array_position(array['Peer', 'Carla', 'Noa', 'Manu'], m.name);
 
 
--- 2) Per week x person: app opens (try the "Chart" tab: bar chart, x = week) ----------
+-- =================================================================================
+-- MARKDOWN: ## 📅 App-Starts pro Woche
+-- CHART:    bar chart, stacked; X axis = week; Y = peer, carla, noa, manu
+-- =================================================================================
 select
   date_trunc('week', e.created_at at time zone 'Europe/Vienna')::date        as week,
   count(*) filter (where m.name = 'Peer')                                     as peer,
   count(*) filter (where m.name = 'Carla')                                    as carla,
   count(*) filter (where m.name = 'Noa')                                      as noa,
-  count(*) filter (where m.name = 'Manu')                                     as manu,
-  count(*)                                                                    as total
+  count(*) filter (where m.name = 'Manu')                                     as manu
 from events e
 join members m on m.id = e.member_id
 where e.type = 'app_open'
 group by 1
-order by 1 desc;
+order by 1;
 
 
--- 3) Daily, last 30 days: who opened the app ----------------------------------------
+-- =================================================================================
+-- MARKDOWN: ## 📆 App-Starts pro Tag (letzte 30 Tage)
+-- CHART:    bar chart, stacked; X axis = day; Y = peer, carla, noa, manu
+-- =================================================================================
 select
-  d::date                                                                     as day,
-  to_char(d, 'Dy')                                                            as weekday,
-  count(distinct e.member_id)                                                 as people,
-  coalesce(string_agg(distinct m.name, ', '), '')                             as who,
-  count(e.id)                                                                 as opens
+  to_char(d, 'MM-DD Dy')                                                      as day,
+  count(e.id) filter (where m.name = 'Peer')                                  as peer,
+  count(e.id) filter (where m.name = 'Carla')                                 as carla,
+  count(e.id) filter (where m.name = 'Noa')                                   as noa,
+  count(e.id) filter (where m.name = 'Manu')                                  as manu
 from generate_series(
        (now() at time zone 'Europe/Vienna')::date - 29,
        (now() at time zone 'Europe/Vienna')::date,
@@ -68,14 +79,36 @@ left join events e
  and (e.created_at at time zone 'Europe/Vienna')::date = d::date
 left join members m on m.id = e.member_id
 group by d
-order by d desc;
+order by d;
 
 
--- 4) Chores per person: on time, late, skipped, still open ---------------------------
--- "On time" = done by Sunday of its week (Vienna). Counts the rows assigned to the person.
+-- =================================================================================
+-- MARKDOWN: ## 🕐 Zu welcher Uhrzeit? (alle App-Starts)
+-- CHART:    bar chart, stacked; X axis = hour; Y = peer, carla, noa, manu
+-- =================================================================================
+select
+  lpad(h::text, 2, '0') || ':00'                                              as hour,
+  count(e.id) filter (where m.name = 'Peer')                                  as peer,
+  count(e.id) filter (where m.name = 'Carla')                                 as carla,
+  count(e.id) filter (where m.name = 'Noa')                                   as noa,
+  count(e.id) filter (where m.name = 'Manu')                                  as manu
+from generate_series(0, 23) as h
+left join events e
+  on e.type = 'app_open'
+ and extract(hour from e.created_at at time zone 'Europe/Vienna') = h
+left join members m on m.id = e.member_id
+group by h
+order by h;
+
+
+-- =================================================================================
+-- MARKDOWN: ## 🧹 Aufgaben pro Person
+--           "on_time" = bis Sonntag der eigenen Woche erledigt. Zählt die Zeilen,
+--           die der Person zugeteilt sind.
+-- CHART:    bar chart, stacked; X axis = member; Y = on_time, late, skipped, overdue
+-- =================================================================================
 select
   m.emoji || ' ' || m.name                                                    as member,
-  count(a.id)                                                                 as assigned,
   count(*) filter (where a.done_at is not null and not a.skipped
     and (a.done_at at time zone 'Europe/Vienna')::date < a.week_start + 7)    as on_time,
   count(*) filter (where a.done_at is not null and not a.skipped
@@ -91,7 +124,10 @@ group by m.id
 order by array_position(array['Peer', 'Carla', 'Noa', 'Manu'], m.name);
 
 
--- 5) Latest 50 actions (without push noise) ------------------------------------------
+-- =================================================================================
+-- MARKDOWN: ## 📝 Letzte 50 Aktionen (ohne Push)
+-- CHART:    none (table)
+-- =================================================================================
 select
   to_char(e.created_at at time zone 'Europe/Vienna', 'YYYY-MM-DD HH24:MI')     as time,
   m.name                                                                      as member,
