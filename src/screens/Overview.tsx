@@ -35,6 +35,8 @@ export function Overview({ me, currentWeek, assignments, lastDone, members, chor
   const thisWeek = assignments.filter((a) => a.week_start === currentWeek).sort(byChoreOrder)
   const doneCount = thisWeek.filter((a) => a.done_at).length
   const canTake = (a: Assignment) => !a.done_at && a.member_id !== me.id
+  // Chores still open from an earlier week get a red "!" on their wheel slot
+  const overdueChoreIds = new Set(overdue.map((a) => a.chore_id))
 
   // Turn the wheel so my chore sits at the top, under the orange pointer. Then clockwise in sort order.
   const myIndex = thisWeek.findIndex((a) => a.member_id === me.id)
@@ -60,6 +62,7 @@ export function Overview({ me, currentWeek, assignments, lastDone, members, chor
           members={members}
           chores={chores}
           doneCount={doneCount}
+          overdueChoreIds={overdueChoreIds}
           onTake={(assignment) => setConfirming(assignment)}
         />
       )}
@@ -207,11 +210,12 @@ type WheelProps = {
   members: Member[]
   chores: Chore[]
   doneCount: number
+  overdueChoreIds: Set<string> // chores with an open row from an earlier week
   onTake: (assignment: Assignment) => void
 }
 
 // The wheel works for any number of chores n: each one gets a slice of 360/n degrees.
-function Wheel({ slots, me, members, chores, doneCount, onTake }: WheelProps) {
+function Wheel({ slots, me, members, chores, doneCount, overdueChoreIds, onTake }: WheelProps) {
   const n = slots.length
   const step = 360 / n
   const toRadians = (degrees: number) => (degrees * Math.PI) / 180
@@ -250,6 +254,8 @@ function Wheel({ slots, me, members, chores, doneCount, onTake }: WheelProps) {
         const isMe = owner.id === me.id
         const done = Boolean(assignment.done_at)
         const takeable = !done && !isMe
+        // Shown even when this week's row is done: the old row is still open
+        const hasOverdue = overdueChoreIds.has(assignment.chore_id)
         const position = {
           '--x': `${50 + 32 * Math.sin(toRadians(i * step))}%`,
           '--y': `${50 - 32 * Math.cos(toRadians(i * step))}%`,
@@ -274,8 +280,10 @@ function Wheel({ slots, me, members, chores, doneCount, onTake }: WheelProps) {
                   <CheckIcon size={9} strokeWidth={4} />
                 </span>
               )}
+              {hasOverdue && <span className={styles.overdueBadge}>!</span>}
             </span>
             <span className={styles.slotChore}>{chore.name}</span>
+            {hasOverdue && <span className={styles.srOnly}>{strings.overview.slotOverdue}</span>}
             <span className={`${styles.slotStatus} ${done ? styles.slotStatusDone : ''}`}>
               {status}
               {takeable && <ChevronIcon size={12} strokeWidth={3} />}
@@ -290,7 +298,9 @@ function Wheel({ slots, me, members, chores, doneCount, onTake }: WheelProps) {
                 type="button"
                 className={styles.slotInner}
                 onClick={() => onTake(assignment)}
-                aria-label={strings.overview.takeAria(chore.name, owner.name)}
+                aria-label={
+                  strings.overview.takeAria(chore.name, owner.name) + (hasOverdue ? `. ${strings.overview.slotOverdue}` : '')
+                }
               >
                 {content}
               </button>

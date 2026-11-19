@@ -43,6 +43,8 @@ Screens checked in WebKit (iPhone 15 size, light + dark) and on Peer's iPhone as
 - [ ] Short message in the flat chat: link + "add to Home Screen" steps
 
 ## Extras pulled from Ideas
+- [x] **Overdue marker on the wheel** (Peer, 19.11.): if a chore is still open from an earlier week, its slot on the WG wheel gets a red "!" badge (top left of the avatar), also when this week's row is done. Screen readers hear "Aus einer früheren Woche noch offen". UI only (19.11.: lint, type-check, 37/37 tests, build; no screenshots)
+  - [ ] iPhone check after deploy: badge visible in light + dark mode, no overlap with bigger text
 - [x] **Colour dot in "Zuletzt erledigt"** (Peer, 18.11.): WG card under the wheel, dot before "… von Carla": green under 7 days, yellow 7–13, red 14+ (`freshness()` in `week.ts`, tested). "noch nie" gets no dot. New token `--warn` (18.11.: lint, type-check, 37/37 tests, build; no screenshots)
   - [ ] iPhone check after deploy: colours readable in light + dark mode
 - [x] **MyWeek:** days left this week ("noch 4 Tage", today included; Sunday "Nur noch heute! ⏳"), borrowed from Flatastic's countdown (27.10.)

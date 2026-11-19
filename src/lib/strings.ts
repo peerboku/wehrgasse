@@ -136,6 +136,8 @@ export const strings = {
     // 'du · offen', 'Carla · erledigt'
     slotStatus: (who: string, status: string) => `${who} · ${status}`,
     takeAria: (chore: string, name: string) => `${chore} von ${name} übernehmen`,
+    // Screen-reader text for the red "!" on a wheel slot
+    slotOverdue: 'Aus einer früheren Woche noch offen',
     activityTitle: 'Zuletzt erledigt',
     // 'gestern von Carla', 'vor 8 Tagen von dir'
     activityWhen: (when: string, who: string) => `${when} von ${who}`,

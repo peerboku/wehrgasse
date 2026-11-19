@@ -173,6 +173,35 @@ button.slotInner:focus-visible {
   color: var(--on-done);
 }
 
+/* red "!" top left: this chore is still open from an earlier week (list "Überfällig" below) */
+.overdueBadge {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+  background: var(--danger);
+  color: var(--card);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* text only for screen readers */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .slotChore {
   max-width: 100px;
   font-size: 13px;
